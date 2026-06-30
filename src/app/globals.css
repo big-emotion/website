@@ -1,26 +1,49 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* BIG EMOTION — brand palette (Brand Guidelines v1.0, June 2026).
+   Named after the guideline swatches so design intent stays legible in markup. */
+@theme {
+  --color-lemon: #f2ff26; /* Lemon Yellow — signature */
+  --color-tangerine: #ff5200; /* Orange Tangerine */
+  --color-lyon: #0024cc; /* Deep Lyon Blue */
+  --color-brutal: #dbdbdb; /* Brutal Grey */
+  --color-ink: #000000; /* Black */
+  --color-paper: #ffffff; /* White */
 }
 
+/* Fonts are injected on <html> by next/font; `inline` emits the var() reference. */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-display: var(--font-bbh);
+  --font-body: var(--font-bricolage);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+/* The brand treats display type as a graphic block: tight, loud, uppercase. */
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+
+/* CSS-only marquee so the manifesto band animates without shipping JS.
+   Track holds two identical copies; -50% lands the second exactly on the first. */
+@keyframes marquee-x {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-track {
+  animation: marquee-x 22s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
 }

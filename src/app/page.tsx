@@ -1,65 +1,77 @@
-import Image from "next/image";
+import { Hero } from "@/components/hero";
+import { manifesto } from "@/content/site";
 
+// Phase 2 vertical slice: hero + a manifesto band + anchored section stubs so the nav
+// resolves end to end. Phase 3 replaces the stub bodies with real Approach / Cases /
+// Culture content (sourced from the old site + brand book).
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <>
+      <Hero />
+
+      <section aria-label="Manifeste" className="overflow-hidden bg-ink py-6 text-lemon">
+        <div className="marquee-track flex w-max">
+          {[0, 1].map((copy) => (
+            <ul key={copy} aria-hidden={copy === 1} className="flex shrink-0">
+              {manifesto.map((line) => (
+                <li key={line} className="font-display flex items-center text-3xl md:text-5xl">
+                  <span className="px-6">{line}</span>
+                  <span aria-hidden className="text-tangerine">
+                    ✶
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ))}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </section>
+
+      <SectionStub
+        id="approach"
+        index="01"
+        title="Approach"
+        line="Digital is the medium. Emotion is the message."
+        className="bg-paper text-ink"
+      />
+      <SectionStub
+        id="cases"
+        index="02"
+        title="Cases & Impact"
+        line="We build what people remember."
+        className="bg-lyon text-paper"
+      />
+      <SectionStub
+        id="culture"
+        index="03"
+        title="Culture"
+        line="Big ideas. Bigger feelings."
+        className="bg-tangerine text-ink"
+      />
+    </>
+  );
+}
+
+function SectionStub({
+  id,
+  index,
+  title,
+  line,
+  className,
+}: {
+  id: string;
+  index: string;
+  title: string;
+  line: string;
+  className?: string;
+}) {
+  return (
+    <section
+      id={id}
+      className={`flex min-h-[70svh] flex-col justify-center px-5 py-20 md:px-8 ${className ?? ""}`}
+    >
+      <span className="font-display text-sm opacity-60">{index}</span>
+      <h2 className="font-display mt-2 text-[clamp(2.5rem,9vw,8rem)]">{title}</h2>
+      <p className="mt-4 max-w-2xl text-lg md:text-2xl">{line}</p>
+    </section>
   );
 }
