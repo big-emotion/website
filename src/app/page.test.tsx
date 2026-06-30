@@ -21,4 +21,12 @@ describe("Home", () => {
       expect(container.querySelector(`#${id}`)).not.toBeNull();
     }
   });
+
+  it("shows the real case studies and team", () => {
+    render(<Home />);
+    expect(screen.getByText("MAMIEZI")).toBeInTheDocument();
+    expect(screen.getByText("AdoléBâtisseur")).toBeInTheDocument();
+    expect(screen.getByText("Jean-Noé Kollo")).toBeInTheDocument();
+    expect(screen.getByText("Sylvain Seng Bandith")).toBeInTheDocument();
+  });
 });
