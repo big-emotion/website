@@ -6,8 +6,8 @@ export function Cases() {
       id="cases"
       className="scroll-mt-24 bg-lyon px-5 py-20 text-paper md:px-8 md:py-32"
     >
-      <p className="font-display text-sm tracking-[0.2em] opacity-70">02 — Cases &amp; Impact</p>
-      <h2 className="font-display mt-4 text-[clamp(2.25rem,9vw,7rem)]">
+      <p className="font-display text-sm tracking-[0.2em] opacity-80">02 — Cases &amp; Impact</p>
+      <h2 lang="en" className="font-display mt-4 text-[clamp(2.25rem,9vw,7rem)]">
         We build what people remember.
       </h2>
 
@@ -17,7 +17,7 @@ export function Cases() {
             <p className="font-display text-sm uppercase tracking-wide opacity-70">
               {project.kind}
             </p>
-            <h3 className="font-display mt-2 text-[clamp(2rem,7vw,4rem)] text-lemon">
+            <h3 className="font-display mt-2 text-[clamp(1.6rem,7vw,4rem)] text-lemon [overflow-wrap:anywhere]">
               {project.client}
             </h3>
             <p className="mt-4 max-w-prose text-lg leading-relaxed">{project.summary}</p>

@@ -23,7 +23,7 @@ function ManifestoBand() {
     <section aria-label="Manifeste" className="overflow-hidden bg-ink py-6 text-lemon">
       <div className="marquee-track flex w-max">
         {[0, 1].map((copy) => (
-          <ul key={copy} aria-hidden={copy === 1} className="flex shrink-0">
+          <ul key={copy} lang="en" aria-hidden={copy === 1} className="flex shrink-0">
             {manifesto.map((line) => (
               <li key={line} className="font-display flex items-center text-3xl md:text-5xl">
                 <span className="px-6">{line}</span>
