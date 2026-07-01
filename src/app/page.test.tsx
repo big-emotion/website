@@ -9,10 +9,9 @@ describe("Home", () => {
     expect(h1).toHaveTextContent(/agency that gives a wow/i);
   });
 
-  it("renders the manifesto voice lines", () => {
+  it("renders the manifesto voice lines, duplicated for the seamless marquee loop", () => {
     render(<Home />);
-    // The marquee duplicates its track for a seamless loop, so the line appears twice.
-    expect(screen.getAllByText("Your brand, but louder.").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Your brand, but louder.")).toHaveLength(2);
   });
 
   it("anchors the Approach, Cases and Culture sections for the nav", () => {
@@ -20,5 +19,13 @@ describe("Home", () => {
     for (const id of ["approach", "cases", "culture"]) {
       expect(container.querySelector(`#${id}`)).not.toBeNull();
     }
+  });
+
+  it("shows the real case studies and team", () => {
+    render(<Home />);
+    expect(screen.getByText("MAMIEZI")).toBeInTheDocument();
+    expect(screen.getByText("AdoléBâtisseur")).toBeInTheDocument();
+    expect(screen.getByText("Jean-Noé Kollo")).toBeInTheDocument();
+    expect(screen.getByText("Sylvain Seng Bandith")).toBeInTheDocument();
   });
 });

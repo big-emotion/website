@@ -1,0 +1,127 @@
+# BIG EMOTION — static export server config for n0c (Apache / LiteSpeed).
+#
+# Next copies everything under public/ into the export root, so this file lands
+# at the web root next to index.html, 404.html and the _next/ tree.
+#
+# Everything is wrapped in <IfModule> guards: n0c is shared hosting and we do not
+# control which modules are loaded. A guarded block is skipped when its module is
+# absent instead of throwing a 500 and taking the whole site down.
+#
+# Deliberately NO Content-Security-Policy here: Next's static export injects an
+# inline bootstrap <script>, and a strict CSP without per-build nonces/hashes
+# would block it and white-screen the page. If a CSP is ever added it must be
+# generated at build time with the right hashes — not hand-written in this file.
+
+
+# ---------------------------------------------------------------------------
+# (0) LiteSpeed full-page cache — OFF for this static site.
+#     n0c runs LiteSpeed; its page cache was populated by the old WordPress. A static
+#     deploy is a plain file swap LiteSpeed can't auto-purge, so leaving the cache on
+#     just serves stale HTML. The static files are already fast; turn it off.
+# ---------------------------------------------------------------------------
+<IfModule LiteSpeed>
+  CacheDisable public /
+  CacheLookup off
+</IfModule>
+
+
+# ---------------------------------------------------------------------------
+# (1) Force HTTPS  +  (2) Legacy WordPress -> single-page anchor redirects
+# ---------------------------------------------------------------------------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Force HTTPS.
+  # On n0c, TLS is often terminated upstream (proxy/LB), so %{HTTPS} can read
+  # "off" on a request that actually reached the user over HTTPS. We only
+  # redirect when BOTH the local flag is off AND the forwarded-proto header is
+  # not https — this avoids an infinite http<->https redirect loop behind the
+  # load balancer. The target is scheme-relative to keep this domain-agnostic.
+  RewriteCond %{HTTPS} off
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+  # 301s from the old Divi/WordPress URLs to the new one-page anchors.
+  # [NE] (noescape) is required: without it Apache URL-encodes the "#" to "%23"
+  # and the fragment never reaches the browser as a real anchor. The optional
+  # "/?" tolerates the legacy trailing slash. Home "/" is intentionally left as-is.
+  RewriteRule ^contactez-nous/?$            /#contact [R=301,L,NE]
+  RewriteRule ^les-membres/?$              /#culture [R=301,L,NE]
+  RewriteRule ^case-study-mamiezi/?$        /#cases   [R=301,L,NE]
+  RewriteRule ^case-study-adolebatisseur/?$ /#cases   [R=301,L,NE]
+
+  # Legacy /favicon.ico requests: serve the SVG mark (we ship no .ico). Modern
+  # browsers use the <link rel="icon"> in the HTML; this just stops a stray 404.
+  RewriteRule ^favicon\.ico$ /icon.svg [L]
+</IfModule>
+
+
+# ---------------------------------------------------------------------------
+# (3) Security headers (intentionally no strict CSP — see note at top)
+# ---------------------------------------------------------------------------
+<IfModule mod_headers.c>
+  # Stop browsers from MIME-sniffing a response away from its declared type.
+  Header set X-Content-Type-Options "nosniff"
+
+  # Send the origin (not the full path/query) on cross-origin navigations.
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+
+  # Disallow framing by third-party origins (clickjacking protection).
+  Header set X-Frame-Options "SAMEORIGIN"
+
+  # Minimal Permissions-Policy: switch off powerful features the site never uses,
+  # and opt out of the Topics API for GDPR hygiene.
+  Header set Permissions-Policy "geolocation=(), camera=(), microphone=(), browsing-topics=()"
+
+  # HSTS: after the first HTTPS visit, browsers refuse plain HTTP for a year, closing
+  # the first-request downgrade window the HTTP->HTTPS redirect alone leaves open.
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+</IfModule>
+
+
+# ---------------------------------------------------------------------------
+# (4) Compression for text assets (woff2/png/jpg are already compressed)
+# ---------------------------------------------------------------------------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css
+  AddOutputFilterByType DEFLATE application/javascript text/javascript
+  AddOutputFilterByType DEFLATE application/json
+  AddOutputFilterByType DEFLATE image/svg+xml
+  AddOutputFilterByType DEFLATE application/xml text/xml
+</IfModule>
+
+
+# ---------------------------------------------------------------------------
+# (5) Caching: immutable for fingerprinted assets, no-cache for HTML
+# ---------------------------------------------------------------------------
+<IfModule mod_rewrite.c>
+  # Flag every request under /_next/static (hashed JS/CSS chunks and the
+  # self-hosted woff2 fonts in _next/static/media) as safe to cache forever.
+  RewriteRule ^_next/static/ - [E=IMMUTABLE_ASSET:1]
+</IfModule>
+
+<IfModule mod_headers.c>
+  # Fingerprinted assets never change under a given URL -> cache for a year.
+  Header set Cache-Control "public, max-age=31536000, immutable" env=IMMUTABLE_ASSET
+
+  # HTML is the single entry point and must always be revalidated so a redeploy
+  # is picked up immediately (matches index.html served for "/" and "/approach/").
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>
+
+
+# ---------------------------------------------------------------------------
+# (6) Custom 404 — Next emits 404.html at the export root
+# ---------------------------------------------------------------------------
+ErrorDocument 404 /404.html
+
+
+# ---------------------------------------------------------------------------
+# (7) Generated images — Next emits these as extensionless files (out/opengraph-image,
+#     out/apple-icon), so Apache can't infer the type. Force PNG for strict clients.
+# ---------------------------------------------------------------------------
+<FilesMatch "^(opengraph-image|apple-icon)$">
+  ForceType image/png
+</FilesMatch>

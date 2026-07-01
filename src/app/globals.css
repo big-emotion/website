@@ -47,3 +47,42 @@ body {
     animation: none;
   }
 }
+
+/* Load screen — pure CSS so content reveals even if JS is slow, blocked, or fails
+   (the whole point of a static export). The overlay holds the brand intro, then
+   slides up on its own; pointer-events:none lets the page underneath stay usable. */
+@keyframes loadscreen-out {
+  0%,
+  55% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-100%);
+  }
+}
+.loadscreen {
+  pointer-events: none;
+  animation: loadscreen-out 1.4s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  /* No large vertical slide for vestibular sensitivity: fade out fast instead. */
+  .loadscreen {
+    animation: loadscreen-fade 0.3s ease 0.3s forwards;
+  }
+  .loadscreen .marquee-track {
+    animation: none;
+  }
+}
+@keyframes loadscreen-fade {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* Guarantee a visible keyboard focus indicator everywhere (WCAG 2.4.7 / 2.4.11).
+   Components may override with their own focus-visible ring. */
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}

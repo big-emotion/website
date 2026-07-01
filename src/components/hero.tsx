@@ -3,7 +3,7 @@ import { site } from "@/content/site";
 export function Hero() {
   return (
     <section className="relative flex min-h-[100svh] flex-col justify-center px-5 pt-24 pb-16 md:px-8">
-      <h1 className="font-display text-[clamp(2.75rem,11vw,11rem)]">
+      <h1 lang="en" className="font-display text-[clamp(2.75rem,11vw,11rem)]">
         The <span className="text-tangerine">B!G</span> agency that gives a wow.
       </h1>
 
