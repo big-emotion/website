@@ -14,6 +14,18 @@
 
 
 # ---------------------------------------------------------------------------
+# (0) LiteSpeed full-page cache — OFF for this static site.
+#     n0c runs LiteSpeed; its page cache was populated by the old WordPress. A static
+#     deploy is a plain file swap LiteSpeed can't auto-purge, so leaving the cache on
+#     just serves stale HTML. The static files are already fast; turn it off.
+# ---------------------------------------------------------------------------
+<IfModule LiteSpeed>
+  CacheDisable public /
+  CacheLookup off
+</IfModule>
+
+
+# ---------------------------------------------------------------------------
 # (1) Force HTTPS  +  (2) Legacy WordPress -> single-page anchor redirects
 # ---------------------------------------------------------------------------
 <IfModule mod_rewrite.c>

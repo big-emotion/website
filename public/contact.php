@@ -25,13 +25,18 @@ const MAX_LEN         = 5000;
 const MIN_INTERVAL    = 20;   // seconds between two sends from one IP
 const MAX_PER_HOUR    = 5;    // sends per IP per hour
 
-/** Bail with the right format for the caller (JSON for AJAX, redirect otherwise). */
-function respond(bool $ok, string $message, int $status = 200): never
+/**
+ * Bail with the right format for the caller (JSON for AJAX, redirect otherwise).
+ * n0c's web PHP is 7.4, so this stays 7.4-compatible: no `str_contains` (8.0+) and no
+ * `never` return type (8.1+).
+ */
+function respond(bool $ok, string $message, int $status = 200)
 {
     http_response_code($status);
+    $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
     $wantsJson = (
         (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'fetch')
-        || (isset($_SERVER['HTTP_ACCEPT']) && str_contains($_SERVER['HTTP_ACCEPT'], 'application/json'))
+        || strpos($accept, 'application/json') !== false
     );
     if ($wantsJson) {
         header('Content-Type: application/json; charset=utf-8');
