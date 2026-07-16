@@ -48,9 +48,9 @@ With pnpm ≥ 10, a fresh clone must approve the `sharp` and `unrs-resolver` pos
 
 **Everything in `public/` ships verbatim to the web root**, including `.htaccess` (HTTPS redirect, legacy WordPress 301s, security headers, caching policy). Server behavior changes belong there, not in Next config — except proxy/TLS/mail concerns, which live in `deploy/` (Traefik labels, msmtp relay).
 
-**Deploy** = SSH to the OVH VPS and run `/home/ubuntu/big-emotion/deploy.sh` (git pull + `pnpm build` + rsync of `out/` into the container's bind-mounted `live/` web root). The container image, compose file, and this script are versioned in `deploy/`. For a staging copy in a subfolder, build with `NEXT_PUBLIC_BASE_PATH=/subfolder` (wired to `basePath` in `next.config.ts`).
+**Deploy** = push to `main`. `.github/workflows/deploy-production.yml` builds, lints, tests, then rsyncs `out/` into the container's bind-mounted `live/` web root over SSH and smoke-checks the live site; deploys queue (never cancel an in-flight one), and `workflow_dispatch` with a `ref` input redeploys/rolls back to any known-good commit. `/home/ubuntu/big-emotion/deploy.sh` (SSH to the OVH VPS, git pull + `pnpm build` + rsync) is the break-glass fallback for a GitHub/Actions outage — no longer the primary path. The container image, compose file, and this script are versioned in `deploy/`. For a staging copy in a subfolder, build with `NEXT_PUBLIC_BASE_PATH=/subfolder` (wired to `basePath` in `next.config.ts`).
 
-**Decisions are recorded in `docs/adr/`** — 0001 (why static export; its n0c hosting part is superseded), 0002 (email deliverability: SPF/DKIM/DMARC owner actions on DNS), 0003 (OVH VPS: Apache+PHP container behind Traefik, direct-send mail). Add an ADR when making a decision of that scale.
+**Decisions are recorded in `docs/adr/`** — 0001 (why static export; its n0c hosting part is superseded), 0002 (email deliverability: SPF/DKIM/DMARC owner actions on DNS), 0003 (OVH VPS: Apache+PHP container behind Traefik, direct-send mail), 0004 (GitHub Actions deploy on push to main; supersedes ADR 0003's manual-deploy part). Add an ADR when making a decision of that scale.
 
 ## Testing
 
