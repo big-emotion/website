@@ -22,7 +22,7 @@ pnpm vitest run -t "name of the test"     # single test by name
 pnpm build                                # static export -> ./out
 ```
 
-Run `pnpm lint && pnpm test && pnpm build` before committing. `pnpm build` is part of the gate because static export fails on things dev mode tolerates (SSR-only features, dynamic routes without `generateStaticParams`, etc.).
+Run `pnpm lint && pnpm test && pnpm build` before committing. `pnpm build` is part of the gate because static export fails on things dev mode tolerates (SSR-only features, dynamic routes without `generateStaticParams`, etc.). This same gate also runs as a required check on every pull request to `main` (`.github/workflows/ci.yml`).
 
 With pnpm ≥ 10, a fresh clone must approve the `sharp` and `unrs-resolver` postinstall scripts once (`pnpm approve-builds`) or the install errors out. The resulting `pnpm-workspace.yaml` is intentionally NOT committed: its syntax varies across pnpm majors and pnpm 9 (still used locally) rejects it — the VPS keeps its own untracked copy.
 
