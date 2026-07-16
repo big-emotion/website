@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # BIG EMOTION — pull + rebuild + publish, run on the VPS.
 #
+# Break-glass only: .github/workflows/deploy-production.yml is the primary
+# deploy path (push to main). Run this by hand only during a GitHub/Actions
+# outage.
+#
 # The container serves ./live via a read-only bind mount, so a deploy is just
 # "refresh live/": no container restart needed. We never serve ./website/out
 # directly because "next build" empties it mid-build; rsync into live/ only
