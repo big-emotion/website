@@ -1,0 +1,91 @@
+name: Deploy preview (on-demand /preview staging copy)
+
+# On-demand staging copy of any branch at https://big-emotion.com/preview/, so
+# the design revamp can be reviewed on real hosting before merge (SWBE-4).
+# Deliberately workflow_dispatch only, no push trigger: a second always-on
+# auto-deploy target would drift from production (see epic SWBE-1).
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch or ref to build and deploy to /preview"
+        required: true
+
+# Serialize preview deploys — two concurrent dispatches would race on the same
+# live/preview/ target. Queue rather than cancel, matching the production posture.
+concurrency:
+  group: deploy-preview
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: preview
+      url: https://big-emotion.com/preview/
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm lint
+
+      - run: pnpm test
+
+      - name: Build static export with /preview basePath
+        run: pnpm build
+        env:
+          NEXT_PUBLIC_BASE_PATH: /preview
+
+      # Fail loud on a missing var/secret instead of shipping a malformed ssh
+      # or rsync command — this environment isn't configured yet (SWBE-1
+      # manual precondition #2, scoped copy for 'preview'), so the first
+      # dispatch is expected to stop here until an owner sets it up.
+      - name: Require deploy target configuration
+        env:
+          DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+          DEPLOY_PORT: ${{ vars.DEPLOY_PORT }}
+          DEPLOY_USER: ${{ vars.DEPLOY_USER }}
+          DEPLOY_KNOWN_HOSTS: ${{ vars.DEPLOY_KNOWN_HOSTS }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          test -n "$DEPLOY_HOST" || { echo "::error::vars.DEPLOY_HOST is not set on the 'preview' environment"; exit 1; }
+          test -n "$DEPLOY_PORT" || { echo "::error::vars.DEPLOY_PORT is not set on the 'preview' environment"; exit 1; }
+          test -n "$DEPLOY_USER" || { echo "::error::vars.DEPLOY_USER is not set on the 'preview' environment"; exit 1; }
+          test -n "$DEPLOY_KNOWN_HOSTS" || { echo "::error::vars.DEPLOY_KNOWN_HOSTS is not set on the 'preview' environment"; exit 1; }
+          test -n "$DEPLOY_SSH_KEY" || { echo "::error::secrets.DEPLOY_SSH_KEY is not set on the 'preview' environment"; exit 1; }
+
+      # Pinned known_hosts from the epic's SSH mechanics — never
+      # StrictHostKeyChecking=no, which would accept any host silently.
+      - name: Install SSH deploy key
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ vars.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+      - name: Publish to live/preview/
+        run: |
+          rsync -az --delete --delay-updates \
+            -e "ssh -i ~/.ssh/deploy_key -p ${{ vars.DEPLOY_PORT }} -o UserKnownHostsFile=~/.ssh/known_hosts" \
+            out/ "${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }}:/home/ubuntu/big-emotion/live/preview/"
+
+      - name: Smoke check
+        run: |
+          curl -fsS https://big-emotion.com/preview/ > /dev/null
+          curl -fsSI https://big-emotion.com/preview/ | grep -qi '^x-robots-tag: *noindex' || { echo "::error::preview response is missing X-Robots-Tag: noindex"; exit 1; }

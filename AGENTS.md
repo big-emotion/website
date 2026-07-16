@@ -50,6 +50,8 @@ With pnpm ≥ 10, a fresh clone must approve the `sharp` and `unrs-resolver` pos
 
 **Deploy** = SSH to the OVH VPS and run `/home/ubuntu/big-emotion/deploy.sh` (git pull + `pnpm build` + rsync of `out/` into the container's bind-mounted `live/` web root). The container image, compose file, and this script are versioned in `deploy/`. For a staging copy in a subfolder, build with `NEXT_PUBLIC_BASE_PATH=/subfolder` (wired to `basePath` in `next.config.ts`).
 
+**Preview** = `.github/workflows/deploy-preview.yml`, triggered manually (`workflow_dispatch`, required `branch` input) — builds that branch with `NEXT_PUBLIC_BASE_PATH=/preview` and rsyncs it to `live/preview/`, served at https://big-emotion.com/preview/. Not an auto-deploy: this lets the design revamp be reviewed on real hosting before merge without a second always-on deploy target drifting from production. `public/.htaccess` tags every `/preview` response `X-Robots-Tag: noindex` so it's never indexed, and `deploy/deploy.sh` excludes `/preview` from its rsync so a production deploy never wipes it. The `preview` GitHub environment (secret `DEPLOY_SSH_KEY`, vars `DEPLOY_HOST`/`DEPLOY_PORT`/`DEPLOY_USER`/`DEPLOY_KNOWN_HOSTS`) is a manual, owner-only setup step — same pattern as the `production` environment's manual preconditions.
+
 **Decisions are recorded in `docs/adr/`** — 0001 (why static export; its n0c hosting part is superseded), 0002 (email deliverability: SPF/DKIM/DMARC owner actions on DNS), 0003 (OVH VPS: Apache+PHP container behind Traefik, direct-send mail). Add an ADR when making a decision of that scale.
 
 ## Testing
