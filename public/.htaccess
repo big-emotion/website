@@ -117,3 +117,21 @@ ErrorDocument 404 /404.html
 <FilesMatch "^(opengraph-image|apple-icon)$">
   ForceType image/png
 </FilesMatch>
+
+
+# ---------------------------------------------------------------------------
+# (8) Preview staging copy (/preview) — never indexed
+# ---------------------------------------------------------------------------
+# This file is deployed verbatim to both the production root (live/.htaccess)
+# and the preview copy (live/preview/.htaccess, see deploy-preview.yml), so the
+# condition below matches on the absolute REQUEST_URI rather than a
+# directory-relative pattern: it fires correctly from whichever copy Apache
+# evaluates for a given request, and never matches outside /preview.
+<IfModule mod_rewrite.c>
+  RewriteCond %{REQUEST_URI} ^/preview(/|$)
+  RewriteRule ^ - [E=PREVIEW_PATH:1]
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex" env=PREVIEW_PATH
+</IfModule>
