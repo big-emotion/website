@@ -54,8 +54,9 @@ jobs:
           chmod 600 ~/.ssh/deploy_key ~/.ssh/known_hosts
 
       # --delay-updates stages files server-side before swapping (near-atomic
-      # publish, same guarantee as deploy.sh). --exclude='/preview' protects
-      # the Phase 3 preview subfolder even before it exists.
+      # publish, same guarantee as deploy.sh). --exclude='/preview': live/preview/
+      # is published separately by the preview deploy workflow (SWBE-4) — a
+      # production deploy must never delete it.
       - name: Publish static export
         run: |
           rsync -az --delete --delay-updates --exclude='/preview' \

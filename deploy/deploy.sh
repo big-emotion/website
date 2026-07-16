@@ -25,8 +25,9 @@ pnpm build   # writes ./out — aborts the script on failure, live site untouche
 
 echo "==> Publishing"
 # live/ is the bind-mounted web root. rsync keeps the swap near-atomic and
-# removes files deleted upstream. The trailing slashes matter. --exclude
-# protects the Phase 3 preview subfolder even before it exists.
+# removes files deleted upstream. The trailing slashes matter.
+# --exclude='/preview': live/preview/ is published separately by the preview
+# deploy workflow (SWBE-4) — this script must never delete it.
 rsync -a --delete --exclude='/preview' out/ /home/ubuntu/big-emotion/live/
 
 echo "==> Done — $(git log -1 --format='%h %s')"
