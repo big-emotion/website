@@ -3,8 +3,9 @@
  * BIG EMOTION — contact form handler.
  *
  * The site is a static export; this is the one piece of server code, deployed at the
- * web root on the n0c (Apache/PHP) host. It accepts the contact form POST, validates
- * it, throttles abuse, and emails the message.
+ * web root of the site container (Apache/PHP behind Traefik — see docs/adr/0003).
+ * It accepts the contact form POST, validates it, throttles abuse, and emails the
+ * message (PHP mail() goes out through the container's msmtp relay).
  *
  * Security notes:
  * - Every value that reaches a mail header (From/Reply-To/Subject) is stripped of CR/LF
@@ -27,8 +28,8 @@ const MAX_PER_HOUR    = 5;    // sends per IP per hour
 
 /**
  * Bail with the right format for the caller (JSON for AJAX, redirect otherwise).
- * n0c's web PHP is 7.4, so this stays 7.4-compatible: no `str_contains` (8.0+) and no
- * `never` return type (8.1+).
+ * Kept 7.4-compatible from the n0c era (no `str_contains`, no `never` return type):
+ * harmless on the container's PHP 8.3, and it keeps the file portable to any host.
  */
 function respond(bool $ok, string $message, int $status = 200)
 {

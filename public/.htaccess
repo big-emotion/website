@@ -1,28 +1,17 @@
-# BIG EMOTION — static export server config for n0c (Apache / LiteSpeed).
+# BIG EMOTION — static export server config (Apache).
 #
 # Next copies everything under public/ into the export root, so this file lands
 # at the web root next to index.html, 404.html and the _next/ tree.
 #
-# Everything is wrapped in <IfModule> guards: n0c is shared hosting and we do not
-# control which modules are loaded. A guarded block is skipped when its module is
-# absent instead of throwing a 500 and taking the whole site down.
+# Serving model: an Apache 2.4 + PHP container behind the VPS-level Traefik,
+# which terminates TLS (see docs/adr/0003 and deploy/). The <IfModule> guards
+# are kept from the shared-hosting era: they cost nothing and keep this file
+# safe to drop onto any Apache where a module might be missing.
 #
 # Deliberately NO Content-Security-Policy here: Next's static export injects an
 # inline bootstrap <script>, and a strict CSP without per-build nonces/hashes
 # would block it and white-screen the page. If a CSP is ever added it must be
 # generated at build time with the right hashes — not hand-written in this file.
-
-
-# ---------------------------------------------------------------------------
-# (0) LiteSpeed full-page cache — OFF for this static site.
-#     n0c runs LiteSpeed; its page cache was populated by the old WordPress. A static
-#     deploy is a plain file swap LiteSpeed can't auto-purge, so leaving the cache on
-#     just serves stale HTML. The static files are already fast; turn it off.
-# ---------------------------------------------------------------------------
-<IfModule LiteSpeed>
-  CacheDisable public /
-  CacheLookup off
-</IfModule>
 
 
 # ---------------------------------------------------------------------------
@@ -32,11 +21,11 @@
   RewriteEngine On
 
   # Force HTTPS.
-  # On n0c, TLS is often terminated upstream (proxy/LB), so %{HTTPS} can read
-  # "off" on a request that actually reached the user over HTTPS. We only
-  # redirect when BOTH the local flag is off AND the forwarded-proto header is
-  # not https — this avoids an infinite http<->https redirect loop behind the
-  # load balancer. The target is scheme-relative to keep this domain-agnostic.
+  # TLS is terminated upstream (Traefik), so %{HTTPS} reads "off" on a request
+  # that actually reached the user over HTTPS. We only redirect when BOTH the
+  # local flag is off AND the forwarded-proto header is not https — this avoids
+  # an infinite http<->https redirect loop behind the proxy. The target is
+  # scheme-relative to keep this domain-agnostic.
   RewriteCond %{HTTPS} off
   RewriteCond %{HTTP:X-Forwarded-Proto} !https
   RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
@@ -45,10 +34,13 @@
   # [NE] (noescape) is required: without it Apache URL-encodes the "#" to "%23"
   # and the fragment never reaches the browser as a real anchor. The optional
   # "/?" tolerates the legacy trailing slash. Home "/" is intentionally left as-is.
-  RewriteRule ^contactez-nous/?$            /#contact [R=301,L,NE]
-  RewriteRule ^les-membres/?$              /#culture [R=301,L,NE]
-  RewriteRule ^case-study-mamiezi/?$        /#cases   [R=301,L,NE]
-  RewriteRule ^case-study-adolebatisseur/?$ /#cases   [R=301,L,NE]
+  # Targets are absolute https:// URLs: Apache only ever sees plain HTTP behind
+  # Traefik, so a relative target would 301 to http:// and force a second,
+  # pointless redirect hop through the HTTPS rule above.
+  RewriteRule ^contactez-nous/?$            https://%{HTTP_HOST}/#contact [R=301,L,NE]
+  RewriteRule ^les-membres/?$               https://%{HTTP_HOST}/#culture [R=301,L,NE]
+  RewriteRule ^case-study-mamiezi/?$        https://%{HTTP_HOST}/#cases   [R=301,L,NE]
+  RewriteRule ^case-study-adolebatisseur/?$ https://%{HTTP_HOST}/#cases   [R=301,L,NE]
 
   # Legacy /favicon.ico requests: serve the SVG mark (we ship no .ico). Modern
   # browsers use the <link rel="icon"> in the HTML; this just stops a stray 404.

@@ -1,0 +1,32 @@
+# BIG EMOTION site container, routed by the host-level Traefik on the external
+# "proxy" network (same pattern as the other services on this VPS).
+services:
+  big-emotion:
+    build: ./image
+    image: big-emotion:local
+    container_name: big-emotion
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      # Published export (deploy.sh rsyncs website/out -> live after a green
+      # build; never mount website/out directly — "next build" empties it
+      # mid-build). Read-only: the container never writes to the site;
+      # contact.php's rate-limit files go to /tmp.
+      - ./live:/var/www/html:ro
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      # HTTPS router - Traefik terminates TLS with the existing ACME resolver.
+      - "traefik.http.routers.bigemotion.rule=Host(`big-emotion.com`) || Host(`www.big-emotion.com`)"
+      - "traefik.http.routers.bigemotion.entrypoints=websecure"
+      - "traefik.http.routers.bigemotion.tls.certresolver=myresolver"
+      # HTTP router - Apache's .htaccess issues the 301 to HTTPS itself (it
+      # checks X-Forwarded-Proto, so there is no redirect loop behind a proxy).
+      - "traefik.http.routers.bigemotion-http.rule=Host(`big-emotion.com`) || Host(`www.big-emotion.com`)"
+      - "traefik.http.routers.bigemotion-http.entrypoints=web"
+      - "traefik.http.services.bigemotion.loadbalancer.server.port=80"
+
+networks:
+  proxy:
+    external: true
