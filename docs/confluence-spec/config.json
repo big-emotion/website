@@ -1,0 +1,20 @@
+{
+  "cloudId": "75eb33f5-5dd0-4328-b0e6-8bb3f4e0af91",
+  "siteUrl": "https://big-emotion.atlassian.net",
+  "spaceKey": "SW",
+  "spaceId": "171114500",
+  "engineeringRootPageId": "171212801",
+  "requirementsPageId": "171245569",
+  "decisionsPageId": "171278337",
+  "architecturePageId": "171311105",
+  "obsoletePageId": "171343873",
+  "jiraProjectKey": "SWBE",
+  "jiraProjectId": "10233",
+  "jiraIssueTypeIds": {
+    "Epic": "10000",
+    "Story": "10009",
+    "Task": "10358",
+    "Bug": "10360",
+    "Sub-task": "10357"
+  }
+}
