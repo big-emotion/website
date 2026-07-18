@@ -1,7 +1,7 @@
 # Managed by ferry-init. Re-run `npx -p @big-emotion/ferry ferry-init` to update.
 # Execution path: claude-code — agents run via claude-code-action.
 # Required secret: CLAUDE_CODE_OAUTH_TOKEN (run `claude setup-token`; Claude Pro/Max subscription).
-# Set execution_path: script in ferry.config.json to revert to the bundled multi-provider path.
+# Set execution_path: script in ferry.config.yaml to revert to the bundled multi-provider path.
 # Required secrets: FERRY_JIRA_BASE_URL, FERRY_JIRA_EMAIL, FERRY_JIRA_API_TOKEN,
 #                   CLAUDE_CODE_OAUTH_TOKEN
 # Optional secrets: FERRY_REVIEW_TRANSITION_ID, FERRY_ITER_TRANSITION_ID,
@@ -51,7 +51,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Validate event envelope
-        uses: big-emotion/ferry/.github/actions/ferry-envelope-validate@v1.0.3
+        uses: big-emotion/ferry/.github/actions/ferry-envelope-validate@v1.1.0
         with:
           payload: ${{ toJson(github.event.client_payload) }}
 
@@ -73,23 +73,13 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Resolve agent and execution path
         id: route
-        uses: big-emotion/ferry/.github/actions/ferry-route@v1.0.3
+        uses: big-emotion/ferry/.github/actions/ferry-route@v1.1.0
         with:
           payload: ${{ toJson(github.event.client_payload) }}
           event_type: ${{ github.event.action }}
           jira_base_url: ${{ secrets.FERRY_JIRA_BASE_URL }}
           jira_email: ${{ secrets.FERRY_JIRA_EMAIL }}
           jira_api_token: ${{ secrets.FERRY_JIRA_API_TOKEN }}
-
-  # The upstream `ci-gate` job is intentionally REMOVED. Only the Merger gates on
-  # CI (it re-validates green before landing code); the Reviewer and Iterator run
-  # regardless of CI status so a red, pending, or unreadable CI never deadlocks the
-  # pipeline — the Reviewer posts its verdict either way, the Iterator pushes fixes
-  # and transitions either way, and the true CI state travels on the PR via the
-  # `ci-green` / `ci-failing` labels the Developer and Iterator apply. `ferry-init`
-  # re-adds this gate on every bump — delete it again, and keep the `run-agent` /
-  # `emit-audit` `if:`/`outcome` free of any `ci-gate` reference (matches the
-  # Chancellerie reference and ADR-0005's per-phase gating rationale).
 
   run-agent:
     name: Run ${{ needs.route.outputs.role }} agent (claude-code)
@@ -112,10 +102,10 @@ jobs:
       id-token: write # required by anthropics/claude-code-action@v1 OIDC auth
     steps:
       - name: Run Ferry agent
-        uses: big-emotion/ferry/.github/actions/ferry-run-claude-agent@v1.0.3
+        uses: big-emotion/ferry/.github/actions/ferry-run-claude-agent@v1.1.0
         with:
           role: ${{ needs.route.outputs.cc_agent }}
-          ferry_version: v1.0.3
+          ferry_version: v1.1.0
           ticket_key: ${{ github.event.client_payload.ticket_key }}
           event_id: ${{ github.event.client_payload.event_id }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -159,7 +149,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Emit audit line
-        uses: big-emotion/ferry/.github/actions/ferry-emit-audit@v1.0.3
+        uses: big-emotion/ferry/.github/actions/ferry-emit-audit@v1.1.0
         with:
           ticket: ${{ github.event.client_payload.ticket_key }}
           phase: ${{ needs.route.outputs.phase }}

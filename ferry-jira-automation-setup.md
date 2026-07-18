@@ -64,62 +64,12 @@ Custom body:
 - Never commit a real token to this file — this file is safe to commit as-is since
   it only contains the placeholder `YOUR_GITHUB_PAT_WITH_REPO_SCOPE`.
 
-## Second rule: Ferry — merge (To Merge → auto-merge)
+## Note on the Merger
 
-By design, the generic rule above never reaches the Merger: a status move dispatches
-`ferry-transition`, and the router maps the Merger to **no** trigger column
-(ADR-0005 "no-auto-merge invariant"). The Merger only runs on an explicit
-`ferry-merge` event. Ferry's stock note says the Reviewer dispatches that event on
-approval — but here the agents push/act with the default `GITHUB_TOKEN` (no
-`FERRY_CHECKOUT_TOKEN` is set), and a `GITHUB_TOKEN`-created `repository_dispatch`
-does **not** trigger a workflow. So we opt into auto-merge with a **second Jira rule**
-that dispatches `ferry-merge` (via the owner PAT, which *does* trigger workflows) when
-a ticket enters **To Merge**.
-
-> ⚠️ **This makes merges to `main` automatic, and a push to `main` runs
-> `deploy-production.yml` — i.e. an approved, green ticket auto-deploys to
-> production.** That is the intended pipeline, but it is why the Merger is the only
-> agent that gates on CI (green + approved + mergeable) before it lands anything.
-> Leave this rule **disabled** until you want auto-merge live.
-
-**Spec:** REQ-025 (Ferry merger reachable by a Jira column move) · DEC-019
-(column-triggered auto-merge, overriding ADR-0005's no-auto-merge invariant) · Jira
-[SWBE-46](https://big-emotion.atlassian.net/browse/SWBE-46).
-
-**Import:** Jira → Automation → **Import rules (beta)** → upload
-`ferry-jira-merge-rule.beta.json`, then swap `YOUR_GITHUB_PAT_WITH_REPO_SCOPE` for the
-same PAT as the first rule and **Enable**.
-
-**Or build it in the UI** (reliable if the import balks at the condition):
-- **Trigger:** Issue transitioned — **To status = `To Merge`** (this scope is
-  essential: a `ferry-merge` dispatched from any other column would still route to the
-  Merger).
-- **Action:** Send web request — same URL / headers / PAT as the first rule, with this
-  body:
-  ```json
-  {
-    "event_type": "ferry-merge",
-    "client_payload": {
-      "version": "v1",
-      "event_id": "{{issue.key}}-{{issue.id}}",
-      "ticket_key": "{{issue.key}}",
-      "phase": "merge",
-      "source": "jira-column",
-      "ts": "{{now.jiraDate}}",
-      "issue_type": "{{issue.issuetype.name}}",
-      "to_status": "{{issue.status.name}}"
-    }
-  }
-  ```
-
-## PR label taxonomy
-
-The pipeline surfaces each PR's state via six labels the agents apply (created by
-`scripts/ferry-labels.sh`, ownership documented there): `ready-for-review` +
-`ci-green`/`ci-failing` (Developer), `needs-rereview` + `ci-green`/`ci-failing`
-(Iterator), and `approved`/`changes-requested` (Reviewer). The Reviewer's `approved`
-label pairs with its transition to **To Merge**, which the merge rule above turns into
-the Merger run that lands the PR.
+Moving a ticket into the merge column (`workflow.agents.merger.trigger_column`,
+default "Ready to Merge") is an explicit merge order: the router maps it to the
+Merger like any other agent (ADR-0005 rev. 2). The Reviewer-emitted
+`ferry-merge` dispatch on approval still works and needs no Jira rule.
 
 ## Verifying the rule works
 
