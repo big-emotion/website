@@ -77,6 +77,18 @@ jobs:
         with:
           payload: ${{ toJson(github.event.client_payload) }}
           event_type: ${{ github.event.action }}
+          # Jira owns the merge decision. Our single Jira rule only emits the
+          # generic ferry-transition event, and upstream deliberately never maps
+          # a column onto the merger (ADR-0005 no-auto-merge invariant) — a
+          # ticket landing in "To Merge" would therefore be a router no-op.
+          # Forcing the documented `role` input re-delegates the call to the
+          # board: reaching "To Merge" (manually, or via the reviewer's
+          # auto_transition_approve) IS the merge order, and a merge deploys
+          # production. Drop this once upstream ships a column trigger for the
+          # merger (feature request pending). ferry-init/ferry-update re-render
+          # this file and lose this input — re-add it after every Ferry bump
+          # (not expressible in ferry.local.yml).
+          role: ${{ github.event.action == 'ferry-transition' && github.event.client_payload.to_status == 'To Merge' && 'merger' || '' }}
           jira_base_url: ${{ secrets.FERRY_JIRA_BASE_URL }}
           jira_email: ${{ secrets.FERRY_JIRA_EMAIL }}
           jira_api_token: ${{ secrets.FERRY_JIRA_API_TOKEN }}
