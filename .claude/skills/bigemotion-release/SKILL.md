@@ -1,6 +1,6 @@
 ---
 name: bigemotion-release
-description: Prepare and ship a BIG EMOTION website production release. Bumps the semver version, updates CHANGELOG.md (Keep a Changelog format, creates it if missing), updates package.json version, creates an annotated git tag, then asks for explicit confirmation before pushing. Pushing `main` triggers deploy-production.yml (production deploy on push to main); the tag is a version marker only and does not deploy. After both pushes succeed, creates a GitHub Release with generated notes. Use when the user says "release big emotion", "cut a release", "bump version", "tag a new version", or invokes /bigemotion-release.
+description: Prepare and ship a BIG EMOTION website production release. Bumps the semver version, updates CHANGELOG.md (Keep a Changelog format, creates it if missing), updates package.json version, creates an annotated git tag, then asks for explicit confirmation before pushing. Pushing the `v<version>` tag triggers deploy-production.yml (production deploy fires on the tag, per ADR 0006); pushing `main` carries the release commit but does NOT deploy. After both pushes succeed, creates a GitHub Release with generated notes. Use when the user says "release big emotion", "cut a release", "bump version", "tag a new version", or invokes /bigemotion-release.
 metadata:
   author: jnk
   version: "1.0.0"
@@ -163,8 +163,8 @@ Commit:  <short-sha>  release: v<next_version>
 Tag:     v<next_version> (annotated, local only)
 
 Ready to push `main` + `v<next_version>` to origin?
-Pushing `main` triggers deploy-production.yml → production deploy.
-The tag is a version marker only — it does not trigger a deploy.
+Pushing `main` publishes the release commit but does NOT deploy.
+Pushing the tag `v<next_version>` triggers deploy-production.yml → production deploy.
 
 Reply `yes` / `push` / `go` / `oui` / `ok` to proceed.
 Anything else → keeps commit + tag local only.
@@ -186,7 +186,7 @@ git push origin v<next_version>
 
 **Not** `--follow-tags`. Separate commands so a tag-push failure doesn't leave `main` pushed ambiguously. If `git push origin main` fails (e.g. non-fast-forward, branch protection), stop immediately — do not push the tag.
 
-After both pushes succeed, create the GitHub Release yourself (this repo has no tag-triggered workflow to do it for you):
+After both pushes succeed, create the GitHub Release yourself (the tag-triggered workflow only deploys — it does not create the GitHub Release):
 
 ```bash
 gh release create v<next_version> --repo big-emotion/website --generate-notes
@@ -196,8 +196,8 @@ Then print:
 
 ```
 Pushed.
-  - origin/main now at <short-sha> — this triggered the production deploy (deploy-production.yml).
-  - tag v<next_version> published (version marker only, no deploy).
+  - origin/main now at <short-sha> — release commit published, no deploy.
+  - tag v<next_version> pushed — this triggered the production deploy (deploy-production.yml).
 
 GitHub Release v<next_version> created with auto-generated notes.
 
@@ -231,7 +231,7 @@ Watch the deploy at:
 - npm publish (package is `private: true`).
 - Staging releases (no staging environment/branch defined for this repo).
 - Backfilling `CHANGELOG.md` for releases that predate this skill (history starts at the next tagged version).
-- The deploy workflow itself (`deploy-production.yml`) — that is a separate concern; this skill only pushes the commit that triggers it.
+- The deploy workflow itself (`deploy-production.yml`) — that is a separate concern; this skill only pushes the tag that triggers it.
 - Prismic prod schema sync — revisit once a Prismic repo exists (design-revamp epic); this repo has no Prismic integration yet.
 - A user-level copy of this skill in `~/.claude/skills/` (epic decision: skills live per-repo).
 - Audit/scoring of release readiness (preconditions in the Preconditions section are sufficient).
