@@ -82,6 +82,10 @@ a ticket enters **To Merge**.
 > agent that gates on CI (green + approved + mergeable) before it lands anything.
 > Leave this rule **disabled** until you want auto-merge live.
 
+**Spec:** REQ-025 (Ferry merger reachable by a Jira column move) · DEC-019
+(column-triggered auto-merge, overriding ADR-0005's no-auto-merge invariant) · Jira
+[SWBE-46](https://big-emotion.atlassian.net/browse/SWBE-46).
+
 **Import:** Jira → Automation → **Import rules (beta)** → upload
 `ferry-jira-merge-rule.beta.json`, then swap `YOUR_GITHUB_PAT_WITH_REPO_SCOPE` for the
 same PAT as the first rule and **Enable**.
