@@ -76,3 +76,33 @@ Merger like any other agent (ADR-0005 rev. 2). The Reviewer-emitted
 After enabling the rule, move a Jira issue to any Ferry column and check:
 1. The Jira Automation audit log (Project settings → Automation → rule → Audit log)
 2. The GitHub Actions tab on `big-emotion/website` — a "Ferry — Router" run should appear within seconds.
+
+## Board hygiene rule — close sub-tasks when the parent is done
+
+Independent of the router: SWBE sub-tasks are scope documentation and only ever
+hold two statuses, **À faire** or **Terminé(e)** — never the intermediate
+columns. The Ferry agents work at ticket level and never touch sub-tasks (and
+Ferry exposes no config surface for them), so a second Automation rule closes
+them the moment the parent lands in Terminé(e) — whichever path moved it there
+(Ferry's Merger, a manual drag, a bulk change).
+
+Import `ferry-jira-subtasks-done-rule.beta.json` (Project settings →
+**Automation** → **⋯** → **Import rules**). The BRANCH/ACTION component schemas
+in that export are best-effort — if the import rejects them, create the rule by
+hand from the same four components:
+
+1. **Trigger:** Issue transitioned — leave From/To status empty
+2. **Condition:** JQL — `status = "Terminé(e)" AND issuetype NOT IN subtaskIssueTypes()`
+3. **Branch:** For → Sub-tasks
+4. **Action (inside the branch):** Transition the issue to **Terminé(e)**
+
+Then **Enable** the rule, and keep "Allow other rule actions to trigger this
+rule" ON: the parent is usually moved to Terminé(e) by the Merger, and the
+sub-task transitions must still fire the generic ferry-transition webhook (the
+router ignores statuses it does not own, so this is harmless).
+
+**Locale gotcha (bitten once):** the JQL must use the real status *name*,
+`Terminé(e)`. Board column labels (`DONE`) and transition names (`Done`) are
+different strings — the first draft matched `"IN REVIEW"`, which is a column
+label; the status behind that column is named `Revue en cours`, so the rule
+could never fire.

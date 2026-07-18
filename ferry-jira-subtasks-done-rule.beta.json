@@ -2,8 +2,8 @@
   "cloud": true,
   "rules": [
     {
-      "name": "Ferry — close sub-tasks when parent reaches review",
-      "state": "DISABLED",
+      "name": "Ferry — close sub-tasks when parent is done",
+      "state": "ENABLED",
       "ruleScope": {
         "resources": [
           "ari:cloud:jira:75eb33f5-5dd0-4328-b0e6-8bb3f4e0af91:project/10233"
@@ -28,7 +28,7 @@
           "component": "CONDITION",
           "type": "jira.jql.condition",
           "value": {
-            "rawJql": "status = \"IN REVIEW\" AND issuetype NOT IN subtaskIssueTypes()"
+            "rawJql": "status = \"Terminé(e)\" AND issuetype NOT IN subtaskIssueTypes()"
           },
           "schemaVersion": 1
         },
