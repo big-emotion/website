@@ -1,7 +1,13 @@
 # 0004 — Deploy via GitHub Actions on push to main
 
-- Status: accepted
+- Status: accepted (trigger superseded)
 - Date: 2026-07-16
+
+> **Superseded in part.** The `push: branches: [main]` trigger below is replaced
+> by tag-driven deploy in **ADR 0006** (2026-07-19) — production now ships on a
+> `v*` tag, not on a merge to `main`. The rsync-over-SSH deploy step was earlier
+> replaced by the Docker deploy in **ADR 0005**. The remaining decisions here
+> (GitHub-hosted runners, concurrency group, `production` environment) stand.
 
 ## Context
 

@@ -4,8 +4,11 @@ name: Deploy production (v2 — Docker)
 # the standalone Next.js container behind the existing Traefik.
 # Supersedes the static-export rsync approach from ADR 0004 (see ADR 0005).
 on:
+  # Production ships on a v* release tag only (cut by /bigemotion-release) —
+  # never on a bare merge to main. See ADR 0006. workflow_dispatch stays the
+  # manual redeploy/rollback path (dispatch with a known-good tag or SHA).
   push:
-    branches: [main]
+    tags: ["v*"]
   workflow_dispatch:
     inputs:
       ref:
