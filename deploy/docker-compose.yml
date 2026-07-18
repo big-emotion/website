@@ -1,31 +1,32 @@
-# BIG EMOTION site container, routed by the host-level Traefik on the external
-# "proxy" network (same pattern as the other services on this VPS).
+# BIG EMOTION — Next.js standalone container behind the host-level Traefik.
+# Normal deploy: CI ships a Docker image tarball; deploy-production.yml loads
+# it as big-emotion:live and restarts this service.
+# Break-glass: `docker compose build` (requires Docker on the VPS).
 services:
   big-emotion:
-    build: ./image
-    image: big-emotion:local
+    build:
+      context: ..
+      dockerfile: ../Dockerfile
+    image: big-emotion:live
     container_name: big-emotion
     restart: unless-stopped
     env_file: .env
-    volumes:
-      # Published export (deploy.sh rsyncs website/out -> live after a green
-      # build; never mount website/out directly — "next build" empties it
-      # mid-build). Read-only: the container never writes to the site;
-      # contact.php's rate-limit files go to /tmp.
-      - ./live:/var/www/html:ro
     networks:
       - proxy
     labels:
       - "traefik.enable=true"
-      # HTTPS router - Traefik terminates TLS with the existing ACME resolver.
+      # HTTPS router — Traefik terminates TLS with the existing ACME resolver.
       - "traefik.http.routers.bigemotion.rule=Host(`big-emotion.com`) || Host(`www.big-emotion.com`)"
       - "traefik.http.routers.bigemotion.entrypoints=websecure"
       - "traefik.http.routers.bigemotion.tls.certresolver=myresolver"
-      # HTTP router - Apache's .htaccess issues the 301 to HTTPS itself (it
-      # checks X-Forwarded-Proto, so there is no redirect loop behind a proxy).
+      # HTTP router — redirect to HTTPS via Traefik middleware (replaces
+      # the .htaccess RewriteRule; no redirect loop because Traefik owns 80).
       - "traefik.http.routers.bigemotion-http.rule=Host(`big-emotion.com`) || Host(`www.big-emotion.com`)"
       - "traefik.http.routers.bigemotion-http.entrypoints=web"
-      - "traefik.http.services.bigemotion.loadbalancer.server.port=80"
+      - "traefik.http.routers.bigemotion-http.middlewares=bigemotion-https"
+      - "traefik.http.middlewares.bigemotion-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.bigemotion-https.redirectscheme.permanent=true"
+      - "traefik.http.services.bigemotion.loadbalancer.server.port=3000"
 
 networks:
   proxy:
