@@ -1,7 +1,7 @@
 # Managed by ferry-init. Re-run `npx -p @big-emotion/ferry ferry-init` to update.
 # Execution path: claude-code — agents run via claude-code-action.
 # Required secret: CLAUDE_CODE_OAUTH_TOKEN (run `claude setup-token`; Claude Pro/Max subscription).
-# Set execution_path: script in ferry.config.yaml to revert to the bundled multi-provider path.
+# Set execution_path: script in ferry.config.json to revert to the bundled multi-provider path.
 # Required secrets: FERRY_JIRA_BASE_URL, FERRY_JIRA_EMAIL, FERRY_JIRA_API_TOKEN,
 #                   CLAUDE_CODE_OAUTH_TOKEN
 # Optional secrets: FERRY_REVIEW_TRANSITION_ID, FERRY_ITER_TRANSITION_ID,
