@@ -1,4 +1,5 @@
 import { Hero } from "@/components/hero";
+import { SceneCanvas } from "@/components/scene/scene-canvas";
 import { Approach } from "@/components/sections/approach";
 import { Cases } from "@/components/sections/cases";
 import { Culture } from "@/components/sections/culture";
@@ -6,9 +7,14 @@ import { manifesto } from "@/content/site";
 
 // Single-page scroll site, matching the brand book's website mock: hero, then the four
 // sections (Contact is the footer). Content lives in src/content/site.ts.
+//
+// SceneCanvas is a fixed, full-viewport underlay (see docs/adr/0005) — it renders
+// behind the Hero (which has no background of its own) and is naturally covered by
+// each section's own opaque background further down, so it never fights their colors.
 export default function Home() {
   return (
     <>
+      <SceneCanvas />
       <Hero />
       <ManifestoBand />
       <Approach />
