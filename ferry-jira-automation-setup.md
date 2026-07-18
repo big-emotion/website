@@ -76,3 +76,39 @@ Merger like any other agent (ADR-0005 rev. 2). The Reviewer-emitted
 After enabling the rule, move a Jira issue to any Ferry column and check:
 1. The Jira Automation audit log (Project settings → Automation → rule → Audit log)
 2. The GitHub Actions tab on `big-emotion/website` — a "Ferry — Router" run should appear within seconds.
+
+## Board hygiene rule — close sub-tasks when the parent is done
+
+Independent of the router: SWBE sub-tasks are scope documentation and only ever
+hold two statuses, **À faire** or **Terminé(e)** — never the intermediate
+columns. The Ferry agents work at ticket level and never touch sub-tasks (and
+Ferry exposes no config surface for them), so a second Automation rule closes
+them the moment the parent lands in Terminé(e) — whichever path moved it there
+(Ferry's Merger, a manual drag, a bulk change).
+
+**Status: LIVE since 2026-07-19** — built by hand in the rule builder (there is
+no import option at project scope; importing lives in global administration).
+`ferry-jira-subtasks-done-rule.beta.json` is the **canonical export of the live
+rule**, kept for disaster recovery. To recreate it by hand, the four
+components are:
+
+1. **Trigger:** Ticket transité (Issue transitioned) — From empty,
+   **To status: Terminé(e)** (picked from the status picker, not typed)
+2. **Condition:** JQL — `issuetype not in subtaskIssueTypes()`
+   (the status filter already lives in the trigger; this only stops the rule
+   re-matching the sub-tasks it just closed)
+3. **Branch:** For → Sous-tâches
+4. **Action (inside the branch):** Transition the issue to **Terminé(e)**
+
+Then **Enable** the rule, and in rule details check "allow other rule actions
+to trigger this rule" (`canOtherRuleTrigger`): the parent is usually moved to
+Terminé(e) by the Merger, and the sub-task transitions must still fire the
+generic ferry-transition webhook (the router ignores statuses it does not own,
+so this is harmless).
+
+**Locale gotcha (bitten once):** the first draft of this rule matched
+`status = "IN REVIEW"` — a board *column label*; the status behind that column
+is named `Revue en cours`, so it could never fire. Note also that the canonical
+export stores statuses by internal name (`"Done"`) while the UI displays the
+localized `Terminé(e)` — never hand-edit status strings in JQL or exports; pick
+them in the builder, which validates against the live workflow.

@@ -2,14 +2,22 @@
   "cloud": true,
   "rules": [
     {
-      "name": "Ferry — close sub-tasks when parent reaches review",
-      "state": "DISABLED",
-      "ruleScope": {
-        "resources": [
-          "ari:cloud:jira:75eb33f5-5dd0-4328-b0e6-8bb3f4e0af91:project/10233"
-        ]
+      "id": 5247751,
+      "clientKey": "50763b1d-a3b0-4893-a07f-b77677e0798a",
+      "name": "Ferry — close sub-tasks when parent is done",
+      "state": "ENABLED",
+      "description": "",
+      "authorAccountId": "712020:abe817e6-7a92-49b8-96ba-4a945bc6a960",
+      "actor": {
+        "type": "ACCOUNT_ID",
+        "value": "557058:f58131cb-b67d-43c7-b30d-6b58d40bd077"
       },
+      "created": 1784413887890,
+      "updated": 1784413960693,
       "trigger": {
+        "id": "322018f1-b4b4-43de-a9e8-d4f15d1187fe",
+        "parentId": null,
+        "conditionParentId": null,
         "component": "TRIGGER",
         "type": "jira.issue.event.trigger:transitioned",
         "value": {
@@ -17,47 +25,126 @@
             "ari:cloud:jira:75eb33f5-5dd0-4328-b0e6-8bb3f4e0af91:project/10233"
           ],
           "fromStatus": [],
-          "toStatus": [],
+          "toStatus": [
+            {
+              "type": "NAME",
+              "value": "Done"
+            }
+          ],
           "eventKey": "jira:issue_updated",
           "issueEvent": "issue_generic"
         },
-        "schemaVersion": 1
+        "conditions": [],
+        "children": [],
+        "schemaVersion": 1,
+        "connectionId": null,
+        "checksum": null
       },
       "components": [
         {
+          "id": "a70bffe0-d3ae-466b-b62c-2a4f79253b44",
+          "parentId": null,
+          "conditionParentId": null,
           "component": "CONDITION",
           "type": "jira.jql.condition",
-          "value": {
-            "rawJql": "status = \"IN REVIEW\" AND issuetype NOT IN subtaskIssueTypes()"
-          },
-          "schemaVersion": 1
+          "value": "issuetype not in subtaskIssueTypes()",
+          "conditions": [],
+          "children": [],
+          "schemaVersion": 1,
+          "connectionId": null,
+          "checksum": null
         },
         {
+          "id": "4caa910a-aef0-499d-b55a-5b5b5f74f012",
+          "parentId": null,
+          "conditionParentId": null,
           "component": "BRANCH",
           "type": "jira.issue.related",
           "value": {
             "relatedType": "subtasks",
-            "onlyUpdatedIssues": false
+            "jql": "",
+            "linkTypes": [],
+            "onlyUpdatedIssues": false,
+            "similarityLimit": 40,
+            "compareValue": 0
           },
-          "schemaVersion": 1,
+          "conditions": [],
           "children": [
             {
+              "id": "0958c6d4-aa99-47de-aa18-c703752bbd4c",
+              "parentId": "4caa910a-aef0-499d-b55a-5b5b5f74f012",
+              "conditionParentId": null,
               "component": "ACTION",
               "type": "jira.issue.transition",
               "value": {
-                "selectedTransition": {
-                  "name": "Done"
-                }
+                "operations": [],
+                "advancedFields": null,
+                "sendNotifications": true,
+                "destinationStatus": {
+                  "type": "NAME",
+                  "value": "Done"
+                },
+                "transitionMatch": ""
               },
-              "schemaVersion": 1
+              "conditions": [],
+              "children": [],
+              "schemaVersion": 11,
+              "connectionId": null,
+              "checksum": null
             }
-          ]
+          ],
+          "schemaVersion": 1,
+          "connectionId": null,
+          "checksum": null
         }
       ],
-      "labels": [],
-      "tags": [],
       "canOtherRuleTrigger": true,
-      "notifyOnError": "FIRSTERROR"
+      "notifyOnError": "FIRSTERROR",
+      "projects": [],
+      "labels": [],
+      "tags": [
+        {
+          "id": 11564455,
+          "ruleIdUuid": "019f775b-1d92-7b11-bf75-20f80788eb2a",
+          "tagType": "SHADOW_ORCHESTRATION",
+          "tagValue": "true"
+        },
+        {
+          "id": 11564454,
+          "ruleIdUuid": "019f775b-1d92-7b11-bf75-20f80788eb2a",
+          "tagType": "ORCHESTRATION_VERSION",
+          "tagValue": "2"
+        },
+        {
+          "id": 11564456,
+          "ruleIdUuid": "019f775b-1d92-7b11-bf75-20f80788eb2a",
+          "tagType": "IS_RULE_UPDATED",
+          "tagValue": "true"
+        }
+      ],
+      "ruleScope": {
+        "resources": [
+          "ari:cloud:jira:75eb33f5-5dd0-4328-b0e6-8bb3f4e0af91:project/10233"
+        ]
+      },
+      "ruleHome": {
+        "ruleLifecycleHome": {
+          "locationARI": "ari:cloud:jira:75eb33f5-5dd0-4328-b0e6-8bb3f4e0af91:project/10233"
+        },
+        "ruleBillingHome": {
+          "locationARI": "ari:cloud:jira-software::site/75eb33f5-5dd0-4328-b0e6-8bb3f4e0af91"
+        }
+      },
+      "writeAccessType": "OWNER_ONLY",
+      "collaborators": [],
+      "billingType": "NORMAL",
+      "idUuid": "019f775b-1d92-7b11-bf75-20f80788eb2a",
+      "partitionId": "50763b1d-a3b0-4893-a07f-b77677e0798a",
+      "checksum": {
+        "version": 3,
+        "value": "97dce1a756210f631c8f977d118eb15ce873caa457d60541ee16f50d03075cf0"
+      },
+      "currentVersionId": null
     }
   ]
 }
