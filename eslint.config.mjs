@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Vendored third-party binaries — not our code, not lintable.
+    "public/draco/**",
   ]),
 ]);
 
