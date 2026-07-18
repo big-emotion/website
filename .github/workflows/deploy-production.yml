@@ -1,5 +1,8 @@
-name: Deploy production
+name: Deploy production (v2 — Docker)
 
+# Builds a Docker image in CI, ships it to the VPS as a tarball, and restarts
+# the standalone Next.js container behind the existing Traefik.
+# Supersedes the static-export rsync approach from ADR 0004 (see ADR 0005).
 on:
   push:
     branches: [main]
@@ -41,10 +44,16 @@ jobs:
 
       - run: pnpm test
 
-      - run: pnpm build
+      # Docker build runs its own pnpm install + next build inside the
+      # multi-stage Dockerfile.  The pnpm steps above validate fast; the
+      # Docker build produces the deployable artefact.
+      - name: Build Docker image
+        run: docker build -t big-emotion:deploy .
 
-      # Pinned known_hosts (never StrictHostKeyChecking=no) so the deploy key
-      # is never exposed to a spoofed host.
+      - name: Export image as compressed tarball
+        run: docker save big-emotion:deploy | gzip > /tmp/big-emotion.tar.gz
+
+      # Pinned known_hosts — never StrictHostKeyChecking=no.
       - name: Configure deploy SSH key
         run: |
           mkdir -p ~/.ssh
@@ -53,26 +62,32 @@ jobs:
           printf '%s\n' "${{ vars.DEPLOY_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/deploy_key ~/.ssh/known_hosts
 
-      # --delay-updates stages files server-side before swapping (near-atomic
-      # publish, same guarantee as deploy.sh). --exclude='/preview': live/preview/
-      # is published separately by the preview deploy workflow (SWBE-4) — a
-      # production deploy must never delete it.
-      - name: Publish static export
+      - name: Ship image to VPS
         run: |
-          rsync -az --delete --delay-updates --exclude='/preview' \
-            -e "ssh -i ~/.ssh/deploy_key -p ${{ vars.DEPLOY_PORT }} -o UserKnownHostsFile=~/.ssh/known_hosts" \
-            out/ "${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }}:/home/ubuntu/big-emotion/live/"
+          scp -i ~/.ssh/deploy_key -P ${{ vars.DEPLOY_PORT }} \
+            -o UserKnownHostsFile=~/.ssh/known_hosts \
+            /tmp/big-emotion.tar.gz \
+            "${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }}:/tmp/big-emotion.tar.gz"
+
+      # Load the image under the live tag and restart.  --pull never ensures
+      # Docker Compose uses the locally loaded image, not a registry pull.
+      - name: Load image and restart container
+        run: |
+          ssh -i ~/.ssh/deploy_key -p ${{ vars.DEPLOY_PORT }} \
+            -o UserKnownHostsFile=~/.ssh/known_hosts \
+            "${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }}" \
+            "docker load < /tmp/big-emotion.tar.gz && \
+             docker tag big-emotion:deploy big-emotion:live && \
+             cd /home/ubuntu/big-emotion/website && \
+             docker compose -f deploy/docker-compose.yml up -d --no-deps --pull never big-emotion && \
+             rm -f /tmp/big-emotion.tar.gz"
 
       - name: Smoke check
         run: |
+          sleep 15
           status=$(curl -fsS -o /dev/null -w '%{http_code}' https://big-emotion.com/)
           if [ "$status" != "200" ]; then
             echo "expected 200 from https://big-emotion.com/, got $status" >&2
             exit 1
           fi
-
-          status=$(curl -s -o /dev/null -w '%{http_code}' http://big-emotion.com/)
-          if [ "$status" != "301" ]; then
-            echo "expected 301 from http://big-emotion.com/, got $status" >&2
-            exit 1
-          fi
+          curl -fsS https://big-emotion.com/api/health
