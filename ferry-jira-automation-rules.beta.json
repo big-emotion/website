@@ -1,0 +1,67 @@
+{
+  "cloud": true,
+  "rules": [
+    {
+      "name": "Ferry — transition (any column)",
+      "state": "DISABLED",
+      "ruleScope": {
+        "resources": [
+          "ari:cloud:jira:75eb33f5-5dd0-4328-b0e6-8bb3f4e0af91:project/10233"
+        ]
+      },
+      "trigger": {
+        "component": "TRIGGER",
+        "type": "jira.issue.event.trigger:transitioned",
+        "value": {
+          "eventFilters": [
+            "ari:cloud:jira:75eb33f5-5dd0-4328-b0e6-8bb3f4e0af91:project/10233"
+          ],
+          "fromStatus": [],
+          "toStatus": [],
+          "eventKey": "jira:issue_updated",
+          "issueEvent": "issue_generic"
+        },
+        "schemaVersion": 1
+      },
+      "components": [
+        {
+          "component": "ACTION",
+          "type": "jira.issue.outgoing.webhook",
+          "value": {
+            "url": "https://api.github.com/repos/big-emotion/website/dispatches",
+            "method": "POST",
+            "contentType": "custom",
+            "customBody": "{\"event_type\":\"ferry-transition\",\"client_payload\":{\"version\":\"v1\",\"event_id\":\"{{issue.key}}-{{issue.id}}\",\"ticket_key\":\"{{issue.key}}\",\"phase\":\"transition\",\"source\":\"jira-column\",\"ts\":\"{{now.jiraDate}}\",\"issue_type\":\"{{issue.issuetype.name}}\",\"to_status\":\"{{issue.status.name}}\"}}",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/vnd.github+json",
+                "headerSecure": false
+              },
+              {
+                "name": "Authorization",
+                "value": "Bearer YOUR_GITHUB_PAT_WITH_REPO_SCOPE",
+                "headerSecure": true
+              },
+              {
+                "name": "X-GitHub-Api-Version",
+                "value": "2022-11-28",
+                "headerSecure": false
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json",
+                "headerSecure": false
+              }
+            ]
+          },
+          "schemaVersion": 1
+        }
+      ],
+      "labels": [],
+      "tags": [],
+      "canOtherRuleTrigger": false,
+      "notifyOnError": "FIRSTERROR"
+    }
+  ]
+}
