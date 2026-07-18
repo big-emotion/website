@@ -1,0 +1,63 @@
+{
+  "cloud": true,
+  "rules": [
+    {
+      "name": "Ferry — close sub-tasks when parent reaches review",
+      "state": "DISABLED",
+      "ruleScope": {
+        "resources": [
+          "ari:cloud:jira:75eb33f5-5dd0-4328-b0e6-8bb3f4e0af91:project/10233"
+        ]
+      },
+      "trigger": {
+        "component": "TRIGGER",
+        "type": "jira.issue.event.trigger:transitioned",
+        "value": {
+          "eventFilters": [
+            "ari:cloud:jira:75eb33f5-5dd0-4328-b0e6-8bb3f4e0af91:project/10233"
+          ],
+          "fromStatus": [],
+          "toStatus": [],
+          "eventKey": "jira:issue_updated",
+          "issueEvent": "issue_generic"
+        },
+        "schemaVersion": 1
+      },
+      "components": [
+        {
+          "component": "CONDITION",
+          "type": "jira.jql.condition",
+          "value": {
+            "rawJql": "status = \"IN REVIEW\" AND issuetype NOT IN subtaskIssueTypes()"
+          },
+          "schemaVersion": 1
+        },
+        {
+          "component": "BRANCH",
+          "type": "jira.issue.related",
+          "value": {
+            "relatedType": "subtasks",
+            "onlyUpdatedIssues": false
+          },
+          "schemaVersion": 1,
+          "children": [
+            {
+              "component": "ACTION",
+              "type": "jira.issue.transition",
+              "value": {
+                "selectedTransition": {
+                  "name": "Done"
+                }
+              },
+              "schemaVersion": 1
+            }
+          ]
+        }
+      ],
+      "labels": [],
+      "tags": [],
+      "canOtherRuleTrigger": true,
+      "notifyOnError": "FIRSTERROR"
+    }
+  ]
+}

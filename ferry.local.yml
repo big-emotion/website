@@ -1,0 +1,25 @@
+# Durable local overrides applied by ferry-init / ferry-update when they
+# re-render .github/workflows/ferry-router.yml from templates. Direct edits to
+# the workflow file are overwritten on every update — anything we need to
+# survive a Ferry bump must be declared here instead.
+#
+# Full supported surface as of Ferry v1.0.3 (src/cli/update/local-overrides.ts):
+# `review.ciGate` and `global.runner`. Any other key fails validation.
+version: 1
+
+review:
+  # Omit the ci-gate pre-job from the rendered router. Only the Merger gates on
+  # CI (it re-validates green before landing); the Reviewer and Iterator must
+  # run regardless of CI status so a red, pending, or unreadable CI never
+  # deadlocks the pipeline — the true CI state travels on the PR via the
+  # ci-green / ci-failing labels. Matches the Chancellerie reference and
+  # ADR-0005's per-phase gating rationale. Replaces the previous ritual of
+  # hand-deleting the ci-gate job after every ferry-init run.
+  ciGate: disabled
+
+# global:
+#   runner: ubuntu-latest
+# Intentionally NOT set: it would hardcode the runner into the rendered
+# workflow, replacing the `fromJSON(vars.FERRY_RUNNER || '"ubuntu-latest"')`
+# expression we rely on. Keeping the FERRY_RUNNER repo variable lets us switch
+# runners without a commit.
