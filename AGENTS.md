@@ -40,7 +40,7 @@ With pnpm ≥ 10, a fresh clone must approve the `sharp` and `unrs-resolver` pos
 
 **All copy lives in `src/content/site.ts`** — a typed, `as const` module (nav, manifesto, services, cases, team, contact details). Components stay declarative and import from it; never inline marketing copy in a component. Long-form content (case-study write-ups, legal) is planned for MDX later.
 
-**Server components by default.** Only `site-header.tsx` and `contact-form.tsx` are `"use client"`. Animations are CSS-only (e.g. the manifesto marquee) — there is no animation library.
+**Server components by default.** Only `site-header.tsx` and `contact-form.tsx` are `"use client"`. UI animations are CSS-only (e.g. the manifesto marquee) — there is no animation library. The single exception is the hero 3D scene, which uses Three.js imperatively (no react-three-fiber); see `docs/adr/0005-motion-stack.md`.
 
 **Fonts are self-hosted** woff2 files committed under `src/app/fonts/` (loaded via `next/font/local`), so builds are offline-reproducible and no visitor request hits Google. Sourced from `@fontsource-variable/*`.
 
