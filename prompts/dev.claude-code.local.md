@@ -16,6 +16,25 @@ Guard: do this **only after** the parent transition to In Review succeeded. If y
 hit a blocker and did NOT move the parent to In Review, leave the sub-tasks
 untouched. State in your audit comment how many sub-tasks you closed.
 
+### Surface readiness + CI state on the PR — MANDATORY labels
+
+CI does **not** gate you: open the PR and transition to In Review either way. But the
+Reviewer runs regardless of CI, so tell it the truth at a glance via PR labels. After
+opening the PR, resolve its number
+(`gh pr list --state open --head "$(git branch --show-current)" --json number`), give
+CI a moment to start (`sleep 30`), then read the true state
+(`gh pr checks <PR_NUMBER>` — the required check is `CI / build`, which runs
+`pnpm lint && pnpm test && pnpm build`). Apply, on the PR (labels already exist —
+never invent variants):
+
+- Always add readiness: `gh pr edit <PR_NUMBER> --add-label "ready-for-review"`
+- **CI green** (required checks passed): `gh pr edit <PR_NUMBER> --add-label "ci-green" --remove-label "ci-failing"`
+- **CI red / pending / absent**: `gh pr edit <PR_NUMBER> --add-label "ci-failing" --remove-label "ci-green"`
+
+`ci-green` and `ci-failing` are mutually exclusive — never leave both. A failing
+`--remove-label` is idempotent; ignore it. This is best-effort and never blocks the
+transition — note in the audit comment if labelling failed.
+
 ### Required: self-assessment score
 
 Append one final line to the single fingerprinted audit comment you already post

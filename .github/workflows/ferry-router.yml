@@ -81,44 +81,22 @@ jobs:
           jira_email: ${{ secrets.FERRY_JIRA_EMAIL }}
           jira_api_token: ${{ secrets.FERRY_JIRA_API_TOKEN }}
 
-  # Reviewer CI pre-gate: blocks the review while required checks are red and
-  # requests changes itself (FR24) — same behavior as the legacy review stub.
-  ci-gate:
-    name: Reviewer CI gate
-    needs: [route]
-    if: needs.route.outputs.role == 'reviewer' && needs.route.outputs.path == 'claude-code'
-    runs-on: ${{ fromJSON(vars.FERRY_RUNNER || '"ubuntu-latest"') }}
-    permissions:
-      contents: read
-      pull-requests: write
-      checks: read
-    outputs:
-      proceed: ${{ steps.gate.outputs.proceed }}
-      outcome: ${{ steps.gate.outputs.outcome }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Gate on CI status
-        id: gate
-        uses: big-emotion/ferry/.github/actions/ferry-ci-gate@v1.0.2
-        with:
-          ticket_key: ${{ github.event.client_payload.ticket_key }}
-          run_id: ${{ github.event.client_payload.event_id }}
-          github_token: ${{ github.token }}
-          github_repo: ${{ github.repository }}
-          jira_base_url: ${{ secrets.FERRY_JIRA_BASE_URL }}
-          jira_email: ${{ secrets.FERRY_JIRA_EMAIL }}
-          jira_api_token: ${{ secrets.FERRY_JIRA_API_TOKEN }}
-          ferry_iter_transition_id: ${{ secrets.FERRY_ITER_TRANSITION_ID }}
+  # The upstream `ci-gate` job is intentionally REMOVED. Only the Merger gates on
+  # CI (it re-validates green before landing code); the Reviewer and Iterator run
+  # regardless of CI status so a red, pending, or unreadable CI never deadlocks the
+  # pipeline — the Reviewer posts its verdict either way, the Iterator pushes fixes
+  # and transitions either way, and the true CI state travels on the PR via the
+  # `ci-green` / `ci-failing` labels the Developer and Iterator apply. `ferry-init`
+  # re-adds this gate on every bump — delete it again, and keep the `run-agent` /
+  # `emit-audit` `if:`/`outcome` free of any `ci-gate` reference (matches the
+  # Chancellerie reference and ADR-0005's per-phase gating rationale).
 
   run-agent:
     name: Run ${{ needs.route.outputs.role }} agent (claude-code)
-    needs: [route, ci-gate]
-    # !cancelled() keeps this job eligible when ci-gate is skipped (non-reviewer roles).
+    needs: [route]
     if: >-
-      !cancelled() && needs.route.outputs.path == 'claude-code' &&
-      needs.route.outputs.role != 'none' &&
-      (needs.route.outputs.role != 'reviewer' || needs.ci-gate.outputs.proceed == 'true')
+      needs.route.outputs.path == 'claude-code' &&
+      needs.route.outputs.role != 'none'
     runs-on: ${{ fromJSON(vars.FERRY_RUNNER || '"ubuntu-latest"') }}
     # Serialize per ticket and per role; a newer refine may supersede a running one.
     concurrency:
@@ -169,10 +147,10 @@ jobs:
 
   emit-audit:
     name: Emit audit line
-    needs: [route, ci-gate, run-agent]
+    needs: [route, run-agent]
     if: >-
       !cancelled() && needs.route.outputs.role != 'none' &&
-      (needs.run-agent.result != 'skipped' || (needs.ci-gate.result != 'skipped' && needs.ci-gate.outputs.outcome == 'ci-red'))
+      needs.run-agent.result != 'skipped'
     runs-on: ${{ fromJSON(vars.FERRY_RUNNER || '"ubuntu-latest"') }}
     permissions:
       contents: read
@@ -187,7 +165,7 @@ jobs:
           phase: ${{ needs.route.outputs.phase }}
           run_id: ${{ github.event.client_payload.event_id }}
           model: ${{ vars[needs.route.outputs.model_var] || 'claude-sonnet-4-6' }}
-          outcome: ${{ (needs.ci-gate.result != 'skipped' && needs.ci-gate.outputs.outcome == 'ci-red' && 'ci-red') || needs.run-agent.result }}
+          outcome: ${{ needs.run-agent.result }}
           # claude-code path does cost tracking best-effort by design — it emits no token/cost outputs.
           input_tokens: '0'
           output_tokens: '0'
