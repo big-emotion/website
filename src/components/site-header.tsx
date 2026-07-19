@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { nav } from "@/content/site";
+import { espaceClientCta, nav } from "@/content/site";
 import { Wordmark } from "./wordmark";
 
 export function SiteHeader() {
@@ -92,6 +92,16 @@ export function SiteHeader() {
               {item.label}
             </Link>
           ))}
+          {/* External app (opens in a new tab); border-current keeps it legible on
+              both the transparent and the scrolled solid bar. */}
+          <a
+            href={espaceClientCta.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-display border-2 border-current px-4 py-2 text-sm uppercase tracking-wide hover:opacity-60"
+          >
+            {espaceClientCta.label}
+          </a>
         </nav>
 
         <button
@@ -122,6 +132,15 @@ export function SiteHeader() {
               {item.label}
             </Link>
           ))}
+          <a
+            href={espaceClientCta.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setOpen(false)}
+            className="font-display mt-6 w-fit border-2 border-current px-6 py-3 text-3xl uppercase leading-none hover:text-lemon"
+          >
+            {espaceClientCta.label}
+          </a>
         </nav>
       )}
     </header>
