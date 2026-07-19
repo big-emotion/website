@@ -28,6 +28,14 @@ export const nav = [
   { label: "Contact", href: "/#contact" },
 ] as const;
 
+// The "Espace client" area is a separate app — the sibling support portal, which
+// will grow into the espace/B2B space. It is not a section of this site, so it's an
+// absolute link opened in a new tab, kept apart from the anchor `nav` above.
+export const espaceClientCta = {
+  label: "Espace client",
+  href: "https://support.big-emotion.com/",
+} as const;
+
 // Tone-of-voice lines from the brand book, reused as section punchlines (English on
 // purpose — the brand mixes EN punchlines with FR body).
 export const manifesto = [
