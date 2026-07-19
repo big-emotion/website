@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# BMAD tooling output (local only)
+/_bmad/
+/_bmad-output/
