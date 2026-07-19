@@ -52,6 +52,11 @@ describe("ContactForm", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent(/Réseau indisponible/);
   });
 
+  it("posts to the same-origin /api/contact route", () => {
+    const { container } = render(<ContactForm />);
+    expect(container.querySelector("form")).toHaveAttribute("action", "/api/contact");
+  });
+
   it("keeps a honeypot field out of the tab order and hidden from AT", () => {
     const { container } = render(<ContactForm />);
     const honeypot = container.querySelector('input[name="website"]');
