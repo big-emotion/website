@@ -15,9 +15,9 @@ function isReply(value: unknown): value is Reply {
   );
 }
 
-// Posts to /contact.php (PHP mailer on n0c). Works without JS via the form action;
-// JS upgrades it to an async submit with inline feedback. In dev there is no PHP, so a
-// submit will fail gracefully — that path is only real in production on n0c.
+// Posts to the same-origin /api/contact route handler. Works without JS via the
+// form action (303 back to #contact); JS upgrades it to an async submit with
+// inline feedback (the {ok, message} JSON contract).
 export function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
@@ -66,7 +66,7 @@ export function ContactForm() {
 
   return (
     <form
-      action="/contact.php"
+      action="/api/contact"
       method="post"
       onSubmit={handleSubmit}
       className="grid gap-4"
