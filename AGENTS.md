@@ -52,11 +52,11 @@ With pnpm ≥ 10, a fresh clone must approve the `sharp` and `unrs-resolver` pos
 
 **Everything in `public/` ships verbatim as static assets**, served by the standalone Next.js server. Server behavior belongs in `next.config.ts` (redirects, headers, rewrites) or `deploy/` (Traefik labels, container config) — not in `public/`.
 
-**Deploy** = push to `main`. `.github/workflows/deploy-production.yml` lints, tests, builds a Docker image, ships it as a gzip tarball via SCP to the OVH VPS, loads it, and restarts the container. Deploys queue (never cancel an in-flight one), and `workflow_dispatch` with a `ref` input redeploys/rolls back to any known-good commit. `deploy/deploy.sh` (SSH to the VPS, git pull + `docker build` + `docker compose up`) is the break-glass fallback for a GitHub/Actions outage. The Dockerfile, compose file, and this script are versioned in `deploy/`.
+**Deploy** = push a `v*` release tag (cut via `/bigemotion-release`); a merge to `main` no longer deploys (ADR 0006). `.github/workflows/deploy-production.yml` lints, tests, builds a Docker image, ships it as a gzip tarball via SCP to the OVH VPS, loads it, and restarts the container. Deploys queue (never cancel an in-flight one), and `workflow_dispatch` with a `ref` input redeploys/rolls back to any known-good tag or commit. `deploy/deploy.sh` (SSH to the VPS, git pull + `docker build` + `docker compose up`) is the break-glass fallback for a GitHub/Actions outage. The Dockerfile, compose file, and this script are versioned in `deploy/`.
 
 **Preview** = `.github/workflows/deploy-preview.yml` — currently incompatible with standalone output (expects static export + basePath). Needs updating as a follow-up to ADR 0005.
 
-**Decisions are recorded in `docs/adr/`** — 0001 (why static export; superseded), 0002 (email deliverability: SPF/DKIM/DMARC), 0003 (OVH VPS: Docker/Traefik; Apache/PHP part superseded), 0004 (GitHub Actions deploy; rsync step superseded), 0005 (standalone Docker, this architecture). Add an ADR when making a decision of that scale.
+**Decisions are recorded in `docs/adr/`** — 0001 (why static export; superseded), 0002 (email deliverability: SPF/DKIM/DMARC), 0003 (OVH VPS: Docker/Traefik; Apache/PHP part superseded), 0004 (GitHub Actions deploy; rsync step + push-to-main trigger superseded), 0005 (standalone Docker, this architecture), 0006 (deploy on a `v*` tag, not push to main). Add an ADR when making a decision of that scale.
 
 ## Testing
 

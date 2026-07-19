@@ -4,8 +4,11 @@ name: Deploy production (v2 — Docker)
 # the standalone Next.js container behind the existing Traefik.
 # Supersedes the static-export rsync approach from ADR 0004 (see ADR 0005).
 on:
+  # Production ships on a v* release tag only (cut by /bigemotion-release) —
+  # never on a bare merge to main. See ADR 0006. workflow_dispatch stays the
+  # manual redeploy/rollback path (dispatch with a known-good tag or SHA).
   push:
-    branches: [main]
+    tags: ["v*"]
   workflow_dispatch:
     inputs:
       ref:
@@ -62,12 +65,24 @@ jobs:
           printf '%s\n' "${{ vars.DEPLOY_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/deploy_key ~/.ssh/known_hosts
 
-      - name: Ship image to VPS
+      - name: Ship image and compose to VPS
         run: |
           scp -i ~/.ssh/deploy_key -P ${{ vars.DEPLOY_PORT }} \
             -o UserKnownHostsFile=~/.ssh/known_hosts \
             /tmp/big-emotion.tar.gz \
             "${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }}:/tmp/big-emotion.tar.gz"
+          # Ship the compose from THIS checkout (ref = inputs.ref || github.ref)
+          # so the container always restarts with the compose that matches the
+          # deployed image. CI never syncs the VPS git clone, so reading the
+          # compose from it silently deploys a stale file — this is what broke
+          # the SWBE-26 Docker cutover (2026-07-19). Reset --hard on the VPS
+          # would instead break workflow_dispatch rollbacks (older image, newest
+          # compose); shipping the checkout's copy keeps image and compose in
+          # lockstep with the ref.
+          scp -i ~/.ssh/deploy_key -P ${{ vars.DEPLOY_PORT }} \
+            -o UserKnownHostsFile=~/.ssh/known_hosts \
+            deploy/docker-compose.yml \
+            "${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }}:/home/ubuntu/big-emotion/website/deploy/docker-compose.yml"
 
       # Load the image under the live tag and restart.  --pull never ensures
       # Docker Compose uses the locally loaded image, not a registry pull.
@@ -90,4 +105,12 @@ jobs:
             echo "expected 200 from https://big-emotion.com/, got $status" >&2
             exit 1
           fi
-          curl -fsS https://big-emotion.com/api/health
+          # -L: /api/health 308-redirects to /api/health/ (trailingSlash), which
+          # a bare curl would report as success without ever reaching the route.
+          # Assert the JSON body so a redirect or error page can't pass as healthy.
+          health=$(curl -fsSL https://big-emotion.com/api/health)
+          echo "$health"
+          case "$health" in
+            *'"status":"ok"'*) ;;
+            *) echo "health check did not return status ok: $health" >&2; exit 1 ;;
+          esac

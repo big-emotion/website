@@ -86,3 +86,105 @@ body {
   outline: 2px solid var(--color-ink);
   outline-offset: 2px;
 }
+
+/* ============================================================
+   Hero 3D scene (SWBE-20) — fixed backdrop + loader/scroll-cue theming.
+   scene-canvas.tsx sets body[data-active] as scroll crosses each of the six
+   STATES keyframe thresholds; these custom properties are scoped to the scene's
+   own elements only (never --color-ink) so the rest of the page, which already
+   has its own per-section brand colors, is unaffected.
+   ============================================================ */
+:root {
+  --scene-stage: var(--color-lemon);
+  --scene-ink: var(--color-ink);
+}
+body[data-active="0"],
+body[data-active="1"] {
+  --scene-stage: var(--color-lemon);
+  --scene-ink: var(--color-ink);
+}
+body[data-active="2"] {
+  --scene-stage: var(--color-tangerine);
+  --scene-ink: var(--color-ink);
+}
+body[data-active="3"] {
+  --scene-stage: var(--color-lyon);
+  --scene-ink: var(--color-ink);
+}
+body[data-active="4"] {
+  --scene-stage: var(--color-ink);
+  --scene-ink: var(--color-lemon);
+}
+body[data-active="5"] {
+  --scene-stage: var(--color-paper);
+  --scene-ink: var(--color-ink);
+}
+
+.scene-stage {
+  background: var(--scene-stage);
+  transition: background-color 0.6s ease;
+}
+
+.scene-loader-mark {
+  color: var(--scene-ink);
+  animation: scene-loader-pulse 1.2s ease-in-out infinite;
+}
+@keyframes scene-loader-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.94);
+    opacity: 0.55;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scene-loader-mark {
+    animation: none;
+  }
+}
+
+.scene-scrollcue {
+  position: fixed;
+  left: 50%;
+  bottom: clamp(20px, 3vh, 40px);
+  transform: translateX(-50%);
+  z-index: 15;
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 40px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--scene-ink);
+  border: 1.5px solid var(--scene-ink);
+  border-radius: 40px;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.4s ease,
+    color 0.6s ease,
+    border-color 0.6s ease;
+  animation: scene-scrollcue-bob 2.4s ease-in-out infinite;
+}
+.scene-scrollcue[data-visible="true"] {
+  opacity: 1;
+}
+@keyframes scene-scrollcue-bob {
+  0%,
+  100% {
+    transform: translate(-50%, 0);
+  }
+  50% {
+    transform: translate(-50%, 6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scene-scrollcue {
+    animation: none;
+  }
+}
