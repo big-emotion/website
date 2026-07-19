@@ -1,4 +1,4 @@
-import nodemailer, { type Transporter } from "nodemailer";
+import { sendMail } from "./mail";
 
 export type ContactSubmission = {
   name: string;
@@ -6,55 +6,43 @@ export type ContactSubmission = {
   message: string;
 };
 
-// The slice of nodemailer we depend on — narrow enough that a test can pass a
-// fake and assert what would be sent without opening an SMTP connection.
-export type MailTransport = Pick<Transporter, "sendMail">;
-
+// The team's shared inbox; the sending mailbox is the shared Graph MAIL_SENDER.
 const RECIPIENT = "contact@big-emotion.com";
-const FROM = `BIG EMOTION <${RECIPIENT}>`;
-// Envelope sender (Return-Path) aligned with the From domain so SPF/DKIM pass
-// (ADR 0002/0003). Kept identical to the retired public/contact.php.
-const ENVELOPE_SENDER = RECIPIENT;
 
-// Collapse to a single line so a submitted value can never inject a mail header.
-function headerSafe(value: string): string {
+// Collapse to a single line so a submitted value can't smuggle structure into
+// the subject or the reply-to display name.
+function singleLine(value: string): string {
   return value.replace(/[\r\n]+/g, " ").trim();
 }
 
-export function buildContactMessage(submission: ContactSubmission) {
-  const name = headerSafe(submission.name);
-  const email = headerSafe(submission.email);
-  return {
-    from: FROM,
-    to: RECIPIENT,
-    replyTo: `${name} <${email}>`,
-    envelope: { from: ENVELOPE_SENDER, to: RECIPIENT },
-    subject: `Nouveau message de ${name} — big-emotion.com`,
-    text: `Nom : ${name}\nE-mail : ${email}\n\nMessage :\n${submission.message}\n`,
-  };
+// Render visitor text as text, not markup, in the HTML notification body.
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
-// Built lazily from env so importing this module never opens a connection.
-// M365 SMTP AUTH on 587/STARTTLS; if the tenant disables basic auth, swap this
-// for a Microsoft Graph sendMail transport behind the same MailTransport seam
-// (see the SWBE-31 refinement / SWBE-26 ADR).
-let m365Transport: MailTransport | undefined;
-function defaultTransport(): MailTransport {
-  if (!m365Transport) {
-    m365Transport = nodemailer.createTransport({
-      host: process.env.SMTP_HOST ?? "smtp.office365.com",
-      port: Number(process.env.SMTP_PORT ?? 587),
-      secure: false,
-      requireTLS: true,
-      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-    });
-  }
-  return m365Transport;
+export function buildContactMail(submission: ContactSubmission) {
+  const name = singleLine(submission.name);
+  const email = singleLine(submission.email);
+  return {
+    to: RECIPIENT,
+    // Hitting "reply" answers the visitor, not the shared sending mailbox.
+    replyTo: { address: email, name },
+    subject: `Nouveau message de ${name} — big-emotion.com`,
+    html: `<p><strong>Nom :</strong> ${escapeHtml(name)}</p>
+<p><strong>E-mail :</strong> ${escapeHtml(email)}</p>
+<p><strong>Message :</strong></p>
+<p>${escapeHtml(submission.message).replace(/\n/g, "<br>")}</p>`,
+  };
 }
 
 export async function sendContactEmail(
   submission: ContactSubmission,
-  transport: MailTransport = defaultTransport(),
+  send: typeof sendMail = sendMail,
 ): Promise<void> {
-  await transport.sendMail(buildContactMessage(submission));
+  await send(buildContactMail(submission));
 }
