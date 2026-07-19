@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-07-19
+
+### Added
+
+- Magic-link authentication for the espace client, backed by a provisioned
+  client registry (no self-registration) (SWBE-27).
+- Same-origin `POST /api/contact` route replacing the legacy `contact.php`:
+  honeypot, per-IP rate limiting, and Zod validation, preserving the JSON (with
+  JS) and 303-redirect (no-JS) contract of the old endpoint (SWBE-31). This
+  restores the contact form flagged as non-functional in 0.1.0.
+- Microsoft Graph mail transport in the shared `src/lib/mail` seam, powering
+  both the contact relay and the magic-link emails from the M365 tenant — the
+  same tenant app the support-agent portal uses (SWBE-31).
+
 ## [0.1.1] - 2026-07-19
 
 ### Fixed
@@ -36,6 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   under the Node.js container and its `/api/contact` replacement is not shipped
   (SWBE-31).
 
-[Unreleased]: https://github.com/big-emotion/website/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/big-emotion/website/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/big-emotion/website/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/big-emotion/website/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/big-emotion/website/releases/tag/v0.1.0
