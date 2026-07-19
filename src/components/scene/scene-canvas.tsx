@@ -281,13 +281,15 @@ export function SceneCanvas() {
 
   const effectiveStatus: Status = supportsScene ? status : "fallback";
 
-  // No explicit z-index on any of these fixed layers: position:fixed with
-  // z-index:auto doesn't open a new stacking context, so they paint in plain
-  // DOM order within the root context — stage, then canvas/fallback, then the
-  // loader while it's mounted. This whole wrapper renders before <Hero> in
-  // page.tsx, so page content (itself z-index:auto) naturally paints on top.
+  // The scene is a fixed, full-viewport *background underlay*, so it must paint
+  // BEHIND the page. A position:fixed layer with z-index:auto paints above its
+  // static in-flow siblings, so without a negative z-index the opaque
+  // .scene-stage covers every section below the hero and buries their content.
+  // -z-10 puts the whole scene behind the flow; each section's own opaque
+  // background covers it and only the transparent <Hero> reveals it. The header
+  // and scroll-cue sit above via their own higher z-index.
   return (
-    <div aria-hidden="true" className="pointer-events-none fixed inset-0">
+    <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10">
       <div className="scene-stage fixed inset-0" />
 
       {effectiveStatus === "fallback" ? (

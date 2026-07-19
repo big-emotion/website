@@ -212,4 +212,14 @@ describe("SceneCanvas", () => {
     });
     expect(document.body.dataset.active).toBe("0");
   });
+
+  it("keeps the scene root behind page content via a negative z-index", () => {
+    // Regression guard: the fixed scene is an opaque underlay. jsdom has no
+    // layout engine so real paint order can't be asserted here — instead we
+    // pin the mechanism. Dropping the negative z-index let the fixed
+    // .scene-stage paint over every section below the hero and hid all content.
+    const { container } = render(<SceneCanvas />);
+    const root = container.querySelector('[aria-hidden="true"]');
+    expect(root?.className).toContain("-z-10");
+  });
 });
