@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-07-21
+
+### Changed
+
+- The header call-to-action now points to `b2b.big-emotion.com`, the dedicated
+  B2B space, instead of the on-site espace area (SWBE-94).
+- The same call-to-action is labelled "Espace B2B" rather than "Espace client",
+  matching the destination it now opens.
+
 ## [0.3.0] - 2026-07-19
 
 ### Added
@@ -57,7 +66,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   under the Node.js container and its `/api/contact` replacement is not shipped
   (SWBE-31).
 
-[Unreleased]: https://github.com/big-emotion/website/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/big-emotion/website/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/big-emotion/website/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/big-emotion/website/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/big-emotion/website/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/big-emotion/website/compare/v0.1.0...v0.1.1
