@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { alternateLanguages, localePath, localeUrl, openGraphLocales } from "./urls";
+import {
+  alternateLanguages,
+  alternateLanguagesAmong,
+  localePath,
+  localeUrl,
+  openGraphLocales,
+} from "./urls";
 
 describe("localePath", () => {
   it("leaves the default locale unprefixed, so French keeps the canonical URLs", () => {
@@ -37,6 +43,34 @@ describe("alternateLanguages", () => {
       en: "/en/culture/",
       "x-default": "/culture/",
     });
+  });
+});
+
+describe("alternateLanguagesAmong", () => {
+  it("declares both alternates and defaults to French when an article exists in both locales", () => {
+    expect(alternateLanguagesAmong("/blog/notre-approche", ["fr", "en"])).toEqual({
+      fr: "/blog/notre-approche/",
+      en: "/en/blog/notre-approche/",
+      "x-default": "/blog/notre-approche/",
+    });
+  });
+
+  it("omits the missing language when an article exists in French only", () => {
+    expect(alternateLanguagesAmong("/blog/notre-approche", ["fr"])).toEqual({
+      fr: "/blog/notre-approche/",
+      "x-default": "/blog/notre-approche/",
+    });
+  });
+
+  it("falls back x-default to the one locale that exists when French is missing", () => {
+    expect(alternateLanguagesAmong("/blog/our-approach", ["en"])).toEqual({
+      en: "/en/blog/our-approach/",
+      "x-default": "/en/blog/our-approach/",
+    });
+  });
+
+  it("returns no alternates when the document exists in no locale", () => {
+    expect(alternateLanguagesAmong("/blog/ghost", [])).toEqual({});
   });
 });
 
