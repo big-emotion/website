@@ -2,13 +2,23 @@
 // team) is typed here rather than in MDX: it's short and highly structured, so a typed
 // module reads better and the components stay declarative. MDX is reserved for any
 // future long-form content (a blog, deep case write-ups).
+//
+// ACCENTS: BBH Hegarty (the `font-display` face) ships an ASCII-only cmap — no
+// é è à ç É. Any accented character in display type silently falls back to
+// another font and renders visibly mismatched, so copy that lands in a
+// `font-display` slot is written unaccented: mission, stat.label, service
+// titles, case titles/kinds, impact labels, team names/roles, values. Body copy
+// keeps correct French — Bricolage Grotesque covers the full range. Restore the
+// accents here only once the display font gains the glyphs (DEC-023).
+// `contact.person` is deliberately still accented: it feeds the schema.org
+// founder, never display type, and it is a real person's name.
 
 export const site = {
   name: "BIG EMOTION",
   tagline: "The B!G agency that gives a wow.",
   baseline: "On ne fait pas des sites web. On crée de l’impact.",
-  mission: "Donner vie à tes projets et leur transmettre des émotions.",
-  stat: { value: "50+", label: "projets accompagnés" },
+  mission: "Donner vie a tes projets et leur transmettre des emotions.",
+  stat: { value: "50+", label: "projets accompagnes" },
   contact: {
     email: "hello@big-emotion.com",
     phone: "+33 7 66 26 40 43",
@@ -51,7 +61,7 @@ export const manifesto = [
 // What the agency actually does (from the old site, reframed in the brand voice).
 export const services = [
   {
-    title: "Étude, conception & réalisation",
+    title: "Etude, conception & realisation",
     body: "Une méthodo qui cadre ton besoin au millimètre, puis on t’épaule de A à Z sur toute la technique — et même au-delà.",
   },
   {
@@ -59,7 +69,7 @@ export const services = [
     body: "Plus de cinquante projets au compteur. On met de l’émotion dans ta stratégie, pas du jargon.",
   },
   {
-    title: "Développement sur-mesure",
+    title: "Developpement sur-mesure",
     body: "Un cahier des charges précis, des modules conçus rien que pour toi. Ton projet, exactement comme tu le veux.",
   },
 ] as const;
@@ -69,7 +79,7 @@ export const services = [
 // section, and two different counts on one page would read as sloppy.
 export const impactStats = [
   { value: "+150 %", label: "Croissance moyenne" },
-  { value: "+10 ans", label: "D’expérience" },
+  { value: "+10 ans", label: "D’experience" },
 ] as const;
 
 // Cases are framed by sector, not by named client: most engagements ship under NDA
@@ -86,8 +96,8 @@ export const cases = [
   },
   {
     slug: "medias",
-    title: "Médias & Édition",
-    kind: "Audience & monétisation",
+    title: "Medias & Edition",
+    kind: "Audience & monetisation",
     summary:
       "Structurer l’acquisition éditoriale des grandes rédactions : formats, référencement, et des parcours qui retiennent le lecteur au lieu de le perdre.",
     tags: ["SEO éditorial", "Audience", "Data"],
@@ -173,7 +183,7 @@ export const clients = [
   "Swapcard",
   "Agryco",
   "Cromology",
-  "Fuencap",
+  "Funecap",
   "Mamiezi",
 ] as const;
 
@@ -183,7 +193,7 @@ export const clients = [
 // distinguishable out of context (WCAG 2.4.4).
 export const team = [
   {
-    name: "Jean-Noé Kollo",
+    name: "Jean-Noe Kollo",
     role: "Geek & philosophe",
     bio: "Il démarre toujours un projet par une citation d’auteur — histoire de donner le ton.",
     links: [
@@ -193,7 +203,7 @@ export const team = [
   },
   {
     name: "Sylvain Seng Bandith",
-    role: "Rêveur & pointilleux",
+    role: "Reveur & pointilleux",
     bio: "Livrer avec une vision, sans rien lâcher sur la prod. Rêver et soigner le détail, pour lui ça va ensemble.",
     links: [
       {
@@ -211,12 +221,13 @@ export const team = [
 ] as const;
 
 // Brand values (brand book, tone-of-voice page).
+// Unaccented on purpose — see the display-font note at the top of this file.
 export const values = [
   "Audace",
-  "Sincérité",
-  "Énergie",
-  "Simplicité radicale",
-  "Exigence créative",
+  "Sincerite",
+  "Energie",
+  "Simplicite radicale",
+  "Exigence creative",
 ] as const;
 
 // Brand personality slider (brand book, "Brand personality slider" page).

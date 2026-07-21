@@ -12,7 +12,7 @@ describe("Culture", () => {
   it("disambiguates the two LinkedIn links, which share the same visible label", () => {
     render(<Culture />);
     expect(
-      screen.getByRole("link", { name: "Jean-Noé Kollo sur LinkedIn" }),
+      screen.getByRole("link", { name: "Jean-Noe Kollo sur LinkedIn" }),
     ).toHaveAttribute("href", "https://www.linkedin.com/in/jnkollo/");
     expect(
       screen.getByRole("link", { name: "Sylvain Seng Bandith sur LinkedIn" }),

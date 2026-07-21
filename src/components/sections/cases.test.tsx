@@ -6,7 +6,7 @@ describe("Cases", () => {
   it("presents the work by sector rather than by named client", () => {
     render(<Cases />);
     expect(screen.getByRole("heading", { name: /industrie & b2b/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /médias & édition/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /medias & edition/i })).toBeInTheDocument();
   });
 
   it("pairs each headline number with the metric it measures", () => {

@@ -24,13 +24,13 @@ describe("Home", () => {
   it("shows the sector cases, the team and the client wall", () => {
     render(<Home />);
     expect(screen.getByRole("heading", { name: /industrie & b2b/i })).toBeInTheDocument();
-    expect(screen.getByText("Jean-Noé Kollo")).toBeInTheDocument();
+    expect(screen.getByText("Jean-Noe Kollo")).toBeInTheDocument();
     expect(screen.getByText("Sylvain Seng Bandith")).toBeInTheDocument();
     expect(screen.getAllByText("Michelin").length).toBeGreaterThan(0);
   });
 
   it("claims the project count exactly once, so the page never contradicts itself", () => {
     render(<Home />);
-    expect(screen.getAllByText(/projets accompagnés/i)).toHaveLength(1);
+    expect(screen.getAllByText(/projets accompagnes/i)).toHaveLength(1);
   });
 });
