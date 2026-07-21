@@ -1,18 +1,15 @@
 import { content } from "@/content/site";
 import type { Locale } from "@/i18n/locales";
 
-// The /approach route (SWBE-21). The mission stays the headline it already was: it is
-// the agency's own statement of method, and the scene tagline it could otherwise borrow
-// is already the home page's h1.
+// The /approach route. The page title and lead now sit in the accent hero above
+// (SWBE-22), so the mission opens the section instead of repeating them — it is the
+// agency's own statement of method and appears nowhere else.
 export function Approach({ locale }: { locale: Locale }) {
-  const { mission, leads, services, stat } = content[locale];
+  const { mission, services, stat } = content[locale];
 
   return (
     <section className="bg-paper px-5 py-20 text-ink md:px-8 md:py-32">
-      <h1 className="font-display max-w-5xl text-[clamp(2rem,6.5vw,5.5rem)]">{mission}</h1>
-      <p className="mt-6 max-w-prose text-lg leading-relaxed text-ink/80 md:text-xl">
-        {leads.approach}
-      </p>
+      <h2 className="font-display max-w-5xl text-[clamp(2rem,6.5vw,5.5rem)]">{mission}</h2>
 
       {/* gap-px over an ink backdrop draws hairline dividers — brutalist grid. */}
       <div className="mt-14 grid gap-px bg-ink md:mt-20 md:grid-cols-3">

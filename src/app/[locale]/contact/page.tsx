@@ -3,6 +3,7 @@ import { hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Contact } from "@/components/sections/contact";
+import { SubpageHero } from "@/components/subpage-hero";
 import { content } from "@/content/site";
 import { routing } from "@/i18n/routing";
 import { sectionMetadata } from "../section-metadata";
@@ -26,5 +27,12 @@ export default async function ContactPage({ params }: RouteProps) {
   // every next-intl call below reads headers() and the route turns dynamic.
   setRequestLocale(locale);
 
-  return <Contact locale={locale} />;
+  const { contact } = content[locale];
+
+  return (
+    <>
+      <SubpageHero page="contact" title={contact.title} lead={contact.lead} />
+      <Contact locale={locale} />
+    </>
+  );
 }

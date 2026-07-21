@@ -3,34 +3,30 @@ import { describe, expect, it } from "vitest";
 import { Approach } from "./approach";
 
 describe("Approach", () => {
-  it("titles the page with the agency's mission", () => {
+  // The page title and lead moved into the accent hero (SWBE-22), so the section opens
+  // on the mission — the agency's statement of method, which appears nowhere else.
+  it("opens on the agency's mission rather than repeating the page title", () => {
     render(<Approach locale="fr" />);
 
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      "Donner vie a tes projets",
-    );
-  });
-
-  it("introduces the page with its own lead, not the home page's", () => {
-    render(<Approach locale="fr" />);
-
-    expect(screen.getByText(/On part de la réaction/)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Donner vie a tes projets/ })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 1 })).toBeNull();
   });
 
   it("answers in English on the English route", () => {
     render(<Approach locale="en" />);
 
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      "Bring your projects to life",
-    );
+    expect(
+      screen.getByRole("heading", { name: /Bring your projects to life/ }),
+    ).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Custom development" })).toBeInTheDocument();
   });
 
-  it("ranks the three service offers under the page title", () => {
+  it("ranks the three service offers after the mission", () => {
     render(<Approach locale="fr" />);
 
-    const services = screen.getAllByRole("heading", { level: 2 });
-    expect(services.map((heading) => heading.textContent)).toEqual([
+    const headings = screen.getAllByRole("heading", { level: 2 });
+    expect(headings.map((heading) => heading.textContent)).toEqual([
+      "Donner vie a tes projets et leur transmettre des emotions.",
       "Etude, conception & realisation",
       "Conseil & plan marketing",
       "Developpement sur-mesure",

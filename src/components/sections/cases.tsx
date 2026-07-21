@@ -1,33 +1,23 @@
-import { StackedHeadline } from "@/components/stacked-headline";
 import { content } from "@/content/site";
 import type { Locale } from "@/i18n/locales";
 
-// The /cases route (SWBE-21). Scene ids are the section names, so the page opens on the
-// very line the scroll choreography teases for this section — in the visitor's language.
+// The /cases route. Its title and lead sit in the accent hero above (SWBE-22), so the
+// section opens straight onto the numbers.
 export function Cases({ locale }: { locale: Locale }) {
-  const { scenes, leads, impactStats, cases, productionsIntro, productions } = content[locale];
-  const headline = scenes.find((scene) => scene.id === "cases");
+  const { impactStats, cases, productionsIntro, productions } = content[locale];
 
   return (
     <section className="bg-lyon px-5 py-20 text-paper md:px-8 md:py-32">
-      <StackedHeadline
-        as="h1"
-        lines={headline?.title ?? []}
-        className="font-display text-[clamp(2.25rem,9vw,7rem)]"
-      />
-      <p className="mt-6 max-w-prose text-lg leading-relaxed opacity-80 md:text-xl">
-        {leads.cases}
-      </p>
 
       {/* gap-px over a lighter backdrop draws the hairline dividers, same brutalist
           grid idiom as the Approach services. flex-col-reverse puts the number above
           its label while keeping the <dt>-before-<dd> order the markup requires. */}
-      <dl className="mt-12 grid gap-px bg-paper/40 md:mt-16 md:grid-cols-2">
+      <dl className="grid gap-px bg-paper/40 md:grid-cols-2">
         {impactStats.map((stat, index) => (
           <div
             key={stat.label}
             // The first cell stays flush with the section edge so it lines up with the
-            // headline; the rest clear the hairline divider they sit against.
+            // hero above; the rest clear the hairline divider they sit against.
             className={`flex flex-col-reverse bg-lyon py-8 md:py-10 ${index > 0 ? "md:pl-8" : ""}`}
           >
             <dt className="font-display mt-2 text-sm uppercase tracking-wide opacity-80 md:text-base">

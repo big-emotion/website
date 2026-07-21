@@ -16,10 +16,11 @@ function renderCulture(locale: "fr" | "en") {
 }
 
 describe("Culture", () => {
-  it("titles the page with the brand line written for this section", () => {
+  // The page title and lead live in the accent hero above the section (SWBE-22).
+  it("leaves the page title to the hero", () => {
     renderCulture("fr");
 
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Digital first");
+    expect(screen.queryByRole("heading", { level: 1 })).toBeNull();
   });
 
   it("links Sylvain's own site under his name", () => {

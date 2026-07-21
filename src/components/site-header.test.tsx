@@ -163,3 +163,26 @@ describe("SiteHeader mobile drawer", () => {
     ).toHaveAttribute("href", espaceB2bHref);
   });
 });
+
+// The header is fixed over the sub-page hero, which paints its own accent. It is
+// rendered by the layout, so it cannot inherit that accent — it has to resolve it from
+// the path. Getting this wrong is invisible in a unit test but fatal on screen:
+// /contact/'s hero is ink, so the default ink header would be black on black.
+describe("SiteHeader over a sub-page hero", () => {
+  it.each([
+    ["/approach/", "text-ink"],
+    ["/cases/", "text-ink"],
+    ["/culture/", "text-paper"],
+    ["/contact/", "text-lemon"],
+  ])("takes the hero's ink on %s", (pathname, ink) => {
+    const { container } = renderHeader("fr", pathname);
+
+    expect(container.querySelector("header")).toHaveClass(ink);
+  });
+
+  it("keeps the default ink on the home page, which has no accent hero", () => {
+    const { container } = renderHeader("fr", "/");
+
+    expect(container.querySelector("header")).toHaveClass("text-ink");
+  });
+});

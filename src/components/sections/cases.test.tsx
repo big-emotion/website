@@ -3,10 +3,11 @@ import { describe, expect, it } from "vitest";
 import { Cases } from "./cases";
 
 describe("Cases", () => {
-  it("titles the page with the brand line written for this section", () => {
+  // The page title and lead live in the accent hero above the section (SWBE-22).
+  it("leaves the page title to the hero", () => {
     render(<Cases locale="fr" />);
 
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("chaque clic");
+    expect(screen.queryByRole("heading", { level: 1 })).toBeNull();
   });
 
   it("presents the work by sector rather than by named client", () => {
@@ -54,7 +55,6 @@ describe("Cases", () => {
   it("answers in English on the English route, link labels included", () => {
     render(<Cases locale="en" />);
 
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("every click");
     expect(screen.getByRole("heading", { name: /media & publishing/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Our own productions" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Ferry on GitHub" })).toBeInTheDocument();

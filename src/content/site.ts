@@ -89,6 +89,9 @@ type LocaleContent = {
     socialSuffix: string;
   };
   notFound: { label: string; body: string; back: string };
+  /** The manifesto line the footer signs off with, on every route. Body copy,
+   *  so unlike the display slots it keeps its accents. */
+  footerLegal: string;
 };
 
 // Locale-invariant. Contact details, the legal entity name and the founder's name read
@@ -351,6 +354,7 @@ const fr: LocaleContent = {
     body: "Cette page a disparu. L’émotion, elle, est toujours là.",
     back: "Retour a l'accueil",
   },
+  footerLegal: "On ne fait pas des sites, on crée de l’impact.",
 };
 
 const en: LocaleContent = {
@@ -553,6 +557,7 @@ const en: LocaleContent = {
     body: "This page is gone. The emotion is still here.",
     back: "Back to home",
   },
+  footerLegal: "We don’t make websites, we create impact.",
 };
 
 export const content: Record<Locale, LocaleContent> = { fr, en };

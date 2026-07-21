@@ -3,19 +3,29 @@ import { describe, expect, it } from "vitest";
 import { SiteFooter } from "./site-footer";
 
 describe("SiteFooter", () => {
-  it("signs the site with the brand and its tagline", () => {
+  it("signs the site with the brand and the manifesto line", () => {
     render(<SiteFooter locale="fr" />);
 
     expect(
       screen.getByText(new RegExp(`${new Date().getFullYear()} BIG EMOTION`)),
     ).toBeInTheDocument();
-    expect(screen.getByText(/L'agence B!G qui fait dire wow/)).toBeInTheDocument();
+    // Body copy, so the French keeps its accents — DEC-023's ASCII rule covers display
+    // slots only, and this line is set in the body face.
+    expect(screen.getByText(/on crée de l’impact/)).toBeInTheDocument();
   });
 
   it("signs off in the visitor's language", () => {
     render(<SiteFooter locale="en" />);
 
-    expect(screen.getByText(/The B!G agency that gives a wow/)).toBeInTheDocument();
+    expect(screen.getByText(/we create impact/)).toBeInTheDocument();
+  });
+
+  // Epic precondition 4 (social profile URLs) is still open, and REQ-033 requires a
+  // network with no confirmed handle to be omitted rather than linked nowhere.
+  it("ships no social links while the profile URLs are unconfirmed", () => {
+    const { container } = render(<SiteFooter locale="fr" />);
+
+    expect(container.querySelectorAll("a")).toHaveLength(0);
   });
 
   // It renders on every route, so anything that belongs to one page — the contact
