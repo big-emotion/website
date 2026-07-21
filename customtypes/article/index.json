@@ -34,6 +34,13 @@
           "label": "Date de publication"
         }
       },
+      "category": {
+        "type": "Select",
+        "config": {
+          "label": "Categorie",
+          "options": ["essay", "report"]
+        }
+      },
       "cover": {
         "type": "Image",
         "config": {
