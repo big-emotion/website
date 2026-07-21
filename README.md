@@ -39,5 +39,5 @@ docs/adr/      architecture decision records
 
 Palette and type come from `brand/big-emotion-brand-guidelines.pdf`:
 Lemon `#f2ff26` · Tangerine `#ff5200` · Lyon Blue `#0024cc` · Brutal Grey `#dbdbdb`
-· Black · White. Display type approximates the brand "BBH" with Archivo; body is
+· Black · White. Display type is the brand's own BBH Hegarty; body is
 Bricolage Grotesque.

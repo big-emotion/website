@@ -11,12 +11,15 @@ import { site } from "@/content/site";
 // no visitor request ever hits Google (GDPR-friendly). Source files come from the
 // @fontsource-variable/* packages.
 
-// Display: the brand "BBH" is a heavy grotesque (not libre under that name); Archivo
-// Variable is the closest free match (weight axis 100–900).
+// Display: BBH Hegarty (Studio DRAMA), the brand's own display face — confirmed
+// libre on Google Fonts 2026-07-20 (DEC-023, supersedes DEC-008's "not libre"
+// premise). Ships as a single static weight; the full three-width Bogle/Hegarty/
+// Bartle signature is deferred.
 const display = localFont({
-  src: "./fonts/archivo-latin.woff2",
+  src: "./fonts/bbh-hegarty-latin.woff2",
   variable: "--font-bbh",
-  weight: "100 900",
+  weight: "400",
+  style: "normal",
   display: "swap",
 });
 

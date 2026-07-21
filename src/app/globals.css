@@ -26,7 +26,7 @@ body {
 /* The brand treats display type as a graphic block: tight, loud, uppercase. */
 .font-display {
   font-family: var(--font-display);
-  font-weight: 800;
+  font-weight: 400;
   letter-spacing: -0.02em;
   line-height: 0.92;
   text-transform: uppercase;
