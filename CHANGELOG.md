@@ -7,6 +7,101 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-07-21
+
+### Added
+
+- Routed FR/EN locales: `/` serves French unprefixed and `/en/...` serves
+  English, so the live French site and the eight legacy WordPress 301s stay at
+  the root. Locale detection is off — `/` is never negotiated away from French
+  (SWBE-21, ADR 0007).
+- The home page is the scroll spine of the 3D scene: six full-viewport panels,
+  one per keyframe, over the fixed canvas. Copy placement is derived from the
+  wordmark's side-slide, so it cannot drift if the choreography is retuned
+  (SWBE-21).
+- Real routes for the sections — `/approach`, `/cases`, `/culture`, `/contact` —
+  in both locales, since the six headline-only panels left the services grid,
+  case studies, team, client wall and contact form with nowhere to live
+  (SWBE-21).
+- Accent hero band crowning each section route: giant title and lead on one
+  side, photo on the other, over a per-page accent. Pointer tilt, scroll
+  parallax and the staggered entrance are CSS transforms, all inert under
+  `prefers-reduced-motion` — and the opt-out restores visibility rather than
+  merely stopping the animation (SWBE-22).
+- Photography for the four sub-page heroes. The designer's prototype JPEGs could
+  not ship — two carried third-party trademarks and all four sat below the
+  1600px floor — so they are AI-generated to read as photography, per the brand
+  guidelines, with the prompts versioned in `docs/redesign/` (SWBE-91).
+- The production 3D logo in the hero, replacing the placeholder that rendered
+  nothing, plus the closing beat's handle and network sprite.
+- Case studies move to Prismic, with git as the source of truth for the content
+  model: custom types and shared slices live in the repo, pushed to the
+  dashboard rather than authored in it (SWBE-24).
+- Editor preview and publish-time revalidation, so publishing no longer needs a
+  deploy. Every Prismic query is cached under one tag that `POST /api/revalidate`
+  drops on publish (SWBE-80).
+- The home page renders from a Prismic Slice Zone, delivering the first page
+  through the page-builder (SWBE-81).
+- Bilingual blog from Prismic — `article` and `author` types, the `/blog`
+  listing and `/blog/[uid]` detail routes, nav entry, sitemap URLs and hreflang
+  alternates built only for the locales an article actually exists in (SWBE-82).
+- Long-form reading type scale and branded article components, so an article
+  reads as BIG EMOTION rather than as browser defaults (SWBE-118).
+- Article `category` taxonomy, stored as locale-neutral keys so French is not
+  forced through the English listing (SWBE-119).
+- Storybook catalogue and a `design-system/` layer transcribing the brand
+  tokens, one spec and reference frame per part (SWBE-23).
+
+### Changed
+
+- The landing page no longer ships the 3D runtime up front. It renders the
+  static wordmark and only imports Three.js/GSAP/Lenis once the hero model is
+  present, taking ~203 KB gzip off the initial load (DEC-027).
+- The client roster closes `/cases` instead of sitting mid-`/culture`, between
+  the team and the personality slider, where a list of client names had nothing
+  to corroborate. The work is shown first, the names back it up.
+- Case studies are ordered by an explicit editorial field. The seeded studies
+  share a publication timestamp, so date ordering was liable to differ between
+  two builds of identical content.
+- Hero photos are served from content-hashed URLs. Art direction replaces these
+  files in place, keeping the filename, so a stable URL let browsers and CDNs
+  serve the previous image after a deploy.
+
+### Fixed
+
+- Case study and article titles look like links. They carried `hover:underline`
+  alone — lemon display type beside headings that are not clickable — so on a
+  touch screen the affordance never appeared at all, and the titles were
+  reported as dead.
+- Blog dates no longer render in a mismatched typeface. The display face has an
+  ASCII-only character set and a date built at runtime slipped past the guard
+  that covers authored copy, so "21 FEVRIER 2019" fell back mid-word (DEC-023).
+- The same accent rule is now enforced on Prismic-authored articles, where four
+  had shipped with section headings rendering half in a fallback face. Section
+  headings are display slots even though they are plain `<h2>` elements.
+- The Approach and Cases heroes are lit faces rather than backlit silhouettes.
+  Cropping the head out to keep logos out of frame read as menacing rather than
+  energetic, against a brand moodboard that is faces and explicit joy
+  throughout. Cases also leaves its crimson ground, which turned to sludge
+  beside the tangerine band.
+- The social handle is `@bigemotion`; `@bigemotionagency` does not exist.
+
+### Security
+
+- `POST /api/auth/request-link` is rate-limited per IP, rejecting over-limit
+  callers before minting a token or sending mail. Mail delivery no longer blocks
+  the response, closing a timing oracle that leaked whether an address was
+  provisioned — which defeated the route's own anti-enumeration contract
+  (REQ-034).
+
+### Removed
+
+- The in-house productions block on `/cases`. Each production now has a full
+  article on the blog, so the two-line cards were telling the same story twice
+  and worse.
+- The footer band on the home page: the scroll story closes on its own final
+  beat. Sub-pages keep theirs.
+
 ## [0.5.1] - 2026-07-21
 
 ### Fixed
@@ -123,7 +218,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   under the Node.js container and its `/api/contact` replacement is not shipped
   (SWBE-31).
 
-[Unreleased]: https://github.com/big-emotion/website/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/big-emotion/website/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/big-emotion/website/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/big-emotion/website/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/big-emotion/website/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/big-emotion/website/compare/v0.3.0...v0.4.0
