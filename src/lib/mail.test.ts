@@ -101,6 +101,26 @@ describe("sendMail — Microsoft Graph transport", () => {
     expect(payload.message.body).toEqual({ contentType: "Text", content: "hello" });
   });
 
+  it("sends as a per-call sender override, leaving MAIL_SENDER as the default", async () => {
+    const fetchMock = okFetch();
+    vi.stubGlobal("fetch", fetchMock);
+    const { sendMail: send } = await import("./mail");
+
+    await send({
+      to: "hello@big-emotion.com",
+      subject: "s",
+      html: "<p>x</p>",
+      sender: "hello@big-emotion.com",
+    });
+
+    const [mailUrl] = fetchMock.mock.calls[1];
+    expect(mailUrl).toBe(
+      "https://graph.microsoft.com/v1.0/users/hello%40big-emotion.com/sendMail",
+    );
+    const payload = JSON.parse(fetchMock.mock.calls[1][1].body);
+    expect(payload.message.from.emailAddress.address).toBe("hello@big-emotion.com");
+  });
+
   it("includes replyTo when provided", async () => {
     const fetchMock = okFetch();
     vi.stubGlobal("fetch", fetchMock);

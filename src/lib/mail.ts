@@ -22,6 +22,11 @@ export interface MailMessage {
   text?: string;
   html?: string;
   replyTo?: MailReplyTo;
+  // Per-call sending mailbox, defaulting to MAIL_SENDER (the portal identity).
+  // Graph application permissions require From to equal the mailbox in the
+  // sendMail URL, so both move together (REQ-031: contact sends as hello@,
+  // portal sends keep MAIL_SENDER/espace@).
+  sender?: string;
 }
 
 // The portal standardised on GRAPH_TENANT_ID; this repo's first .env.example used
@@ -86,7 +91,7 @@ async function getAccessToken(): Promise<string> {
 }
 
 async function sendViaGraph(message: MailMessage): Promise<void> {
-  const sender = process.env.MAIL_SENDER;
+  const sender = message.sender ?? process.env.MAIL_SENDER;
   if (!sender) throw new Error("MAIL_SENDER is not set");
   // Application permissions require From to equal the mailbox in the URL; the
   // optional display name is cosmetic.
