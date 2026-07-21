@@ -5,7 +5,7 @@ import { Wordmark } from "./wordmark";
 // Site-wide furniture only. The contact surface moved to /contact (SWBE-21) — the layout
 // renders this footer on every route, so anything page-specific cannot live here.
 export function SiteFooter({ locale }: { locale: Locale }) {
-  const { tagline } = content[locale];
+  const { footerLegal } = content[locale];
 
   return (
     <footer className="bg-lemon text-ink">
@@ -20,7 +20,7 @@ export function SiteFooter({ locale }: { locale: Locale }) {
         </span>
 
         <p className="mt-6 text-sm">
-          © {new Date().getFullYear()} {site.name}. {tagline}
+          © {new Date().getFullYear()} {site.name}. {footerLegal}
         </p>
       </div>
     </footer>

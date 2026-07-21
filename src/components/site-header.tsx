@@ -4,8 +4,9 @@ import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { content, espaceB2bHref } from "@/content/site";
 import type { Locale } from "@/i18n/locales";
-import { Link } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import { LocaleSwitcher } from "./locale-switcher";
+import { SUBPAGE_ACCENTS, subpageFromPathname } from "./subpage-accents";
 import { Wordmark } from "./wordmark";
 
 export function SiteHeader({ locale }: { locale: Locale }) {
@@ -13,6 +14,7 @@ export function SiteHeader({ locale }: { locale: Locale }) {
   const { nav, espaceB2bLabel } = content[locale];
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
   const headerRef = useRef<HTMLElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
 
@@ -71,7 +73,12 @@ export function SiteHeader({ locale }: { locale: Locale }) {
   }, [open]);
 
   const close = () => setOpen(false);
-  const textColor = scrolled || open ? "text-paper" : "text-ink";
+  // Over a sub-page hero the bar has to take that page's ink, not the default: the
+  // header is rendered by the layout, so it cannot inherit the accent, and `/contact/`'s
+  // ink hero would otherwise render a black header on black.
+  const subpage = subpageFromPathname(pathname);
+  const restingInk = subpage ? SUBPAGE_ACCENTS[subpage].headerInk : "text-ink";
+  const textColor = scrolled || open ? "text-paper" : restingInk;
   const background = scrolled && !open ? "bg-ink" : "";
 
   return (

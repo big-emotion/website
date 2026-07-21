@@ -3,6 +3,7 @@ import { hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Cases } from "@/components/sections/cases";
+import { SubpageHero } from "@/components/subpage-hero";
 import { content } from "@/content/site";
 import { routing } from "@/i18n/routing";
 import { sectionMetadata } from "../section-metadata";
@@ -26,5 +27,13 @@ export default async function CasesPage({ params }: RouteProps) {
   // every next-intl call below reads headers() and the route turns dynamic.
   setRequestLocale(locale);
 
-  return <Cases locale={locale} />;
+  const { scenes, leads } = content[locale];
+  const title = scenes.find((scene) => scene.id === "cases")?.title ?? [];
+
+  return (
+    <>
+      <SubpageHero page="cases" title={title} lead={leads.cases} />
+      <Cases locale={locale} />
+    </>
+  );
 }

@@ -42,3 +42,35 @@ describe("/cases metadata", () => {
     expect(openGraph).toHaveProperty("locale", "en_US");
   });
 });
+
+describe("/cases hero", () => {
+  it("crowns the page with the accent hero, which owns the only h1", async () => {
+    const { container } = render(
+      await CasesPage({ params: Promise.resolve({ locale: "fr" }) }),
+    );
+
+    expect(screen.getByRole("heading", { level: 1 })).toHaveAccessibleName("Derriere chaque clic, une emotion");
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+    expect(container.querySelector("section")).toHaveClass("bg-tangerine");
+  });
+
+  it("introduces the page with its lead and a decorative photo placeholder", async () => {
+    const { container } = render(
+      await CasesPage({ params: Promise.resolve({ locale: "fr" }) }),
+    );
+
+    expect(screen.getByText(new RegExp("Une sélection de projets"))).toBeInTheDocument();
+    expect(container.querySelector("[data-testid='subpage-photo-placeholder']")).toHaveAttribute(
+      "aria-hidden",
+      "true",
+    );
+  });
+
+  it("titles the hero in English on the English route", async () => {
+    render(
+      await CasesPage({ params: Promise.resolve({ locale: "en" }) }),
+    );
+
+    expect(screen.getByRole("heading", { level: 1 })).toHaveAccessibleName("Behind every click, a feeling");
+  });
+});

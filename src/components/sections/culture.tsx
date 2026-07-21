@@ -1,27 +1,17 @@
 import { ClientWall } from "@/components/client-wall";
 import { PersonalitySlider } from "@/components/personality-slider";
-import { StackedHeadline } from "@/components/stacked-headline";
 import { content } from "@/content/site";
 import type { Locale } from "@/i18n/locales";
 
-// The /culture route (SWBE-21). Same headline sourcing as /cases: the scene whose id is
-// this section's name already carries the localized line for it.
+// The /culture route. Its title and lead sit in the accent hero above (SWBE-22), so the
+// section opens straight onto the team.
 export function Culture({ locale }: { locale: Locale }) {
-  const { scenes, leads, team, values } = content[locale];
-  const headline = scenes.find((scene) => scene.id === "culture");
+  const { team, values } = content[locale];
 
   return (
     <section className="overflow-hidden bg-tangerine px-5 py-20 text-ink md:px-8 md:py-32">
-      <StackedHeadline
-        as="h1"
-        lines={headline?.title ?? []}
-        className="font-display text-[clamp(2.25rem,9vw,7rem)]"
-      />
-      <p className="mt-6 max-w-prose text-lg leading-relaxed text-ink/80 md:text-xl">
-        {leads.culture}
-      </p>
 
-      <div className="mt-14 grid gap-12 md:mt-20 md:grid-cols-2">
+      <div className="grid gap-12 md:grid-cols-2">
         {team.map((member) => (
           <article key={member.name}>
             <h2 className="font-display text-[clamp(1.75rem,5vw,3.25rem)]">{member.name}</h2>

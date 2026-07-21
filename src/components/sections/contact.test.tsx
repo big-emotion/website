@@ -16,12 +16,11 @@ function renderContact(locale: "fr" | "en") {
 }
 
 describe("Contact", () => {
-  it("titles the page with the contact headline, one line per written line", () => {
+  // The headline and lead live in the accent hero above the section (SWBE-22).
+  it("leaves the page title to the hero", () => {
     renderContact("fr");
 
-    const title = screen.getByRole("heading", { level: 1 });
-    expect(title).toHaveTextContent("Creons de la");
-    expect(title).toHaveTextContent("big emotion");
+    expect(screen.queryByRole("heading", { level: 1 })).toBeNull();
   });
 
   it("offers the public inbox and phone number as actionable links", () => {
@@ -60,7 +59,6 @@ describe("Contact", () => {
   it("answers in English on the English route", () => {
     renderContact("en");
 
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Let's make");
     expect(screen.getByText("We reply within 24 h.")).toBeInTheDocument();
     expect(screen.getByText(/@bigemotionagency on socials/)).toBeInTheDocument();
   });

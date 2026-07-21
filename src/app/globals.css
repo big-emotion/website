@@ -273,3 +273,74 @@ body[data-active="5"] {
     animation: none;
   }
 }
+
+/* ============================================================
+   Sub-page hero (SWBE-22) — accent band shared by /approach, /cases,
+   /culture and /contact. Ported from the designer prototype's
+   `body.subpage` rules; the accent colours themselves are Tailwind token
+   classes on the component, so nothing here hardcodes a brand value.
+   ============================================================ */
+
+/* Below the repo's 768px breakpoint the photo moves above the headline (the
+   prototype used 820px). This is a visual reorder only — the heading stays
+   first in the document, so the outline and assistive tech are unaffected. */
+@media (max-width: 767px) {
+  .subpage-photo-slot {
+    order: -1;
+  }
+}
+
+.subpage-photo-frame {
+  perspective: 1100px;
+}
+
+/* Pointer tilt and scroll parallax are written to these custom properties by
+   subpage-photo.tsx; composing them here keeps the JS to variable writes and
+   lets the transition smooth the tilt without fighting the parallax. */
+.subpage-photo-media {
+  transform: translateY(var(--subpage-photo-y, 0px)) rotateX(var(--subpage-photo-rx, 0deg))
+    rotateY(var(--subpage-photo-ry, 0deg));
+  transform-style: preserve-3d;
+  transition: transform 0.25s ease-out;
+  will-change: transform;
+}
+
+/* Staggered entrance: title, then lead, then photo. */
+@keyframes subpage-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.subpage-rise {
+  opacity: 0;
+  animation: subpage-rise-in 0.85s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+.subpage-rise--title {
+  animation-delay: 0.05s;
+}
+.subpage-rise--lead {
+  animation-delay: 0.18s;
+}
+.subpage-rise--photo {
+  animation-delay: 0.26s;
+}
+
+/* REQ-008. The entrance starts at opacity 0, so the opt-out has to restore
+   visibility rather than merely stop the animation — otherwise reduced-motion
+   visitors get a blank hero. subpage-photo.tsx additionally skips the pointer
+   and scroll listeners, so this is the static end state in every respect. */
+@media (prefers-reduced-motion: reduce) {
+  .subpage-rise {
+    opacity: 1;
+    animation: none;
+  }
+  .subpage-photo-media {
+    transform: none;
+    transition: none;
+  }
+}
