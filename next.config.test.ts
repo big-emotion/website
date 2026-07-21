@@ -18,13 +18,26 @@ describe("next.config.ts", () => {
     }
   });
 
-  it("redirects legacy URLs to the correct one-page anchors", async () => {
+  // The section content moved off the home page onto real routes (SWBE-21), so the
+  // `/#culture`-style anchors these used to target no longer exist. The source URLs are
+  // the SEO invariant and are asserted above; the destinations follow the content.
+  it("redirects legacy URLs to the section route that now holds their content", async () => {
     const redirects = await nextConfig.redirects!();
     const find = (src: string) => redirects.find((r) => r.source === src);
-    expect(find("/contactez-nous")?.destination).toBe("/#contact");
-    expect(find("/les-membres")?.destination).toBe("/#culture");
-    expect(find("/case-study-mamiezi")?.destination).toBe("/#cases");
-    expect(find("/case-study-adolebatisseur")?.destination).toBe("/#cases");
+    expect(find("/contactez-nous")?.destination).toBe("/contact/");
+    expect(find("/les-membres")?.destination).toBe("/culture/");
+    expect(find("/case-study-mamiezi")?.destination).toBe("/cases/");
+    expect(find("/case-study-adolebatisseur")?.destination).toBe("/cases/");
+  });
+
+  // These are French URLs from the French WordPress site, so they must land on the
+  // unprefixed default locale — never on `/en/`, and never on a `/fr/` prefix that
+  // `localePrefix: "as-needed"` would only bounce back.
+  it("keeps every legacy destination on the unprefixed default locale", async () => {
+    const redirects = await nextConfig.redirects!();
+    for (const redirect of redirects) {
+      expect(redirect.destination).not.toMatch(/^\/(fr|en)\//);
+    }
   });
 
   it("applies production security headers to all routes", async () => {

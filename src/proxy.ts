@@ -61,5 +61,11 @@ export const config = {
   // never get a locale resolved. Excluded: the API, Next internals, the auth routes,
   // and any path with a file extension (robots.txt, sitemap.xml, icon.svg, the Draco
   // decoder under /draco/, the GLB). /espace stays matched so the guard above still runs.
+  //
+  // `/opengraph-image` is matched and harmlessly rewritten onto the default locale: it
+  // is a metadata route with no locale-dependent behaviour, and it deliberately lives at
+  // the app root rather than under `[locale]` so metadata advertises the card at its
+  // canonical unprefixed URL. Under `[locale]` it resolved to `/fr/opengraph-image`,
+  // which every other rule on this site redirects away from.
   matcher: ["/((?!api|_next|_vercel|login|logout|verify|.*\\..*).*)"],
 };

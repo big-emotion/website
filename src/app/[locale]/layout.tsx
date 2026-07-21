@@ -40,6 +40,11 @@ export async function generateMetadata({
       url: localeUrl(locale, "/"),
       title: meta.title,
       description: meta.description,
+      // The share card itself comes from `app/opengraph-image.tsx` via the file
+      // convention, which Next resolves against the rendered route — so it is advertised
+      // at `/fr/opengraph-image` and `/en/opengraph-image`. The French one redirects to
+      // the unprefixed card; both end at the same PNG. Setting `images` here does not
+      // override it: the file convention wins.
       ...openGraphLocales(locale),
     },
   };

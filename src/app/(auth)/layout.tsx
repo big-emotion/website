@@ -1,7 +1,16 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Wordmark } from "@/components/wordmark";
 import { defaultLocale } from "@/i18n/locales";
+import { SITE_ORIGIN } from "@/i18n/urls";
 import { DocumentShell } from "../document-shell";
+
+// Declared per root layout rather than once at the top of the tree: `[locale]` is a
+// dynamic segment, so there is no shared root layout to inherit this from. Without it
+// the share card from `app/opengraph-image.tsx` resolves against localhost.
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_ORIGIN),
+};
 
 /**
  * Root layout for the client-area sign-in surface.

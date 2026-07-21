@@ -1,4 +1,4 @@
-import { Fragment, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { STATES } from "@/components/scene/states";
 
 /**
@@ -15,22 +15,6 @@ export function ScenePanel({ index, children }: { index: number; children: React
     >
       <div className="max-w-[82vw] md:max-w-[36rem]">{children}</div>
     </section>
-  );
-}
-
-/** A scene headline, one rendered line per authored entry (the designer's `<br>`). */
-export function SceneHeadline({ lines }: { lines: readonly string[] }) {
-  return (
-    <h2 className="font-display text-[clamp(2.25rem,7vw,5.5rem)]">
-      {lines.map((line, position) => (
-        <Fragment key={line}>
-          {/* Whitespace between two block spans collapses visually but keeps the
-              accessible name a sentence instead of onerunonword. */}
-          {position > 0 && " "}
-          <span className="block">{line}</span>
-        </Fragment>
-      ))}
-    </h2>
   );
 }
 

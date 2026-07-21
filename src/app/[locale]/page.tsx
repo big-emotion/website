@@ -2,7 +2,8 @@ import { hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { SceneCanvas } from "@/components/scene/scene-canvas";
-import { SceneHeadline, ScenePanel } from "@/components/scene-panel";
+import { ScenePanel } from "@/components/scene-panel";
+import { StackedHeadline } from "@/components/stacked-headline";
 import { content, site, socialHandle } from "@/content/site";
 import { routing } from "@/i18n/routing";
 
@@ -32,7 +33,10 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             // readers and for the document outline.
             <h1 className="sr-only">{`${site.name} — ${tagline}`}</h1>
           ) : (
-            <SceneHeadline lines={scene.title} />
+            <StackedHeadline
+              lines={scene.title}
+              className="font-display text-[clamp(2.25rem,7vw,5.5rem)]"
+            />
           )}
 
           {scene.body && (

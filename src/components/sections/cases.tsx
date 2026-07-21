@@ -1,15 +1,23 @@
-import { cases, impactStats, productions } from "@/content/site";
+import { StackedHeadline } from "@/components/stacked-headline";
+import { content } from "@/content/site";
+import type { Locale } from "@/i18n/locales";
 
-export function Cases() {
+// The /cases route (SWBE-21). Scene ids are the section names, so the page opens on the
+// very line the scroll choreography teases for this section — in the visitor's language.
+export function Cases({ locale }: { locale: Locale }) {
+  const { scenes, leads, impactStats, cases, productionsIntro, productions } = content[locale];
+  const headline = scenes.find((scene) => scene.id === "cases");
+
   return (
-    <section
-      id="cases"
-      className="scroll-mt-24 bg-lyon px-5 py-20 text-paper md:px-8 md:py-32"
-    >
-      <p className="font-display text-sm tracking-[0.2em] opacity-80">02 — Cases &amp; Impact</p>
-      <h2 lang="en" className="font-display mt-4 text-[clamp(2.25rem,9vw,7rem)]">
-        We build what people remember.
-      </h2>
+    <section className="bg-lyon px-5 py-20 text-paper md:px-8 md:py-32">
+      <StackedHeadline
+        as="h1"
+        lines={headline?.title ?? []}
+        className="font-display text-[clamp(2.25rem,9vw,7rem)]"
+      />
+      <p className="mt-6 max-w-prose text-lg leading-relaxed opacity-80 md:text-xl">
+        {leads.cases}
+      </p>
 
       {/* gap-px over a lighter backdrop draws the hairline dividers, same brutalist
           grid idiom as the Approach services. flex-col-reverse puts the number above
@@ -38,9 +46,9 @@ export function Cases() {
             <p className="font-display text-sm uppercase tracking-wide opacity-70">
               {project.kind}
             </p>
-            <h3 className="font-display mt-2 text-[clamp(1.6rem,7vw,4rem)] text-lemon [overflow-wrap:anywhere]">
+            <h2 className="font-display mt-2 text-[clamp(1.6rem,7vw,4rem)] text-lemon [overflow-wrap:anywhere]">
               {project.title}
-            </h3>
+            </h2>
             <p className="mt-4 max-w-prose text-lg leading-relaxed">{project.summary}</p>
             <ul className="mt-6 flex flex-wrap gap-2">
               {project.tags.map((tag) => (
@@ -57,18 +65,17 @@ export function Cases() {
       </div>
 
       {/* The sector cards say what we do; this block says what we shipped. It sits at the
-          end of the section, in lemon, so the eye lands on the only work here that can be
+          end of the page, in lemon, so the eye lands on the only work here that can be
           opened in a new tab. */}
       <section aria-labelledby="productions-title" className="mt-20 md:mt-28">
-        <h3
+        <h2
           id="productions-title"
           className="font-display border-t-2 border-lemon pt-6 text-sm uppercase tracking-[0.2em] text-lemon md:text-base"
         >
-          Nos productions maison
-        </h3>
+          {productionsIntro.title}
+        </h2>
         <p className="mt-3 max-w-prose text-lg leading-relaxed opacity-80">
-          Pas des commandes : nos propres projets, qu’on conçoit, qu’on héberge et qu’on fait
-          vivre. Ils sont en ligne, va voir.
+          {productionsIntro.body}
         </p>
 
         <div className="mt-10 grid gap-12 md:mt-14 md:grid-cols-2 md:gap-8">
@@ -77,9 +84,9 @@ export function Cases() {
               <p className="font-display text-sm uppercase tracking-wide opacity-70">
                 {production.kind}
               </p>
-              <h4 className="font-display mt-2 text-[clamp(1.6rem,7vw,4rem)] text-lemon [overflow-wrap:anywhere]">
+              <h3 className="font-display mt-2 text-[clamp(1.6rem,7vw,4rem)] text-lemon [overflow-wrap:anywhere]">
                 {production.title}
-              </h4>
+              </h3>
               <p className="mt-4 max-w-prose text-lg leading-relaxed">{production.summary}</p>
               <ul className="mt-6 flex flex-wrap gap-2">
                 {production.tags.map((tag) => (
