@@ -51,7 +51,16 @@ jobs:
       # multi-stage Dockerfile.  The pnpm steps above validate fast; the
       # Docker build produces the deployable artefact.
       - name: Build Docker image
-        run: docker build -t big-emotion:deploy .
+        env:
+          # `next build` pre-renders the /cases routes from Prismic, so the read token
+          # is a build-time credential. It is passed as a BuildKit secret rather than a
+          # build arg so it never lands in an image layer.
+          PRISMIC_ACCESS_TOKEN: ${{ secrets.PRISMIC_ACCESS_TOKEN }}
+        run: |
+          docker build -t big-emotion:deploy \
+            --build-arg PRISMIC_REPOSITORY_NAME="${{ vars.PRISMIC_REPOSITORY_NAME }}" \
+            --secret id=prismic_access_token,env=PRISMIC_ACCESS_TOKEN \
+            .
 
       - name: Export image as compressed tarball
         run: docker save big-emotion:deploy | gzip > /tmp/big-emotion.tar.gz

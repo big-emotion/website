@@ -49,4 +49,11 @@ jobs:
           restore-keys: |
             nextjs-${{ hashFiles('pnpm-lock.yaml') }}-
 
+      # The /cases routes are pre-rendered from Prismic, so the build needs the read
+      # token here exactly as the deploy build does (SWBE-24). Both are repository-level
+      # settings, so a fork PR — which gets no secrets — will fail this step; that is the
+      # same trade-off the build already makes by pre-rendering real content.
       - run: pnpm build
+        env:
+          PRISMIC_REPOSITORY_NAME: ${{ vars.PRISMIC_REPOSITORY_NAME }}
+          PRISMIC_ACCESS_TOKEN: ${{ secrets.PRISMIC_ACCESS_TOKEN }}
