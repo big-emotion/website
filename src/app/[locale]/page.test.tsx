@@ -149,10 +149,34 @@ describe("Home", () => {
     );
   });
 
+  it("sits the intro copy bottom-right, clear of the centred wordmark", async () => {
+    const { container } = await renderHome("fr");
+    const intro = container.querySelector('[data-scene="0"]');
+    expect(intro?.className).toContain("items-end");
+    expect(intro?.className).toContain("justify-end");
+  });
+
   it("closes on the handle without offering a link, the social URLs being unknown", async () => {
     const { container } = await renderHome("fr");
     expect(container.querySelector('[data-scene="5"]')).toHaveTextContent("@bigemotionagency");
     expect(screen.queryAllByRole("link")).toHaveLength(0);
+  });
+
+  it("stacks the closing beat like the reference: handle above the headline, socials below", async () => {
+    const { container } = await renderHome("fr");
+    const finalPanel = container.querySelector('[data-scene="5"]')!;
+    const handle = [...finalPanel.querySelectorAll("p")].find(
+      (p) => p.textContent === "@bigemotionagency",
+    );
+    const headline = finalPanel.querySelector("h2");
+    expect(handle).toBeDefined();
+    expect(headline).not.toBeNull();
+    expect(
+      handle!.compareDocumentPosition(headline!) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    // Seven networks in one decorative sprite, deliberately unlinked (SWBE-95).
+    const sprite = screen.getByRole("img", { name: /facebook, x, instagram/i });
+    expect(finalPanel.contains(sprite)).toBe(true);
   });
 
   it("keeps every panel transparent so the fixed scene shows through", async () => {

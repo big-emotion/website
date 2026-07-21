@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { LoadScreen } from "@/components/load-screen";
+import { FooterSlot } from "@/components/footer-slot";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { content, site } from "@/content/site";
@@ -91,7 +92,9 @@ export default async function LocaleLayout({
         <main id="main" className="flex-1">
           {children}
         </main>
-        <SiteFooter locale={locale as Locale} />
+        <FooterSlot>
+          <SiteFooter locale={locale as Locale} />
+        </FooterSlot>
       </NextIntlClientProvider>
       <script
         type="application/ld+json"

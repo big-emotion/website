@@ -25,21 +25,33 @@ export function ScenePanel({
       data-scene={index}
       data-slice-type={dataSliceType}
       data-slice-variation={dataSliceVariation}
-      className={`scene-panel relative flex min-h-[100svh] flex-col items-start justify-end px-5 pt-28 pb-28 md:px-10 ${placementFor(index)}`}
+      className={`scene-panel relative flex min-h-[100svh] flex-col px-5 pt-28 pb-28 md:px-10 ${placementFor(index)}`}
     >
-      <div className="max-w-[82vw] md:max-w-[36rem]">{children}</div>
+      <div className={contentFor(index)}>{children}</div>
     </section>
   );
 }
 
-// Mobile stays bottom-left throughout — there is no half of a 375px viewport to take.
-// From `md:` the copy claims the half the wordmark vacates: `STATES[i].x` is its
-// side-slide, so a positive x (mark drifts right) sends the copy left, and vice versa.
-// The intro and closing keyframes leave the mark centred (x = 0), so their copy stays
-// low and centred rather than fighting it for the middle of the screen.
+// The bookend beats mirror the reference composition exactly. Intro: copy tucked
+// bottom-right under the settled wordmark (all breakpoints — the reference does not
+// re-place it on mobile). Final: block centred but pushed 10vh below middle so the
+// docked 3D mark owns the gap above the handle. The middle beats keep mobile
+// bottom-left — there is no half of a 375px viewport to take — and from `md:` claim
+// the half the wordmark vacates: `STATES[i].x` is its side-slide, so a positive x
+// (mark drifts right) sends the copy left, and vice versa.
 function placementFor(index: number): string {
+  if (index === 0) return "items-end justify-end";
+  if (index === STATES.length - 1) return "items-center justify-center text-center";
   const wordmarkSlide = STATES[index].x;
-  if (wordmarkSlide > 0) return "md:items-start md:justify-center";
-  if (wordmarkSlide < 0) return "md:items-end md:justify-center md:text-right";
-  return "md:items-center md:text-center";
+  if (wordmarkSlide > 0) return "items-start justify-end md:items-start md:justify-center";
+  if (wordmarkSlide < 0)
+    return "items-start justify-end md:items-end md:justify-center md:text-right";
+  return "items-start justify-end md:items-center md:text-center";
+}
+
+// The final block runs wider than the reading-width middle beats: its headline is
+// display-scale and must not wrap short of the reference's three authored lines.
+function contentFor(index: number): string {
+  if (index === STATES.length - 1) return "max-w-[92vw] translate-y-[10vh]";
+  return "max-w-[82vw] md:max-w-[36rem]";
 }

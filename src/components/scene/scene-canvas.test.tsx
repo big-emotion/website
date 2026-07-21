@@ -224,6 +224,15 @@ describe("SceneCanvas", () => {
     expect(document.body.dataset.active).toBe("0");
   });
 
+  it("stacks the final-beat wordmark between the stage and the canvas", () => {
+    // Paint order inside the underlay is DOM order: stage colour first, then the
+    // giant wordmark, then the canvas — so the 3D mark renders on top of the
+    // wordmark, matching the reference site's z-index ladder (stage 0 < mark 1 < webgl 2).
+    const { container } = renderScene();
+    const stage = container.querySelector(".scene-stage");
+    expect(stage?.nextElementSibling).toBe(screen.getByTestId("scene-finalmark"));
+  });
+
   it("keeps the scene root behind page content via a negative z-index", () => {
     // Regression guard: the fixed scene is an opaque underlay. jsdom has no
     // layout engine so real paint order can't be asserted here — instead we

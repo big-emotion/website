@@ -284,6 +284,15 @@ body[data-active="5"] {
   transition: background-color 0.6s ease;
 }
 
+/* Final-beat backdrop: the designer's giant wordmark bleeding off every edge.
+   cover on a full-viewport layer is the whole technique — any aspect other than the
+   SVG's own 1.86:1 crops the sides rather than letterboxing. Starts invisible; the
+   scroll timeline scrubs its opacity over the final move (see scene-canvas.tsx). */
+.scene-finalmark {
+  opacity: 0;
+  background: url("/be-logo-bg.svg") center / cover no-repeat;
+}
+
 /* The scroll panels (SWBE-123) are transparent over .scene-stage, so their copy has to
    follow the same per-state ink the cue and loader use — the "louder" state paints the
    stage black and would otherwise leave black text on black. Transition matched to

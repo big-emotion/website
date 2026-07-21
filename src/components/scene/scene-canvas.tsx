@@ -79,6 +79,7 @@ function buildStudioEnvironment() {
  *  reduced motion — content itself always scrolls normally either way. */
 export function SceneCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const finalMarkRef = useRef<HTMLDivElement>(null);
   const supportsScene = useSyncExternalStore(
     subscribeToMotionPreference,
     getSupportsSceneSnapshot,
@@ -221,6 +222,13 @@ export function SceneCanvas() {
         tl.call(setActive, [i], pos + MOVE_DURATION * 0.6);
         pos += MOVE_DURATION;
       }
+
+      // The giant wordmark surfaces behind the mark on the final move only: linear
+      // under scrub over the last 0.6 timeline units, concurrent with the last
+      // MOVE's tail — the reference site's exact tween.
+      if (finalMarkRef.current) {
+        tl.to(finalMarkRef.current, { opacity: 1, duration: 0.6 }, pos - 0.6);
+      }
     }
 
     function playReveal() {
@@ -266,6 +274,10 @@ export function SceneCanvas() {
         const holder = new THREE.Group();
         const maxDim = Math.max(size.x, size.y, size.z) || 1;
         holder.scale.setScalar(1 / maxDim);
+        // The shipped GLB carries a +45° Y rotation on a node (designer export);
+        // cancel it here so STATES face-on keyframes actually face the camera.
+        // Must live on holder: applyLive() overwrites spin.rotation every frame.
+        holder.rotation.y = -Math.PI / 4;
         holder.add(model);
         spin.add(holder);
 
@@ -298,6 +310,9 @@ export function SceneCanvas() {
   return (
     <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10">
       <div className="scene-stage fixed inset-0" />
+      {/* Between stage and canvas so the 3D mark renders on top of it — DOM order is
+          the paint order inside this underlay. GSAP fades it in on the final beat. */}
+      <div ref={finalMarkRef} data-testid="scene-finalmark" className="scene-finalmark fixed inset-0" />
 
       {effectiveStatus === "fallback" ? (
         <div
