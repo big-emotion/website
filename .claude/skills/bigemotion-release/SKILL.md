@@ -38,7 +38,7 @@ Verify all of the following before any write. If any fail, **do not modify anyth
 
 6. **`develop` fully merged into `main`** — run `git rev-list --count main..origin/develop`. If > 0, stop and report how many commits are stranded, with `git log --oneline main..origin/develop`.
 
-   Releases are cut from `main`, but implementation lands on `develop` (both Ferry via `FERRY_INTEGRATION_BRANCH` and `/bigemotion-ticket`). `main` only advances when `develop` is promoted onto it, so tagging without this check silently ships a release that omits everything merged since the last promotion. Promotion is meant to be owned by the `promote-develop.yml` workflow (ADR 0008), fast-forwarding `main` automatically on every green `develop` build — once that workflow is rolled out, this precondition should rarely fire. It stays exactly as strict either way: it is the safety net for the gap between a `develop` push and that workflow completing, for a promotion run that failed, and for the period before the workflow exists on `main` at all. Promoting is the user's call — offer `git merge --ff-only origin/develop`, do not merge unasked.
+   Releases are cut from `main`, but implementation lands on `develop` (both Ferry via `FERRY_INTEGRATION_BRANCH` and `/bigemotion-ticket`). `main` only advances when `develop` is promoted onto it, so tagging without this check silently ships a release that omits everything merged since the last promotion. Promotion is manual by decision — automating it was specified in ADR 0008 and then declined — so this precondition is the only thing standing between a forgotten promotion and a release that silently omits work. Promoting is the user's call — offer `git merge --ff-only origin/develop`, do not merge unasked.
 
 ## Inputs
 
