@@ -10,6 +10,9 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:storybook": "vitest run --config vitest.storybook.config.ts",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
     "slicemachine": "node --env-file-if-exists=.env scripts/gen-slicemachine-config.mjs && start-slicemachine",
     "prismic:codegen": "prismic-ts-codegen",
     "prismic:check": "node --env-file-if-exists=.env scripts/prismic-check.mjs",
@@ -34,6 +37,8 @@
     "@fontsource-variable/archivo": "^5.2.8",
     "@fontsource-variable/bricolage-grotesque": "^5.2.10",
     "@slicemachine/adapter-next": "^0.3.96",
+    "@storybook/addon-vitest": "^10.5.3",
+    "@storybook/nextjs": "^10.5.3",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
@@ -43,13 +48,17 @@
     "@types/react-dom": "^19",
     "@types/three": "0.185.1",
     "@vitejs/plugin-react": "^6.0.3",
+    "@vitest/browser": "^4.1.10",
+    "@vitest/browser-playwright": "^4.1.10",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
     "jsdom": "^29.1.1",
+    "playwright": "^1.61.1",
     "prismic-ts-codegen": "^0.1.30",
     "slice-machine-ui": "^2.21.3",
+    "storybook": "^10.5.3",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^4.1.9"
+    "vitest": "^4.1.10"
   }
 }

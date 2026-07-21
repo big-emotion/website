@@ -48,3 +48,6 @@ next-env.d.ts
 # BMAD tooling output (local only)
 /_bmad/
 /_bmad-output/
+
+# Storybook build output
+/storybook-static
