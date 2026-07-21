@@ -33,6 +33,11 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# Slice Machine config — generated from PRISMIC_REPOSITORY_NAME by
+# scripts/gen-slicemachine-config.mjs, so the UI can never open a different
+# repository than the rest of the toolchain targets.
+slicemachine.config.json
+
 # vercel
 .vercel
 

@@ -1,0 +1,42 @@
+{
+  "id": "case_chapter",
+  "type": "SharedSlice",
+  "name": "CaseChapter",
+  "description": "Un chapitre d'étude de cas : titre, texte riche et visuel optionnel. Seule slice du corps d'une étude de cas.",
+  "variations": [
+    {
+      "id": "default",
+      "name": "Par défaut",
+      "docURL": "...",
+      "version": "initial",
+      "description": "Titre, texte riche, visuel optionnel.",
+      "primary": {
+        "heading": {
+          "type": "StructuredText",
+          "config": {
+            "label": "Titre du chapitre",
+            "single": "heading2",
+            "placeholder": "Le probleme"
+          }
+        },
+        "body": {
+          "type": "StructuredText",
+          "config": {
+            "label": "Texte",
+            "multi": "paragraph,strong,em,hyperlink,list-item,o-list-item",
+            "placeholder": "Le contenu du chapitre"
+          }
+        },
+        "image": {
+          "type": "Image",
+          "config": {
+            "label": "Visuel (optionnel)",
+            "constraint": {},
+            "thumbnails": []
+          }
+        }
+      },
+      "items": {}
+    }
+  ]
+}
