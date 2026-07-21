@@ -1,13 +1,13 @@
 // Single source of truth for site copy, with one exception. Structured marketing data
-// (services, productions, team) is typed here rather than in MDX: it's short and highly
+// (services, team) is typed here rather than in MDX: it's short and highly
 // structured, so a typed module reads better and the components stay declarative.
 //
 // EXCEPT the case studies (SWBE-24) and the Home scroll spine (SWBE-81): both are
 // Prismic content, fetched at build time — case studies by the /cases routes, the Home
 // beats by the `page` (uid "home") document's Slice Zone. Everything else on those
-// pages — the impact figures, the agency's own productions, the three subpage heroes
-// under `sectionHeroes` — is still this module. Migrating the rest is deliberately a
-// later decision, not an oversight.
+// pages — the impact figures, the three subpage heroes under `sectionHeroes` — is still
+// this module. The agency's own productions left it for Prismic articles, since they had
+// outgrown a two-line card. Migrating the rest is deliberately a later decision.
 //
 // BILINGUAL (SWBE-21): everything a visitor reads lives under `content[locale]`;
 // everything that is the same in both locales — the brand name, contact details, client
@@ -19,7 +19,7 @@
 // é è à ç É. Any accented character in display type silently falls back to
 // another font and renders visibly mismatched, so copy that lands in a
 // `font-display` slot is written unaccented: section-hero headlines, nav labels, the
-// scroll cue, mission, stat.label, service titles, production titles/kinds,
+// scroll cue, mission, stat.label, service titles,
 // impact labels, team names/roles, values, the contact headline. Case study titles and
 // the Home scroll spine's own headlines land in the same display slots but are
 // authored in Prismic, where this test cannot reach them — see the accent warning in
@@ -74,20 +74,6 @@ type LocaleContent = {
   blog: { lead: string; emptyState: string; byline: string };
   services: readonly { title: string; body: string }[];
   impactStats: readonly { value: string; label: string }[];
-  productionsIntro: { title: string; body: string };
-  productions: readonly {
-    /**
-     * Also the uid of the production's article in Prismic: the `/cases` card links to
-     * `/blog/<slug>`. Renaming one without the other 404s the reader, and nothing fails
-     * at build time to warn you — `src/components/sections/cases.test.tsx` pins the pairs.
-     */
-    slug: string;
-    title: string;
-    kind: string;
-    summary: string;
-    tags: readonly string[];
-    links: readonly LinkOut[];
-  }[];
   team: readonly {
     name: string;
     role: string;
@@ -220,54 +206,6 @@ const fr: LocaleContent = {
     { value: "+150 %", label: "Croissance moyenne" },
     { value: "+10 ans", label: "D’experience" },
   ],
-  productionsIntro: {
-    title: "Nos productions maison",
-    body: "Pas des commandes : nos propres projets, qu’on conçoit, qu’on héberge et qu’on fait vivre. Ils sont en ligne, va voir.",
-  },
-  productions: [
-    {
-      slug: "ethniafrica",
-      title: "EthniAfrica",
-      kind: "Produit",
-      summary:
-        "Le dictionnaire des ethnies africaines : les peuples des 55 pays du continent, leurs langues, leurs familles linguistiques. Conçu, développé et maintenu par nos soins — consultable en ligne comme en API.",
-      tags: ["Produit", "Données", "API"],
-      links: [
-        { label: "ethniafrica.com", context: "sur le web", href: "https://ethniafrica.com/fr" },
-      ],
-    },
-    {
-      slug: "ferry",
-      title: "Ferry",
-      kind: "Open source",
-      summary:
-        "Une carte Jira change de colonne, une pull request relue arrive. Un pipeline d’agents qui tourne dans GitHub Actions — ni serveur, ni démon à héberger. Publié sous licence MIT, on s’en sert tous les jours.",
-      tags: ["TypeScript", "GitHub Actions", "MIT"],
-      links: [
-        { label: "GitHub", context: "sur GitHub", href: "https://github.com/big-emotion/ferry" },
-        {
-          label: "npm",
-          context: "sur npm",
-          href: "https://www.npmjs.com/package/@big-emotion/ferry",
-        },
-      ],
-    },
-    {
-      slug: "project-standard",
-      title: "Project Standard",
-      kind: "Outillage",
-      summary:
-        "Notre façon de monter un projet, empaquetée en plugin Claude Code : contrôles de CI, hooks de commit, skills maison, câblage Jira et Confluence. Une commande, et un repo neuf démarre déjà aux normes. Sous licence MIT.",
-      tags: ["Claude Code", "Plugin", "CI/CD"],
-      links: [
-        {
-          label: "GitHub",
-          context: "sur GitHub",
-          href: "https://github.com/big-emotion/project-standard",
-        },
-      ],
-    },
-  ],
   team: [
     {
       name: "Jean-Noe Kollo",
@@ -367,54 +305,6 @@ const en: LocaleContent = {
   impactStats: [
     { value: "+150 %", label: "Average growth" },
     { value: "+10 yrs", label: "Of experience" },
-  ],
-  productionsIntro: {
-    title: "Our own productions",
-    body: "Not client work: our own projects, the ones we design, host and keep alive. They are online — go and look.",
-  },
-  productions: [
-    {
-      slug: "ethniafrica",
-      title: "EthniAfrica",
-      kind: "Product",
-      summary:
-        "The dictionary of African ethnic groups: the peoples of the continent’s 55 countries, their languages, their language families. Designed, built and maintained in-house — available on the web and as an API.",
-      tags: ["Product", "Data", "API"],
-      links: [
-        { label: "ethniafrica.com", context: "on the web", href: "https://ethniafrica.com/fr" },
-      ],
-    },
-    {
-      slug: "ferry",
-      title: "Ferry",
-      kind: "Open source",
-      summary:
-        "A Jira card changes column, a reviewed pull request shows up. A pipeline of agents running inside GitHub Actions — no server, no daemon to host. Published under the MIT licence, and we use it every day.",
-      tags: ["TypeScript", "GitHub Actions", "MIT"],
-      links: [
-        { label: "GitHub", context: "on GitHub", href: "https://github.com/big-emotion/ferry" },
-        {
-          label: "npm",
-          context: "on npm",
-          href: "https://www.npmjs.com/package/@big-emotion/ferry",
-        },
-      ],
-    },
-    {
-      slug: "project-standard",
-      title: "Project Standard",
-      kind: "Tooling",
-      summary:
-        "The way we set a project up, packaged as a Claude Code plugin: CI checks, commit hooks, in-house skills, Jira and Confluence wiring. One command and a fresh repo already meets the standard. MIT licensed.",
-      tags: ["Claude Code", "Plugin", "CI/CD"],
-      links: [
-        {
-          label: "GitHub",
-          context: "on GitHub",
-          href: "https://github.com/big-emotion/project-standard",
-        },
-      ],
-    },
   ],
   team: [
     {

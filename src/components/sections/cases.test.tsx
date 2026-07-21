@@ -115,59 +115,10 @@ describe("Cases", () => {
     expect(screen.queryByText("Plateformes de marque")).toBeNull();
   });
 
-  it("names the agency's own productions and links them out", () => {
-    renderCases();
-
-    expect(screen.getByRole("heading", { name: /ethniafrica/i })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /ethniafrica sur le web/i })).toHaveAttribute(
-      "href",
-      "https://ethniafrica.com/fr",
-    );
-  });
-
-  it("links the project standard plugin to its repository", () => {
-    renderCases();
-
-    expect(screen.getByRole("heading", { name: /project standard/i })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Project Standard sur GitHub" })).toHaveAttribute(
-      "href",
-      "https://github.com/big-emotion/project-standard",
-    );
-  });
-
-  it("keeps Ferry's two distribution links distinguishable out of context", () => {
-    renderCases();
-
-    expect(screen.getByRole("link", { name: "Ferry sur GitHub" })).toHaveAttribute(
-      "href",
-      "https://github.com/big-emotion/ferry",
-    );
-    expect(screen.getByRole("link", { name: "Ferry sur npm" })).toHaveAttribute(
-      "href",
-      "https://www.npmjs.com/package/@big-emotion/ferry",
-    );
-  });
-
-  // Each production now has a write-up on the blog, and `slug` is what ties the card to
-  // it: the value doubles as the article's Prismic uid. A mismatch here 404s the reader.
-  it.each([
-    ["EthniAfrica", "ethniafrica"],
-    ["Ferry", "ferry"],
-    ["Project Standard", "project-standard"],
-  ])("links %s to its write-up", (title, uid) => {
-    renderCases();
-
-    expect(screen.getByRole("link", { name: title })).toHaveAttribute(
-      "href",
-      `/blog/${uid}`,
-    );
-  });
-
-  it("answers in English on the English route, link labels included", () => {
+  it("answers in English on the English route", () => {
     renderCases("en");
 
-    expect(screen.getByRole("heading", { name: "Our own productions" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Ferry on GitHub" })).toBeInTheDocument();
+    expect(screen.getByText("Average growth")).toBeInTheDocument();
   });
 
   it("keeps the impact figures readable as a definition list", () => {
