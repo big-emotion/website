@@ -1,4 +1,5 @@
 import { team, values } from "@/content/site";
+import { PersonalitySlider } from "@/components/personality-slider";
 
 export function Culture() {
   return (
@@ -22,6 +23,8 @@ export function Culture() {
           </article>
         ))}
       </div>
+
+      <PersonalitySlider />
 
       <p className="font-display mt-16 text-xl md:mt-24 md:text-3xl">
         {values.join("  ·  ")}

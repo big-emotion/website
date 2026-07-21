@@ -87,6 +87,21 @@ body {
   outline-offset: 2px;
 }
 
+/* Brand personality slider (SWBE-92) — the static dot marking the brand's
+   position on each axis. `left` is set inline per-axis from content data;
+   the paper ring keeps the ink dot legible against the Culture section's
+   saturated tangerine background. */
+.personality-slider-dot {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  transform: translate(-50%, -50%);
+  border-radius: 9999px;
+  background: var(--color-ink);
+  border: 2px solid var(--color-paper);
+}
+
 /* ============================================================
    Hero 3D scene (SWBE-20) — fixed backdrop + loader/scroll-cue theming.
    scene-canvas.tsx sets body[data-active] as scroll crosses each of the six

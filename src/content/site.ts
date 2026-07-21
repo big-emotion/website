@@ -106,3 +106,18 @@ export const values = [
   "Simplicité radicale",
   "Exigence créative",
 ] as const;
+
+// Brand personality slider (brand book, "Brand personality slider" page).
+// `position` is the brand's static dot placement along each axis, 0 (start
+// pole) to 100 (end pole), measured from the guideline artwork by locating
+// the dot's pixel center relative to the line's endpoints. Two source labels
+// were corrected from apparent typos in the guideline ("Coold" -> "Cold",
+// "Detalied" -> "Detailed").
+export const personalityAxes = [
+  { start: "Formal", end: "Casual", position: 54 },
+  { start: "Cold", end: "Warm", position: 35 },
+  { start: "Serious", end: "Playful", position: 45 },
+  { start: "Detailed", end: "Minimal", position: 63 },
+  { start: "Corporate", end: "Friendly", position: 40 },
+  { start: "Complex", end: "Simple", position: 54 },
+] as const;
