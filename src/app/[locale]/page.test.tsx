@@ -3,12 +3,6 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { STATES } from "@/components/scene/states";
 
-// The real canvas boots three.js, GSAP and Lenis on mount — none of which jsdom can
-// run, and none of which this page's contract depends on. Its own test file covers it.
-vi.mock("@/components/scene/scene-canvas", () => ({
-  SceneCanvas: () => <div data-testid="scene-canvas" />,
-}));
-
 // Vitest resolves next-intl to its browser build (see vitest.config.ts), where every
 // server-only entry point is a throwing stub. `setRequestLocale` only tells Next.js to
 // keep the route static — it has no bearing on what the page renders.
