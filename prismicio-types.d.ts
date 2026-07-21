@@ -88,6 +88,17 @@ interface ArticleDocumentData {
 	publish_date: prismic.DateField;
 	
 	/**
+	 * Categorie field in *Article*
+	 *
+	 * - **Field Type**: Select
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: article.category
+	 * - **Tab**: Principal
+	 * - **Documentation**: https://prismic.io/docs/fields/select
+	 */
+	category: prismic.SelectField<"essay" | "report">;
+	
+	/**
 	 * Visuel de couverture field in *Article*
 	 *
 	 * - **Field Type**: Image
