@@ -1,7 +1,11 @@
-// Single source of truth for site copy. Structured marketing data (services, cases,
-// team) is typed here rather than in MDX: it's short and highly structured, so a typed
-// module reads better and the components stay declarative. MDX is reserved for any
-// future long-form content (a blog, deep case write-ups).
+// Single source of truth for site copy, with one exception. Structured marketing data
+// (services, productions, team) is typed here rather than in MDX: it's short and highly
+// structured, so a typed module reads better and the components stay declarative.
+//
+// EXCEPT the case studies (SWBE-24): they are the pilot content type and now live in
+// Prismic, fetched by the /cases routes at build time. Everything else on those pages —
+// the impact figures, the agency's own productions — is still this module. Migrating the
+// rest is deliberately a later decision, not an oversight.
 //
 // BILINGUAL (SWBE-21): everything a visitor reads lives under `content[locale]`;
 // everything that is the same in both locales — the brand name, contact details, client
@@ -13,8 +17,10 @@
 // é è à ç É. Any accented character in display type silently falls back to
 // another font and renders visibly mismatched, so copy that lands in a
 // `font-display` slot is written unaccented: scene headlines, nav labels, the
-// scroll cue, mission, stat.label, service titles, case titles/kinds, production
-// titles/kinds, impact labels, team names/roles, values, the contact headline.
+// scroll cue, mission, stat.label, service titles, production titles/kinds,
+// impact labels, team names/roles, values, the contact headline. Case study
+// titles land in the same display slots but are authored in Prismic, where this
+// test cannot reach them — see the accent warning in the AGENTS.md Prismic section.
 // Body copy keeps correct French — Bricolage Grotesque covers the full range.
 // Restore the accents here only once the display font gains the glyphs (DEC-023).
 // `contact.person` is deliberately still accented: it feeds the schema.org
@@ -59,13 +65,6 @@ type LocaleContent = {
   leads: { approach: string; cases: string; culture: string };
   services: readonly { title: string; body: string }[];
   impactStats: readonly { value: string; label: string }[];
-  cases: readonly {
-    slug: string;
-    title: string;
-    kind: string;
-    summary: string;
-    tags: readonly string[];
-  }[];
   productionsIntro: { title: string; body: string };
   productions: readonly {
     slug: string;
@@ -227,40 +226,6 @@ const fr: LocaleContent = {
   impactStats: [
     { value: "+150 %", label: "Croissance moyenne" },
     { value: "+10 ans", label: "D’experience" },
-  ],
-  cases: [
-    {
-      slug: "industrie",
-      title: "Industrie & B2B",
-      kind: "Plateformes de marque",
-      summary:
-        "Sortir un groupe industriel du site-plaquette. On refond l’image en ligne et on la branche sur un vrai moteur de leads qualifiés.",
-      tags: ["Refonte", "Génération de leads", "SEO"],
-    },
-    {
-      slug: "medias",
-      title: "Medias & Edition",
-      kind: "Audience & monetisation",
-      summary:
-        "Structurer l’acquisition éditoriale des grandes rédactions : formats, référencement, et des parcours qui retiennent le lecteur au lieu de le perdre.",
-      tags: ["SEO éditorial", "Audience", "Data"],
-    },
-    {
-      slug: "marketplaces",
-      title: "Marketplaces & E-commerce",
-      kind: "Acquisition & conversion",
-      summary:
-        "Du premier clic à la commande. On repense le tunnel, on le teste, on le mesure — pour que le trafic payé arrête de fuir en route.",
-      tags: ["UX/UI", "Conversion", "Growth"],
-    },
-    {
-      slug: "startups",
-      title: "Startups & Scale-ups",
-      kind: "Croissance",
-      summary:
-        "Poser la stratégie, l’identité et le produit d’une marque qui démarre, puis l’aider à scaler sans perdre ce qui la rendait singulière.",
-      tags: ["Stratégie", "Branding", "Produit"],
-    },
   ],
   productionsIntro: {
     title: "Nos productions maison",
@@ -430,40 +395,6 @@ const en: LocaleContent = {
   impactStats: [
     { value: "+150 %", label: "Average growth" },
     { value: "+10 yrs", label: "Of experience" },
-  ],
-  cases: [
-    {
-      slug: "industrie",
-      title: "Industry & B2B",
-      kind: "Brand platforms",
-      summary:
-        "Getting an industrial group out of the brochure-site era. We rebuild the online image and wire it to a real qualified-lead engine.",
-      tags: ["Rebuild", "Lead generation", "SEO"],
-    },
-    {
-      slug: "medias",
-      title: "Media & Publishing",
-      kind: "Audience & monetisation",
-      summary:
-        "Structuring editorial acquisition for major newsrooms: formats, search, and journeys that hold the reader instead of losing them.",
-      tags: ["Editorial SEO", "Audience", "Data"],
-    },
-    {
-      slug: "marketplaces",
-      title: "Marketplaces & E-commerce",
-      kind: "Acquisition & conversion",
-      summary:
-        "From the first click to the order. We rethink the funnel, test it, measure it — so paid traffic stops leaking on the way through.",
-      tags: ["UX/UI", "Conversion", "Growth"],
-    },
-    {
-      slug: "startups",
-      title: "Startups & Scale-ups",
-      kind: "Growth",
-      summary:
-        "Setting the strategy, identity and product of a brand that is just starting out, then helping it scale without losing what made it singular.",
-      tags: ["Strategy", "Branding", "Product"],
-    },
   ],
   productionsIntro: {
     title: "Our own productions",
