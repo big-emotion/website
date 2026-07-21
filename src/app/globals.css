@@ -40,11 +40,72 @@ body {
   }
 }
 .marquee-track {
-  animation: marquee-x 22s linear infinite;
+  animation: marquee-x 55s linear infinite;
+}
+/* Counter-scrolling variant for the second client-wall row. */
+@keyframes marquee-x-reverse {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+.marquee-track--reverse {
+  animation-name: marquee-x-reverse;
+}
+/* Let a visitor stop the band to actually read it. Guarded on (hover: hover) so a
+   touch device — where a tap reads as a hover and would freeze the band until the
+   next tap elsewhere — keeps scrolling. */
+@media (hover: hover) {
+  .marquee-track:hover {
+    animation-play-state: paused;
+  }
+  /* Hovering either client-wall row stops both: pausing only the row under the cursor
+     leaves the other one running and reads as a glitch. */
+  .client-wall-rows:hover .marquee-track {
+    animation-play-state: paused;
+  }
+}
+/* Per-band pacing. The shared rate above is tuned for the manifesto; the other two
+   bands have their own reasons to differ. */
+.client-wall-row .marquee-track {
+  /* Roughly half the manifesto's track width, so it needs a longer duration to land at
+     a comparable px/s. A list of names is read, not glanced at. */
+  animation-duration: 60s;
+}
+.loadscreen .marquee-track {
+  /* The intro is on screen for 1.4s total: at the manifesto's pace it would read as a
+     frozen image rather than a moving band. */
+  animation-duration: 22s;
 }
 @media (prefers-reduced-motion: reduce) {
   .marquee-track {
     animation: none;
+  }
+  /* A frozen marquee only shows what fits the viewport, which would silently drop
+     clients off the end of the wall. The rules below reflow the wall into a wrapped
+     grid instead, and drop what only existed to make the loop seamless.
+     Bleeding past the gutter only earns its keep while the rows scroll; a static grid
+     just ends up misaligned with the heading above it. */
+  .client-wall-rows {
+    margin-inline: 0;
+  }
+  .client-wall-row {
+    overflow: visible;
+  }
+  /* Once the rows are static, the counter-scrolling row is a second printing of the
+     same roster — nothing left to counter-scroll against. */
+  .client-wall-row[data-decorative="true"] {
+    display: none;
+  }
+  .client-wall-row .marquee-track,
+  .client-wall-row .marquee-track > ul {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .client-wall-row .marquee-track > [aria-hidden="true"] {
+    display: none;
   }
 }
 

@@ -64,37 +64,134 @@ export const services = [
   },
 ] as const;
 
-// Real projects (clients + briefs from the existing case studies).
+// Headline numbers carried over from the founders' track record. Deliberately does
+// NOT restate the project count — `site.stat` already claims "50+" in the Approach
+// section, and two different counts on one page would read as sloppy.
+export const impactStats = [
+  { value: "+150 %", label: "Croissance moyenne" },
+  { value: "+10 ans", label: "D’expérience" },
+] as const;
+
+// Cases are framed by sector, not by named client: most engagements ship under NDA
+// and the brands themselves are credited in the `clients` wall instead. Each entry
+// describes the nature of the work — no per-case figures we can't stand behind.
 export const cases = [
   {
-    slug: "mamiezi",
-    client: "MAMIEZI",
-    kind: "Marketplace e-tourisme",
+    slug: "industrie",
+    title: "Industrie & B2B",
+    kind: "Plateformes de marque",
     summary:
-      "Le premier site d’e-tourisme dédié aux loisirs, excursions et activités sur le continent africain. Un catalogue d’expériences à vivre, réservables en quelques clics.",
-    tags: ["UX/UI", "Réservation", "Responsive"],
+      "Sortir un groupe industriel du site-plaquette. On refond l’image en ligne et on la branche sur un vrai moteur de leads qualifiés.",
+    tags: ["Refonte", "Génération de leads", "SEO"],
   },
   {
-    slug: "adolebatisseur",
-    client: "AdoléBâtisseur",
-    kind: "Site d’actualité",
+    slug: "medias",
+    title: "Médias & Édition",
+    kind: "Audience & monétisation",
     summary:
-      "Un média pour informer les Ivoiriens des grands chantiers nationaux d’aménagement du territoire engagés par la présidence de Côte d’Ivoire.",
-    tags: ["Éditorial", "Actu", "Responsive"],
+      "Structurer l’acquisition éditoriale des grandes rédactions : formats, référencement, et des parcours qui retiennent le lecteur au lieu de le perdre.",
+    tags: ["SEO éditorial", "Audience", "Data"],
+  },
+  {
+    slug: "marketplaces",
+    title: "Marketplaces & E-commerce",
+    kind: "Acquisition & conversion",
+    summary:
+      "Du premier clic à la commande. On repense le tunnel, on le teste, on le mesure — pour que le trafic payé arrête de fuir en route.",
+    tags: ["UX/UI", "Conversion", "Growth"],
+  },
+  {
+    slug: "startups",
+    title: "Startups & Scale-ups",
+    kind: "Croissance",
+    summary:
+      "Poser la stratégie, l’identité et le produit d’une marque qui démarre, puis l’aider à scaler sans perdre ce qui la rendait singulière.",
+    tags: ["Stratégie", "Branding", "Produit"],
   },
 ] as const;
 
+// What the agency builds and runs for itself, as opposed to the sector `cases` above,
+// which stay unnamed because the engagements behind them are under NDA. These have no
+// client to clear, so they carry the one thing the sector cards can't: a link you can
+// click. `context` completes each accessible name — Ferry ships on two channels and
+// "GitHub" alone would be ambiguous out of context (WCAG 2.4.4), same as `team` links.
+export const productions = [
+  {
+    slug: "ethniafrica",
+    title: "EthniAfrica",
+    kind: "Produit",
+    summary:
+      "Le dictionnaire des ethnies africaines : les peuples des 55 pays du continent, leurs langues, leurs familles linguistiques. Conçu, développé et maintenu par nos soins — consultable en ligne comme en API.",
+    tags: ["Produit", "Données", "API"],
+    links: [
+      { label: "ethniafrica.com", context: "sur le web", href: "https://ethniafrica.com/fr" },
+    ],
+  },
+  {
+    slug: "ferry",
+    title: "Ferry",
+    kind: "Open source",
+    summary:
+      "Une carte Jira change de colonne, une pull request relue arrive. Un pipeline d’agents qui tourne dans GitHub Actions — ni serveur, ni démon à héberger. Publié sous licence MIT, on s’en sert tous les jours.",
+    tags: ["TypeScript", "GitHub Actions", "MIT"],
+    links: [
+      { label: "GitHub", context: "sur GitHub", href: "https://github.com/big-emotion/ferry" },
+      { label: "npm", context: "sur npm", href: "https://www.npmjs.com/package/@big-emotion/ferry" },
+    ],
+  },
+] as const;
+
+// Brands the founders have worked with, rendered as typographic wordmarks rather than
+// logo files: no third-party asset licensing, no mismatched formats, and the wall
+// inherits the brand's display type instead of fifteen competing ones.
+export const clients = [
+  "Michelin",
+  "AXA",
+  "Orange",
+  "TF1",
+  "BNP Paribas",
+  "Radio France",
+  "Les Echos",
+  "Prisma Media",
+  "Vallourec",
+  "Ornikar",
+  "Swapcard",
+  "Agryco",
+  "Cromology",
+  "Fuencap",
+  "Mamiezi",
+] as const;
+
 // The people (names + the personality lines from the old "Les Membres" page).
+// `links` are public profiles the founders own; `label` is what the visitor reads and
+// `context` completes the accessible name, so two links both labelled "LinkedIn" stay
+// distinguishable out of context (WCAG 2.4.4).
 export const team = [
   {
     name: "Jean-Noé Kollo",
     role: "Geek & philosophe",
     bio: "Il démarre toujours un projet par une citation d’auteur — histoire de donner le ton.",
+    links: [
+      { label: "LinkedIn", context: "sur LinkedIn", href: "https://www.linkedin.com/in/jnkollo/" },
+      { label: "Malt", context: "sur Malt", href: "https://www.malt.fr/profile/jeannoekollo" },
+    ],
   },
   {
     name: "Sylvain Seng Bandith",
     role: "Rêveur & pointilleux",
     bio: "Livrer avec une vision, sans rien lâcher sur la prod. Rêver et soigner le détail, pour lui ça va ensemble.",
+    links: [
+      {
+        label: "sylvainsengbandith.fr",
+        context: "sur son site",
+        href: "https://www.sylvainsengbandith.fr/",
+      },
+      {
+        label: "LinkedIn",
+        context: "sur LinkedIn",
+        href: "https://fr.linkedin.com/in/sylvain-sengbandith-83515b28",
+      },
+    ],
   },
 ] as const;
 
