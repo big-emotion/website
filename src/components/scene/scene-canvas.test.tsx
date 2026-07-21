@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // jsdom doesn't implement matchMedia at all — stub a "no preference" default
@@ -174,6 +175,16 @@ vi.mock("lenis", () => ({
 
 const { SceneCanvas } = await import("./scene-canvas");
 
+// The scroll cue reads its label from the active locale, which the app supplies through
+// the provider mounted in the locale layout.
+function renderScene() {
+  return render(
+    <NextIntlClientProvider locale="fr">
+      <SceneCanvas />
+    </NextIntlClientProvider>,
+  );
+}
+
 beforeEach(() => {
   stubMatchMedia(false);
 });
@@ -188,14 +199,14 @@ describe("SceneCanvas", () => {
   it("renders the static wordmark fallback when WebGL is unavailable", () => {
     // jsdom's canvas has no WebGL context by default — this is the real,
     // unmocked no-WebGL path.
-    render(<SceneCanvas />);
+    renderScene();
     expect(screen.getByTestId("scene-fallback")).toBeInTheDocument();
     expect(screen.queryByTestId("scene-canvas")).not.toBeInTheDocument();
   });
 
   it("renders the static wordmark fallback when the user prefers reduced motion", () => {
     stubMatchMedia(true);
-    render(<SceneCanvas />);
+    renderScene();
     expect(screen.getByTestId("scene-fallback")).toBeInTheDocument();
   });
 
@@ -204,7 +215,7 @@ describe("SceneCanvas", () => {
       {} as unknown as RenderingContext,
     );
 
-    render(<SceneCanvas />);
+    renderScene();
 
     expect(screen.getByTestId("scene-canvas")).toBeInTheDocument();
     await waitFor(() => {
@@ -218,7 +229,7 @@ describe("SceneCanvas", () => {
     // layout engine so real paint order can't be asserted here — instead we
     // pin the mechanism. Dropping the negative z-index let the fixed
     // .scene-stage paint over every section below the hero and hid all content.
-    const { container } = render(<SceneCanvas />);
+    const { container } = renderScene();
     const root = container.querySelector('[aria-hidden="true"]');
     expect(root?.className).toContain("-z-10");
   });

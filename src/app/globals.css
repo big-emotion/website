@@ -201,6 +201,15 @@ body[data-active="5"] {
   transition: background-color 0.6s ease;
 }
 
+/* The scroll panels (SWBE-123) are transparent over .scene-stage, so their copy has to
+   follow the same per-state ink the cue and loader use — the "louder" state paints the
+   stage black and would otherwise leave black text on black. Transition matched to
+   .scene-stage so colour and backdrop turn together. */
+.scene-panel {
+  color: var(--scene-ink);
+  transition: color 0.6s ease;
+}
+
 .scene-loader-mark {
   color: var(--scene-ink);
   animation: scene-loader-pulse 1.2s ease-in-out infinite;
