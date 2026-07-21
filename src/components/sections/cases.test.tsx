@@ -115,44 +115,10 @@ describe("Cases", () => {
     expect(screen.queryByText("Plateformes de marque")).toBeNull();
   });
 
-  it("names the agency's own productions and links them out", () => {
-    renderCases();
-
-    expect(screen.getByRole("heading", { name: /ethniafrica/i })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /ethniafrica sur le web/i })).toHaveAttribute(
-      "href",
-      "https://ethniafrica.com/fr",
-    );
-  });
-
-  it("links the project standard plugin to its repository", () => {
-    renderCases();
-
-    expect(screen.getByRole("heading", { name: /project standard/i })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Project Standard sur GitHub" })).toHaveAttribute(
-      "href",
-      "https://github.com/big-emotion/project-standard",
-    );
-  });
-
-  it("keeps Ferry's two distribution links distinguishable out of context", () => {
-    renderCases();
-
-    expect(screen.getByRole("link", { name: "Ferry sur GitHub" })).toHaveAttribute(
-      "href",
-      "https://github.com/big-emotion/ferry",
-    );
-    expect(screen.getByRole("link", { name: "Ferry sur npm" })).toHaveAttribute(
-      "href",
-      "https://www.npmjs.com/package/@big-emotion/ferry",
-    );
-  });
-
-  it("answers in English on the English route, link labels included", () => {
+  it("answers in English on the English route", () => {
     renderCases("en");
 
-    expect(screen.getByRole("heading", { name: "Our own productions" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Ferry on GitHub" })).toBeInTheDocument();
+    expect(screen.getByText("Average growth")).toBeInTheDocument();
   });
 
   it("keeps the impact figures readable as a definition list", () => {
@@ -160,5 +126,17 @@ describe("Cases", () => {
 
     expect(container.querySelectorAll("dl dt")).toHaveLength(2);
     expect(container.querySelectorAll("dl dd")).toHaveLength(2);
+  });
+
+  // The roster belongs to the references page, not to /culture where it first shipped:
+  // it corroborates the work above rather than sitting among the team and the brand
+  // personality.
+  it("closes on the client roster", () => {
+    renderCases();
+
+    expect(
+      screen.getByRole("heading", { name: "Ils nous ont fait confiance" }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText("Radio France").length).toBeGreaterThan(0);
   });
 });

@@ -48,11 +48,6 @@ describe("Culture", () => {
     }
   });
 
-  it("credits the client brands alongside the team", () => {
-    renderCulture("fr");
-    expect(screen.getAllByText("Radio France").length).toBeGreaterThan(0);
-  });
-
   it("answers in English on the English route, founder roles and values included", () => {
     renderCulture("en");
 

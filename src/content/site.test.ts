@@ -17,7 +17,6 @@ function displayCopy(locale: Locale) {
     ...copy.contact.title,
     ...copy.services.map((service) => service.title),
     ...copy.impactStats.map((stat) => stat.label),
-    ...copy.productions.flatMap((production) => [production.title, production.kind]),
     ...copy.team.flatMap((member) => [member.name, member.role]),
     ...copy.values,
   ];
@@ -33,12 +32,6 @@ describe("locale parity", () => {
   // Both locales are authored by hand, so the identifiers a URL or an anchor is built
   // from get asserted equal rather than assumed: a slug present in one locale only
   // would 404 the moment the switcher preserves the path across it.
-  it("exposes the same production slugs in both locales", () => {
-    expect(content.en.productions.map((production) => production.slug)).toEqual(
-      content.fr.productions.map((production) => production.slug),
-    );
-  });
-
   it("points the nav at the same routes in both locales", () => {
     expect(content.en.nav.map((item) => item.href)).toEqual(
       content.fr.nav.map((item) => item.href),
@@ -47,7 +40,6 @@ describe("locale parity", () => {
 
   it("keeps every outbound link identical across locales, so only the wording differs", () => {
     const hrefs = (locale: Locale) => [
-      ...content[locale].productions.flatMap((p) => p.links.map((link) => link.href)),
       ...content[locale].team.flatMap((member) => member.links.map((link) => link.href)),
     ];
     expect(hrefs("en")).toEqual(hrefs("fr"));

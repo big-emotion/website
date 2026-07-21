@@ -11,7 +11,7 @@ const HALF = Math.ceil(clients.length / 2);
 const rows = [clients, [...clients.slice(HALF), ...clients.slice(0, HALF)]];
 
 export function ClientWall() {
-  const t = useTranslations("culture");
+  const t = useTranslations("cases");
 
   return (
     <section aria-labelledby="client-wall-title" className="mt-16 md:mt-24">
@@ -43,7 +43,11 @@ export function ClientWall() {
                     {row.map((brand) => (
                       <li
                         key={brand}
-                        className="font-display mr-3 whitespace-nowrap border-2 border-ink px-5 py-3 text-xl md:mr-4 md:px-7 md:py-4 md:text-3xl"
+                        // border-current, not a fixed token: the wall used to live under
+                        // /culture's tangerine and now sits on /cases' lyon, where an ink
+                        // border would all but vanish. Inheriting the section's ink keeps
+                        // it legible wherever it is mounted.
+                        className="font-display mr-3 whitespace-nowrap border-2 border-current px-5 py-3 text-xl md:mr-4 md:px-7 md:py-4 md:text-3xl"
                       >
                         {brand}
                       </li>

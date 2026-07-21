@@ -157,4 +157,14 @@ describe("/cases hero", () => {
       "Behind every click, a feeling",
     );
   });
+
+  // The roster's heading comes from the message catalogue, so it is the one string on
+  // this page that proves the route wired up next-intl rather than reading site.ts.
+  it("translates the client roster heading with the route", async () => {
+    caseStudiesByLang.value = {};
+
+    await renderPage("en");
+
+    expect(screen.getByRole("heading", { name: "They trusted us" })).toBeInTheDocument();
+  });
 });

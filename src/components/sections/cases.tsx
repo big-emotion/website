@@ -1,5 +1,7 @@
 import type { Content } from "@prismicio/client";
 import { asText } from "@prismicio/client";
+import { ClientWall } from "@/components/client-wall";
+import { HEADING_LINK } from "@/components/heading-link";
 import { content } from "@/content/site";
 import type { Locale } from "@/i18n/locales";
 import { Link } from "@/i18n/navigation";
@@ -9,8 +11,8 @@ import { Link } from "@/i18n/navigation";
 //
 // The sector cards are the one surface fed by Prismic (SWBE-24): the route fetches the
 // `case_study` documents and passes them in, so this stays a presentational component.
-// Impact figures and the agency's own productions are still `site.ts` copy — migrating
-// the rest is deliberately not part of the pilot.
+// The impact figures are still `site.ts` copy. The agency's own productions used to close
+// this page; they are now blog articles, reachable from /blog rather than duplicated here.
 export function Cases({
   locale,
   caseStudies,
@@ -18,7 +20,7 @@ export function Cases({
   locale: Locale;
   caseStudies: readonly Content.CaseStudyDocument[];
 }) {
-  const { impactStats, productionsIntro, productions } = content[locale];
+  const { impactStats } = content[locale];
 
   return (
     <section className="bg-lyon px-5 py-20 text-paper md:px-8 md:py-32">
@@ -53,7 +55,7 @@ export function Cases({
               {caseStudy.data.client || caseStudy.data.kind}
             </p>
             <h2 className="font-display mt-2 text-[clamp(1.6rem,7vw,4rem)] text-lemon [overflow-wrap:anywhere]">
-              <Link href={`/cases/${caseStudy.uid}`} className="hover:underline">
+              <Link href={`/cases/${caseStudy.uid}`} className={HEADING_LINK}>
                 {caseStudy.data.title}
               </Link>
             </h2>
@@ -74,59 +76,10 @@ export function Cases({
         ))}
       </div>
 
-      {/* The sector cards say what we do; this block says what we shipped. It sits at the
-          end of the page, in lemon, so the eye lands on the only work here that can be
-          opened in a new tab. */}
-      <section aria-labelledby="productions-title" className="mt-20 md:mt-28">
-        <h2
-          id="productions-title"
-          className="font-display border-t-2 border-lemon pt-6 text-sm uppercase tracking-[0.2em] text-lemon md:text-base"
-        >
-          {productionsIntro.title}
-        </h2>
-        <p className="mt-3 max-w-prose text-lg leading-relaxed opacity-80">
-          {productionsIntro.body}
-        </p>
-
-        <div className="mt-10 grid gap-12 md:mt-14 md:grid-cols-2 md:gap-8">
-          {productions.map((production) => (
-            <article key={production.slug}>
-              <p className="font-display text-sm uppercase tracking-wide opacity-70">
-                {production.kind}
-              </p>
-              <h3 className="font-display mt-2 text-[clamp(1.6rem,7vw,4rem)] text-lemon [overflow-wrap:anywhere]">
-                {production.title}
-              </h3>
-              <p className="mt-4 max-w-prose text-lg leading-relaxed">{production.summary}</p>
-              <ul className="mt-6 flex flex-wrap gap-2">
-                {production.tags.map((tag) => (
-                  <li
-                    key={tag}
-                    className="border border-paper/40 px-3 py-1 text-xs uppercase tracking-wide"
-                  >
-                    {tag}
-                  </li>
-                ))}
-              </ul>
-              <ul className="mt-4 flex flex-wrap gap-2">
-                {production.links.map((link) => (
-                  <li key={link.href}>
-                    <a
-                      href={link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`${production.title} ${link.context}`}
-                      className="font-display inline-block border-2 border-lemon px-3 py-1 text-xs uppercase tracking-wide text-lemon transition-colors hover:bg-lemon hover:text-lyon"
-                    >
-                      {link.label} ↗
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </article>
-          ))}
-        </div>
-      </section>
+      {/* The roster closes the page rather than opening it: it corroborates the work
+          above instead of asking to be taken on faith. It moved here from /culture,
+          where a client list sat oddly among the team and the brand personality. */}
+      <ClientWall />
     </section>
   );
 }

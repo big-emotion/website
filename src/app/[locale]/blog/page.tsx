@@ -4,9 +4,11 @@ import type { Metadata } from "next";
 import { hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { HEADING_LINK } from "@/components/heading-link";
 import { content } from "@/content/site";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
+import { formatPublishDate } from "@/lib/display-date";
 import { createClient, prismicLocale } from "@/prismicio";
 import { sectionMetadata } from "../section-metadata";
 
@@ -67,7 +69,7 @@ export default async function BlogPage({ params }: RouteProps) {
                 </p>
               )}
               <h2 className="font-display mt-2 text-[clamp(1.6rem,7vw,4rem)] text-lemon [overflow-wrap:anywhere]">
-                <Link href={`/blog/${article.uid}`} className="hover:underline">
+                <Link href={`/blog/${article.uid}`} className={HEADING_LINK}>
                   {article.data.title}
                 </Link>
               </h2>
@@ -80,10 +82,4 @@ export default async function BlogPage({ params }: RouteProps) {
       )}
     </section>
   );
-}
-
-function formatPublishDate(locale: string, isoDate: string): string {
-  return new Intl.DateTimeFormat(locale === "fr" ? "fr-FR" : "en-US", {
-    dateStyle: "long",
-  }).format(new Date(isoDate));
 }

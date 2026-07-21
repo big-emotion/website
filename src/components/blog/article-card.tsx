@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { HEADING_LINK } from "@/components/heading-link";
 import { Link } from "@/i18n/navigation";
 
 export interface ArticleCardCover {
@@ -40,7 +41,7 @@ export function ArticleCard({ href, title, kind, excerpt, cover }: ArticleCardPr
           (DEC-023), so Prismic authors must keep this copy unaccented. */}
       <p className="font-display text-sm uppercase tracking-wide opacity-70">{kind}</p>
       <h3 className="font-display mt-2 text-[clamp(1.4rem,5vw,2.5rem)] [overflow-wrap:anywhere]">
-        <Link href={href} className="hover:underline">
+        <Link href={href} className={HEADING_LINK}>
           {title}
         </Link>
       </h3>

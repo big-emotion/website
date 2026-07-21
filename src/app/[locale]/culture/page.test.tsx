@@ -22,7 +22,6 @@ describe("/culture", () => {
     );
 
     expect(screen.getByText("Geek & philosopher")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "They trusted us" })).toBeInTheDocument();
   });
 });
 

@@ -22,9 +22,11 @@
     "errorRateLimit": "Trop de messages envoyés. Réessaie dans un moment.",
     "errorNetwork": "Réseau indisponible. Écris-nous à {email}."
   },
+  "cases": {
+    "clientWallTitle": "Ils nous ont fait confiance"
+  },
   "culture": {
     "personalityTitle": "Brand personality",
-    "clientWallTitle": "Ils nous ont fait confiance",
     "axisBalanced": "{start} a {end} : equilibre",
     "axisLeans": "{start} a {end} : penche vers {pole}"
   }

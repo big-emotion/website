@@ -10,6 +10,7 @@ import { content, site } from "@/content/site";
 import { locales, type Locale } from "@/i18n/locales";
 import { routing } from "@/i18n/routing";
 import { alternateLanguagesAmong, localePath, localeUrl, openGraphLocales } from "@/i18n/urls";
+import { formatPublishDate } from "@/lib/display-date";
 import { createClient, prismicLocale } from "@/prismicio";
 import { components } from "@/slices";
 
@@ -133,10 +134,4 @@ async function fetchAuthor(
   } catch {
     return null;
   }
-}
-
-function formatPublishDate(locale: string, isoDate: string): string {
-  return new Intl.DateTimeFormat(locale === "fr" ? "fr-FR" : "en-US", {
-    dateStyle: "long",
-  }).format(new Date(isoDate));
 }
