@@ -1,8 +1,15 @@
 name: CI
 
 on:
+  # Ferry opens its PRs against the integration branch (FERRY_INTEGRATION_BRANCH),
+  # so both it and main must be listed or those PRs would merge ungated.
   pull_request:
-    branches: [main]
+    branches: [main, develop]
+  # A merge commit on main is a tree no PR run ever built: the PR was tested
+  # against an older base. Releases gate on CI being green for the exact SHA
+  # being tagged, which only a push-triggered run can provide.
+  push:
+    branches: [main, develop]
 
 concurrency:
   group: ci-${{ github.ref }}
