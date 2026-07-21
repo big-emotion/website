@@ -1,44 +1,165 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
 import { describe, expect, it, vi } from "vitest";
+import enMessages from "../../messages/en.json";
+import frMessages from "../../messages/fr.json";
+import { content, espaceB2bHref } from "@/content/site";
+import type { Locale } from "@/i18n/locales";
 
-// next/link needs an app-router context to mount; for a unit test we only care that
-// the header renders the four destinations, so a passthrough anchor is enough.
+// The header decides an href; `next/link` then rewrites it to match `trailingSlash`
+// from next.config.ts, which a unit test never loads. A passthrough anchor keeps these
+// assertions on the destination the header picked, not on Next's URL normalisation.
 vi.mock("next/link", () => ({
-  default: ({ children, href, ...rest }: { children: React.ReactNode; href: string }) => (
-    <a href={href} {...rest}>
-      {children}
-    </a>
-  ),
+  default: ({ children, ...rest }: React.ComponentProps<"a">) => <a {...rest}>{children}</a>,
+}));
+
+// The current path is the locale switcher's only input, so each test drives it to
+// prove the switcher lands on the same page in the other locale.
+const { currentPathname } = vi.hoisted(() => ({ currentPathname: { value: "/" } }));
+vi.mock("@/i18n/navigation", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/i18n/navigation")>()),
+  usePathname: () => currentPathname.value,
 }));
 
 import { SiteHeader } from "./site-header";
 
-describe("SiteHeader", () => {
-  it("exposes the four brand sections", () => {
-    render(<SiteHeader />);
-    for (const label of ["Approach", "Cases & Impact", "Culture", "Contact"]) {
-      expect(screen.getByRole("link", { name: label })).toBeInTheDocument();
+const messages = { fr: frMessages, en: enMessages };
+
+function renderHeader(locale: Locale, pathname = "/") {
+  currentPathname.value = pathname;
+  return render(
+    <NextIntlClientProvider locale={locale} messages={messages[locale]}>
+      <SiteHeader locale={locale} />
+    </NextIntlClientProvider>,
+  );
+}
+
+function switcher(locale: Locale, container: HTMLElement = document.body) {
+  return within(
+    within(container).getByRole("group", { name: messages[locale].header.languageSwitcher }),
+  );
+}
+
+function openDrawer(locale: Locale) {
+  fireEvent.click(screen.getByRole("button", { name: messages[locale].header.openMenu }));
+  return screen.getByRole("navigation", { name: messages[locale].header.mainMenu });
+}
+
+describe("SiteHeader navigation", () => {
+  it("points the French nav at the unprefixed section routes", () => {
+    renderHeader("fr");
+
+    for (const item of content.fr.nav) {
+      expect(screen.getByRole("link", { name: item.label })).toHaveAttribute("href", item.href);
     }
   });
 
-  it("links the Espace B2B CTA out to the b2b space in a new tab", () => {
-    render(<SiteHeader />);
+  it("keeps English visitors under /en on every nav destination", () => {
+    renderHeader("en");
 
-    const cta = screen.getByRole("link", { name: "Espace B2B" });
-    expect(cta).toHaveAttribute("href", "https://b2b.big-emotion.com/");
+    for (const item of content.en.nav) {
+      expect(screen.getByRole("link", { name: item.label })).toHaveAttribute(
+        "href",
+        `/en${item.href}`,
+      );
+    }
+  });
+
+  it("sends the wordmark home in the active locale", () => {
+    renderHeader("en");
+
+    expect(screen.getByRole("link", { name: enMessages.header.home })).toHaveAttribute(
+      "href",
+      "/en",
+    );
+  });
+
+  it("links the Espace B2B CTA out to the b2b space in a new tab", () => {
+    renderHeader("fr");
+
+    const cta = screen.getByRole("link", { name: content.fr.espaceB2bLabel });
+    expect(cta).toHaveAttribute("href", espaceB2bHref);
     expect(cta).toHaveAttribute("target", "_blank");
     expect(cta).toHaveAttribute("rel", "noopener noreferrer");
   });
+});
 
-  it("repeats the Espace B2B CTA inside the mobile drawer", () => {
-    render(<SiteHeader />);
-    fireEvent.click(screen.getByRole("button", { name: "Menu" }));
-
-    const drawer = document.getElementById("mobile-nav");
-    expect(drawer).not.toBeNull();
-    expect(within(drawer!).getByRole("link", { name: "Espace B2B" })).toHaveAttribute(
+describe("SiteHeader locale switcher", () => {
+  it("offers the current page in the other locale, both ways", () => {
+    const { unmount } = renderHeader("fr", "/cases/");
+    expect(switcher("fr").getByRole("link", { name: /Anglais/ })).toHaveAttribute(
       "href",
-      "https://b2b.big-emotion.com/",
+      "/en/cases/",
     );
+    unmount();
+
+    renderHeader("en", "/cases/");
+    expect(switcher("en").getByRole("link", { name: /French/ })).toHaveAttribute("href", "/cases/");
+  });
+
+  it("marks the active locale so assistive tech announces it", () => {
+    renderHeader("fr", "/culture/");
+
+    expect(switcher("fr").getByRole("link", { current: true })).toHaveAccessibleName(/Francais/);
+  });
+
+  it("repeats the switcher inside the mobile drawer", () => {
+    renderHeader("en", "/approach/");
+
+    expect(switcher("en", openDrawer("en")).getByRole("link", { name: /French/ })).toHaveAttribute(
+      "href",
+      "/approach/",
+    );
+  });
+});
+
+describe("SiteHeader mobile drawer", () => {
+  it("opens on the burger and closes on the same button", () => {
+    renderHeader("fr");
+    const toggle = screen.getByRole("button", { name: frMessages.header.openMenu });
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+
+    const drawer = openDrawer("fr");
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    expect(
+      within(drawer).getByRole("link", { name: content.fr.nav[0].label }),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: frMessages.header.closeMenu }));
+    expect(
+      screen.queryByRole("navigation", { name: frMessages.header.mainMenu }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("closes once a destination is tapped", () => {
+    renderHeader("fr");
+    const drawer = openDrawer("fr");
+
+    fireEvent.click(within(drawer).getByRole("link", { name: content.fr.nav[0].label }));
+
+    expect(
+      screen.queryByRole("navigation", { name: frMessages.header.mainMenu }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("closes on Escape and hands focus back to the burger", () => {
+    renderHeader("fr");
+    const toggle = screen.getByRole("button", { name: frMessages.header.openMenu });
+    openDrawer("fr");
+
+    fireEvent.keyDown(document, { key: "Escape" });
+
+    expect(
+      screen.queryByRole("navigation", { name: frMessages.header.mainMenu }),
+    ).not.toBeInTheDocument();
+    expect(toggle).toHaveFocus();
+  });
+
+  it("repeats the Espace B2B CTA inside the drawer", () => {
+    renderHeader("fr");
+
+    expect(
+      within(openDrawer("fr")).getByRole("link", { name: content.fr.espaceB2bLabel }),
+    ).toHaveAttribute("href", espaceB2bHref);
   });
 });
