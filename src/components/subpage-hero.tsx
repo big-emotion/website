@@ -1,8 +1,11 @@
+import type { StaticImageData } from "next/image";
+import approachPhoto from "@/photos/approach.jpg";
+import casesPhoto from "@/photos/cases.jpg";
+import contactPhoto from "@/photos/contact.jpg";
+import culturePhoto from "@/photos/culture.jpg";
 import { StackedHeadline } from "./stacked-headline";
 import { SUBPAGE_ACCENTS, type SubpageId } from "./subpage-accents";
 import { SubpagePhoto } from "./subpage-photo";
-
-type Photo = { src: string; alt: string; width: number; height: number };
 
 /**
  * SWBE-91. Generated to the brand's iconography rules rather than taken from the
@@ -11,16 +14,20 @@ type Photo = { src: string; alt: string; width: number; height: number };
  * `docs/redesign/2026-07-subpage-photo-prompts.md` — regenerate from there, not from
  * scratch, or the four heroes drift apart.
  *
- * The alt is empty on purpose: each photo sits beside the h1 and the lead that carry the
- * page's message, so it is decorative and belongs out of the accessibility tree. A page
- * left at `null` falls back to the placeholder, which is how a new section route can ship
- * before its photography exists.
+ * These are imported rather than referenced by a `public/` path so the emitted URL carries
+ * a hash of the file's contents. Art direction replaces these images in place, keeping the
+ * filename; under a stable URL a browser or CDN then serves the previous photo until its
+ * cache expires, which is exactly what happened while this set was being reviewed. The
+ * import also derives the intrinsic dimensions, so they cannot drift from the real file.
+ *
+ * A page left at `null` falls back to the placeholder, which is how a new section route
+ * can ship before its photography exists.
  */
-export const SUBPAGE_PHOTOS: Record<SubpageId, Photo | null> = {
-  approach: { src: "/photos/approach.jpg", alt: "", width: 1536, height: 2048 },
-  cases: { src: "/photos/cases.jpg", alt: "", width: 1536, height: 2048 },
-  culture: { src: "/photos/culture.jpg", alt: "", width: 1536, height: 2048 },
-  contact: { src: "/photos/contact.jpg", alt: "", width: 1536, height: 2048 },
+export const SUBPAGE_PHOTOS: Record<SubpageId, StaticImageData | null> = {
+  approach: approachPhoto,
+  cases: casesPhoto,
+  culture: culturePhoto,
+  contact: contactPhoto,
 };
 
 /**

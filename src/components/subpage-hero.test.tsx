@@ -1,6 +1,4 @@
 import { render, screen } from "@testing-library/react";
-import { existsSync } from "node:fs";
-import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { SUBPAGE_PHOTOS, SubpageHero } from "./subpage-hero";
 
@@ -77,12 +75,12 @@ describe("SubpageHero photo slot", () => {
     ]);
   });
 
-  // next/image takes the declared dimensions on faith to reserve the box, so a src that
-  // resolves to nothing still lays out correctly and only fails as a 404 in the browser.
-  // Reading the real files is what catches a typo or a photo dropped from public/.
-  it.each(Object.entries(SUBPAGE_PHOTOS))("serves %s's photo from public/", (_page, photo) => {
-    expect(existsSync(join(process.cwd(), "public", photo!.src))).toBe(true);
-    expect(photo!.width).toBeGreaterThan(0);
-    expect(photo!.height).toBeGreaterThan(photo!.width);
+  // The map is four near-identical lines, so wiring one page to another's import is an
+  // easy slip that still builds, still renders, and only shows up as the wrong hero.
+  // Whether the files themselves resolve is settled by `next build`, not here.
+  it("gives every page its own photo", () => {
+    const sources = Object.values(SUBPAGE_PHOTOS).map((photo) => photo!.src);
+
+    expect(new Set(sources).size).toBe(sources.length);
   });
 });

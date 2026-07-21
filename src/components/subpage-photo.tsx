@@ -107,11 +107,12 @@ export function SubpagePhoto({ page }: { page: SubpageId }) {
         className="subpage-photo-media max-h-[38vh] w-full md:max-h-[64vh]"
       >
         {photo ? (
+          // The alt is empty on purpose: the photo sits beside the h1 and the lead that
+          // carry the page's message, so it is decorative and belongs out of the
+          // accessibility tree rather than announcing a description nobody asked for.
           <Image
-            src={photo.src}
-            alt={photo.alt}
-            width={photo.width}
-            height={photo.height}
+            src={photo}
+            alt=""
             priority
             className="max-h-[38vh] w-full object-contain md:max-h-[64vh]"
           />
