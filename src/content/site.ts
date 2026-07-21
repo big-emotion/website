@@ -28,11 +28,11 @@ export const nav = [
   { label: "Contact", href: "/#contact" },
 ] as const;
 
-// The "Espace client" area is a separate app — the sibling B2B client space at
+// The "Espace B2B" area is a separate app — the sibling B2B client space at
 // b2b.big-emotion.com (renamed from the support portal). It is not a section of this
 // site, so it's an absolute link opened in a new tab, kept apart from the anchor `nav` above.
-export const espaceClientCta = {
-  label: "Espace client",
+export const espaceB2bCta = {
+  label: "Espace B2B",
   href: "https://b2b.big-emotion.com/",
 } as const;
 

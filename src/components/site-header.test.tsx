@@ -21,22 +21,22 @@ describe("SiteHeader", () => {
     }
   });
 
-  it("links the Espace client CTA out to the b2b space in a new tab", () => {
+  it("links the Espace B2B CTA out to the b2b space in a new tab", () => {
     render(<SiteHeader />);
 
-    const cta = screen.getByRole("link", { name: "Espace client" });
+    const cta = screen.getByRole("link", { name: "Espace B2B" });
     expect(cta).toHaveAttribute("href", "https://b2b.big-emotion.com/");
     expect(cta).toHaveAttribute("target", "_blank");
     expect(cta).toHaveAttribute("rel", "noopener noreferrer");
   });
 
-  it("repeats the Espace client CTA inside the mobile drawer", () => {
+  it("repeats the Espace B2B CTA inside the mobile drawer", () => {
     render(<SiteHeader />);
     fireEvent.click(screen.getByRole("button", { name: "Menu" }));
 
     const drawer = document.getElementById("mobile-nav");
     expect(drawer).not.toBeNull();
-    expect(within(drawer!).getByRole("link", { name: "Espace client" })).toHaveAttribute(
+    expect(within(drawer!).getByRole("link", { name: "Espace B2B" })).toHaveAttribute(
       "href",
       "https://b2b.big-emotion.com/",
     );
