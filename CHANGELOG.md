@@ -7,6 +7,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-07-21
+
+### Added
+
+- Brand personality slider on the Culture surface, rendering the six axes of the
+  brand book with a per-axis screen-reader alternative (SWBE-92).
+- Client wall in Culture: the brands that trusted the agency, credited as
+  scrolling typographic wordmarks rather than third-party logo files. Hovering
+  pauses a band so it can be read; under reduced motion the wall reflows into a
+  static grid instead of freezing mid-scroll and hiding the tail of the roster.
+- Public profile links under each founder's name in Culture. Both LinkedIn links
+  share a visible label, so an `aria-label` carries the owner's name (WCAG
+  2.4.4).
+- Project Standard among the in-house productions — the MIT-licensed Claude Code
+  plugin that installs the agency's project standard on any repo.
+- Per-call sending mailbox in the `src/lib/mail` Graph seam, so the contact relay
+  can send as `hello@` while the portal default stays `MAIL_SENDER` (`espace@`),
+  without forking the single send path (REQ-031).
+
+### Changed
+
+- BBH Hegarty is now the display face, replacing Archivo (DEC-023).
+- Cases & Impact leads with headline numbers and describes the work by sector.
+  The engagements behind them are under NDA, so no per-case figures are claimed.
+- The public contact address is `hello@big-emotion.com` and the phone number is
+  corrected. The change covers the whole contact path, not just the displayed
+  link: the form notifies `hello@`, and both fallback copies point visitors there
+  when a submission fails (SWBE-93, REQ-031/DEC-025).
+- Marquee pacing is set per band. The manifesto ran at 321px/s and the client
+  wall, whose track is half as wide, would have inherited twice that speed. The
+  1.4s load-screen intro keeps its old rate or it would read as a frozen image.
+- `deploy/env.template` now documents the `GRAPH_*` / `MAIL_SENDER` /
+  `MAIL_FROM_NAME` variables the mail seam actually reads.
+
+### Removed
+
+- The two dead case-study cards (Mamiezi, AdoleBatisseur) — neither pointed at
+  anything on the live site.
+- The Archivo font files, retired with the display-face switch.
+- The individual founder name in the footer: the agency answers as a team on that
+  surface. Jean-Noé Kollo stays in Culture and as the schema.org founder, which
+  are about who the agency is rather than how to reach it.
+
 ## [0.4.0] - 2026-07-21
 
 ### Changed
@@ -66,7 +109,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   under the Node.js container and its `/api/contact` replacement is not shipped
   (SWBE-31).
 
-[Unreleased]: https://github.com/big-emotion/website/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/big-emotion/website/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/big-emotion/website/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/big-emotion/website/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/big-emotion/website/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/big-emotion/website/compare/v0.1.1...v0.2.0
