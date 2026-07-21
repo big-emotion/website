@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import { content } from "@/content/site";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
+import { formatPublishDate } from "@/lib/display-date";
 import { createClient, prismicLocale } from "@/prismicio";
 import { sectionMetadata } from "../section-metadata";
 
@@ -80,10 +81,4 @@ export default async function BlogPage({ params }: RouteProps) {
       )}
     </section>
   );
-}
-
-function formatPublishDate(locale: string, isoDate: string): string {
-  return new Intl.DateTimeFormat(locale === "fr" ? "fr-FR" : "en-US", {
-    dateStyle: "long",
-  }).format(new Date(isoDate));
 }

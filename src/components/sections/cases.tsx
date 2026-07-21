@@ -1,5 +1,6 @@
 import type { Content } from "@prismicio/client";
 import { asText } from "@prismicio/client";
+import { ClientWall } from "@/components/client-wall";
 import { content } from "@/content/site";
 import type { Locale } from "@/i18n/locales";
 import { Link } from "@/i18n/navigation";
@@ -127,6 +128,11 @@ export function Cases({
           ))}
         </div>
       </section>
+
+      {/* The roster closes the page rather than opening it: it corroborates the work
+          above instead of asking to be taken on faith. It moved here from /culture,
+          where a client list sat oddly among the team and the brand personality. */}
+      <ClientWall />
     </section>
   );
 }

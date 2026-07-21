@@ -1,4 +1,3 @@
-import { ClientWall } from "@/components/client-wall";
 import { PersonalitySlider } from "@/components/personality-slider";
 import { content } from "@/content/site";
 import type { Locale } from "@/i18n/locales";
@@ -39,8 +38,6 @@ export function Culture({ locale }: { locale: Locale }) {
       </div>
 
       <PersonalitySlider />
-
-      <ClientWall />
 
       <p className="font-display mt-16 text-xl md:mt-24 md:text-3xl">{values.join("  ·  ")}</p>
     </section>

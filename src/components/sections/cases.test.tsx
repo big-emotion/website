@@ -161,4 +161,16 @@ describe("Cases", () => {
     expect(container.querySelectorAll("dl dt")).toHaveLength(2);
     expect(container.querySelectorAll("dl dd")).toHaveLength(2);
   });
+
+  // The roster belongs to the references page, not to /culture where it first shipped:
+  // it corroborates the work above rather than sitting among the team and the brand
+  // personality.
+  it("closes on the client roster", () => {
+    renderCases();
+
+    expect(
+      screen.getByRole("heading", { name: "Ils nous ont fait confiance" }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText("Radio France").length).toBeGreaterThan(0);
+  });
 });

@@ -22,9 +22,11 @@
     "errorRateLimit": "Too many messages sent. Try again in a moment.",
     "errorNetwork": "Network unavailable. Write to us at {email}."
   },
+  "cases": {
+    "clientWallTitle": "They trusted us"
+  },
   "culture": {
     "personalityTitle": "Brand personality",
-    "clientWallTitle": "They trusted us",
     "axisBalanced": "{start} to {end}: balanced",
     "axisLeans": "{start} to {end}: leans {pole}"
   }
