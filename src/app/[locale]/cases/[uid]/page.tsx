@@ -12,9 +12,10 @@ import { alternateLanguages, localePath, localeUrl, openGraphLocales } from "@/i
 import { createClient, prismicLocale } from "@/prismicio";
 import { components } from "@/slices";
 
-// Same build-time-only contract as the listing: a new case study reaches the site
-// through a rebuild, not through a request.
-export const dynamic = "force-static";
+// Same contract as the listing: pre-rendered, refreshed by the publish webhook rather
+// than by a deploy. `generateStaticParams` covers the studies that existed at build time
+// and `dynamicParams` (on by default) renders any published later on first request, so a
+// new study is reachable without a rebuild.
 
 type RouteProps = { params: Promise<{ locale: string; uid: string }> };
 

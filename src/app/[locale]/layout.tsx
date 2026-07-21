@@ -1,3 +1,4 @@
+import { PrismicPreview } from "@prismicio/next";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
@@ -9,6 +10,7 @@ import { content, site } from "@/content/site";
 import type { Locale } from "@/i18n/locales";
 import { routing } from "@/i18n/routing";
 import { alternateLanguages, localePath, localeUrl, openGraphLocales, SITE_ORIGIN } from "@/i18n/urls";
+import { prismicRepositoryName } from "@/prismicio";
 import { DocumentShell } from "../document-shell";
 
 // Both locales are known at build time, so the marketing tree stays fully SSG.
@@ -95,6 +97,11 @@ export default async function LocaleLayout({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
       />
+      {/* Loads the Prismic toolbar and refreshes the page on preview events. It has to
+          render on every previewable page, which is why it sits in the layout rather
+          than on the Prismic-backed routes themselves. Outside a preview session it
+          only contributes the lazily-loaded toolbar script. */}
+      <PrismicPreview repositoryName={prismicRepositoryName()} />
     </DocumentShell>
   );
 }

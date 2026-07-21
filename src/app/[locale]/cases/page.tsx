@@ -11,10 +11,10 @@ import { sectionMetadata } from "../section-metadata";
 
 const ROUTE = "/cases";
 
-// Prismic is read at build time only, never per request: publishing a case study takes a
-// rebuild + deploy. Without this the client's uncached fetch would opt the route into
-// dynamic rendering and put a Prismic round-trip on every visit.
-export const dynamic = "force-static";
+// Deliberately unpinned. The page still pre-renders — the Prismic client caches its
+// queries — but the publish webhook drops that cache tag so the next request regenerates
+// it (SWBE-80). `force-static` would freeze the output until the next deploy, which is
+// exactly the rebuild-to-publish behaviour this story removes.
 
 type RouteProps = { params: Promise<{ locale: string }> };
 
