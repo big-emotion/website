@@ -34,7 +34,11 @@ Verify all of the following before any write. If any fail, **do not modify anyth
    ```
    The latest run must have `conclusion: "success"`. If no run exists for HEAD, or the conclusion is not `success`, stop and provide the run URL so the user can investigate.
 
-This repo is trunk-based (`main` only, no `develop`) — there is no ancestor-promotion check to run.
+   `ci.yml` runs on `push` to `main`, so a merge commit on `main` gets its own run and this check resolves against the exact SHA being tagged. Before 2026-07-21 the workflow was `pull_request`-only and this precondition could never pass.
+
+6. **`develop` fully merged into `main`** — run `git rev-list --count main..origin/develop`. If > 0, stop and report how many commits are stranded, with `git log --oneline main..origin/develop`.
+
+   Releases are cut from `main`, but implementation lands on `develop` (both Ferry via `FERRY_INTEGRATION_BRANCH` and `/bigemotion-ticket`). `main` only advances when someone promotes `develop`, so tagging without this check silently ships a release that omits everything merged since the last promotion. Promoting is the user's call — offer `git merge --ff-only origin/develop`, do not merge unasked.
 
 ## Inputs
 
@@ -222,6 +226,7 @@ Watch the deploy at:
 | Not on `main` branch | Stop. Report current branch. |
 | Behind `origin/main` | Stop. Tell user to `git pull`. |
 | CI not green on HEAD | Stop. Print the run URL for investigation. |
+| `develop` has commits not on `main` | Stop. List the stranded commits and offer `git merge --ff-only origin/develop`; do not promote unasked. |
 | Target version ≤ current version | Stop. Ask for an explicit higher version. |
 | `git push origin main` fails | Stop. Do not push the tag. |
 | `gh release create` fails after both pushes | Report the pushes succeeded but the Release needs manual creation; do not retry destructively. |

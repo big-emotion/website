@@ -1,6 +1,6 @@
 ---
 name: bigemotion-ticket
-description: End-to-end local automation for a single Jira ticket on the BIG EMOTION website repo. Paste an SWBE ticket URL (or key) and the skill self-assigns the ticket, reads it, refines it (applying the Prismic/Frame coupling rules when they're wired up), creates the Jira sub-tasks, branches off main in an isolated git worktree, implements the work in parallel via sub-agents, opens the pull request, then transitions the ticket to review and comments the PR link. Runs fully automatically with no confirmation gates. Use when the user pastes an SWBE Jira ticket link, says "prends ce ticket", "implémente ce ticket Jira", "traite ce ticket", or invokes /bigemotion-ticket.
+description: End-to-end local automation for a single Jira ticket on the BIG EMOTION website repo. Paste an SWBE ticket URL (or key) and the skill self-assigns the ticket, reads it, refines it (applying the Prismic/Frame coupling rules when they're wired up), creates the Jira sub-tasks, branches off develop in an isolated git worktree, implements the work in parallel via sub-agents, opens the pull request against develop, then transitions the ticket to review and comments the PR link. Runs fully automatically with no confirmation gates. Use when the user pastes an SWBE Jira ticket link, says "prends ce ticket", "implémente ce ticket Jira", "traite ce ticket", or invokes /bigemotion-ticket.
 metadata:
   author: jnk
   version: "1.0.0"
@@ -10,7 +10,9 @@ metadata:
 
 Take a single Jira ticket from link to merged-ready PR, locally and unattended.
 
-This repo is trunk-based with no release train: there is no Ferry-style async/cloud counterpart to this skill and no `ferry.config.json` indirection to read branch or column names from. **Base branch and target branch are always `main`** — stated directly here rather than sourced from a config file, so there is nothing to drift against.
+Implementation work lands on `develop`, not `main`: `main` only advances when `develop` is promoted, and a `v*` tag on `main` is what deploys production. **Base branch and target branch are always `develop`** — stated directly here rather than read from a config file, so there is nothing to drift against.
+
+This mirrors Ferry, which targets `develop` via the `FERRY_INTEGRATION_BRANCH` repo variable. The two must not disagree: a PR opened here against `main` would bypass the promotion step and reach production ahead of everything queued on `develop`. There is still no `ferry.config.json` indirection to read from on this local path — the value is hardcoded here on purpose.
 
 ## Operating mode — FULL AUTO
 
@@ -36,12 +38,12 @@ A single argument: the Jira ticket URL or issue key.
 1. **Repo root** — `package.json` `.name` is `big-emotion`. If not, stop and tell the user to `cd` in.
 2. **Atlassian MCP reachable** — `mcp__atlassian__getAccessibleAtlassianResources` returns the `big-emotion.atlassian.net` site. Resolve and keep `cloudId` for every subsequent Jira call. If it fails, stop — the Jira half of the workflow is impossible.
 3. **gh authenticated** — `gh auth status` succeeds for `big-emotion/website`.
-4. **Base branch fetchable** — `git fetch origin` succeeds and `origin/main` exists. Implementation runs in a dedicated worktree (Step 5), so the user's main checkout is never touched and need not be clean — but the worktree must be cut from a real remote base branch.
+4. **Base branch fetchable** — `git fetch origin` succeeds and `origin/develop` exists. Implementation runs in a dedicated worktree (Step 5), so the user's main checkout is never touched and need not be clean — but the worktree must be cut from a real remote base branch. If `origin/develop` is missing, **stop** — do not silently fall back to `main`, which would put the work on the deploy branch.
 
-Fixed values (no config file — this is trunk-based, single-branch):
+Fixed values (no config file — hardcoded so this path and Ferry can't drift apart):
 
-- `base_branch` = `main` (branch to cut from)
-- `target_branch` = `main` (PR base)
+- `base_branch` = `develop` (branch to cut from)
+- `target_branch` = `develop` (PR base)
 
 ## Workflow
 
@@ -84,7 +86,7 @@ Fixed values (no config file — this is trunk-based, single-branch):
 - **Order matters** when the Prismic or frame rules fired: any Prismic modeling sub-task is created first, any frame-refresh sub-task second, both must complete before any UI sub-tasks start. Each dependency sub-task's description states that all dependent sub-tasks cannot start until it is done.
 - Collect the created sub-task keys; they drive the implementation plan and the PR checklist.
 
-### Step 5 — Create an isolated worktree off `main`
+### Step 5 — Create an isolated worktree off `develop`
 
 All implementation happens in a **dedicated git worktree**, never in the user's main checkout. This keeps the user's working directory and current branch untouched for the entire full-auto run, and is what makes precondition 4 a non-blocker on a dirty main tree.
 
@@ -95,7 +97,7 @@ All implementation happens in a **dedicated git worktree**, never in the user's 
   - `slug` = kebab-cased, ASCII, ≤ 5 words from the summary.
 - Worktree path: a sibling of the repo root — `../big-emotion-worktrees/<key-lower>-<slug>` (outside the repo so Next.js / ESLint tooling never scans it; the dir-name segment drops the `<prefix>/` so no nested directory is created).
 - Create branch + worktree in one step, cutting from the **remote** base branch (not local, to avoid stale state):
-  `git worktree add -b <branch> <worktree-path> origin/main`
+  `git worktree add -b <branch> <worktree-path> origin/develop`
 - **Every subsequent step — implement, verify, commit, push, open PR — runs with the worktree as the working directory.** Pass it as `cwd` to Bash calls and as the repo path in every sub-agent brief. Never run implementation commands in the main checkout.
 
 ### Step 6 — Implement (parallel sub-agents)
@@ -143,7 +145,7 @@ If the frame rule did not fire (non-visual ticket, or `design-system/frames/` do
 
 ```bash
 gh pr create --repo big-emotion/website \
-  --base main --head <branch> \
+  --base develop --head <branch> \
   --title "<type>(<scope>): <summary> (SWBE-123)" \
   --body "$(cat <<'EOF'
 ## Summary
