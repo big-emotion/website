@@ -52,7 +52,7 @@ export function ContactForm() {
       }
     } catch {
       setStatus("error");
-      setMessage("Réseau indisponible. Écris-nous à contact@big-emotion.com.");
+      setMessage("Réseau indisponible. Écris-nous à hello@big-emotion.com.");
     }
   }
 

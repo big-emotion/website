@@ -2,14 +2,14 @@ import { describe, expect, it, vi } from "vitest";
 import { buildContactMail, sendContactEmail } from "./contact-mail";
 
 describe("buildContactMail", () => {
-  it("notifies contact@ with a reply-to the visitor and their message", () => {
+  it("notifies hello@ with a reply-to the visitor and their message", () => {
     const mail = buildContactMail({
       name: "Ada",
       email: "ada@example.com",
       message: "Bonjour",
     });
 
-    expect(mail.to).toBe("contact@big-emotion.com");
+    expect(mail.to).toBe("hello@big-emotion.com");
     expect(mail.replyTo).toEqual({ address: "ada@example.com", name: "Ada" });
     expect(mail.subject).toBe("Nouveau message de Ada — big-emotion.com");
     expect(mail.html).toContain("Bonjour");
@@ -46,7 +46,7 @@ describe("sendContactEmail", () => {
 
     expect(send).toHaveBeenCalledOnce();
     expect(send.mock.calls[0][0]).toMatchObject({
-      to: "contact@big-emotion.com",
+      to: "hello@big-emotion.com",
       replyTo: { address: "ada@example.com", name: "Ada" },
     });
   });

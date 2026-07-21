@@ -10,10 +10,10 @@ export const site = {
   mission: "Donner vie à tes projets et leur transmettre des émotions.",
   stat: { value: "50+", label: "projets accompagnés" },
   contact: {
-    email: "contact@big-emotion.com",
-    phone: "+33 7 03 676 43 22",
+    email: "hello@big-emotion.com",
+    phone: "+33 7 66 26 40 43",
     // Keep the dialed digits identical to the displayed number above.
-    phoneHref: "tel:+337036764322",
+    phoneHref: "tel:+33766264043",
     social: "@big-emotion",
     person: "Jean-Noé Kollo",
     responseTime: "On te répond sous 24 h.",

@@ -33,7 +33,6 @@ export function SiteFooter() {
               </li>
               <li className="py-1">{site.contact.social} on socials</li>
             </ul>
-            <p className="text-lg md:text-xl">{site.contact.person}</p>
           </div>
 
           <ContactForm />
