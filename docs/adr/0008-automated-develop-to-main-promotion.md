@@ -1,7 +1,25 @@
 # 0008 — Automate the develop → main promotion
 
-- Status: accepted, rollout pending (see "Rollout" below)
+- Status: superseded — rollout abandoned 2026-07-21 (see "Outcome" below)
 - Date: 2026-07-21
+
+## Outcome
+
+The workflow specified here was never added, and the owner declined it on the
+day the ADR landed. Promotion stays a deliberate manual step:
+
+```
+git merge --ff-only origin/develop && git push origin HEAD:main
+```
+
+The context and reasoning below are kept because the underlying problem is
+real — `develop` did drift 12 commits ahead of `main` before the first manual
+promotion on 2026-07-21 — and a future maintainer reconsidering automation
+should be able to see what was already weighed. Only the decision to automate
+was reversed, not the analysis of why the gap exists.
+
+The rest of ADR 0006 is unaffected: `main` catching up to `develop` still has
+no production effect, and only a `v*` tag deploys.
 
 ## Context
 
@@ -43,18 +61,19 @@ owned, and the gap grows with every Ferry merge to `develop`.
   report the stranded commits, offer `git merge --ff-only origin/develop`,
   never merge unasked.
 
-## Rollout
+## Rollout (abandoned)
 
-This ADR is decided, but the workflow file it specifies is **not** included
-in the PR that introduces this ADR (SWBE-164). Ferry's `claude-code` agents
-are barred by their own operating rules from writing to `.github/` — a
-guardrail against automated PRs changing CI/CD trust boundaries — so a
-maintainer with direct write access must add the file below by hand (or via
-a PR opened outside the Ferry path) before the automation is live. Until
-then, `develop` → `main` promotion remains the manual
-`git merge --ff-only origin/develop` fallback precondition 6 already offers.
+**This never shipped.** The workflow below was left for a maintainer to add by
+hand — Ferry's `claude-code` agents are barred from writing to `.github/`, a
+guardrail against automated PRs changing CI/CD trust boundaries — and the
+owner decided against adding it. `develop` → `main` promotion remains the
+manual `git merge --ff-only origin/develop` that precondition 6 already
+offers.
 
-Add as `.github/workflows/promote-develop.yml`:
+The YAML is kept verbatim as a record of what was specified, not as a task.
+Do not add it without reopening the decision.
+
+Was to be added as `.github/workflows/promote-develop.yml`:
 
 ```yaml
 name: Promote develop to main

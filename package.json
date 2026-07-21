@@ -16,6 +16,7 @@
     "slicemachine": "node --env-file-if-exists=.env scripts/gen-slicemachine-config.mjs && start-slicemachine",
     "prismic:codegen": "prismic-ts-codegen",
     "prismic:check": "node --env-file-if-exists=.env scripts/prismic-check.mjs",
+    "prismic:check-display": "node --env-file-if-exists=.env scripts/prismic-check-display.mjs",
     "prismic:pull": "node --env-file-if-exists=.env scripts/prismic-pull.mjs",
     "prismic:push": "node --env-file-if-exists=.env scripts/prismic-push.mjs",
     "prismic:seed-cases": "node --env-file-if-exists=.env scripts/seed-case-studies.mjs",
