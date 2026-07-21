@@ -19,11 +19,18 @@
  *
  * The Migration API refuses to create a document whose uid already exists in the
  * locale, so re-running against a seeded locale fails loudly rather than silently
- * duplicating. Delete the existing documents first if you mean to re-seed.
+ * duplicating. To rewrite already-existing documents instead, pass `--repair`:
  *
- * Documents land UNPUBLISHED. Prismic exposes no publish endpoint, so publishing the
- * seeded drafts is a dashboard step — and until it happens the /cases pages build with
- * no case studies at all.
+ *   pnpm prismic:seed-cases en-us --repair
+ *
+ * Repair exists because the Migration API creates a document and then patches its
+ * content in a second pass; when that second pass fails, the document survives as an
+ * empty shell that only a rewrite can fix. It matches documents by uid, so it needs
+ * them published (the Content API cannot see drafts).
+ *
+ * Documents land UNPUBLISHED either way. Prismic exposes no publish endpoint, so
+ * publishing is a dashboard step — and until it happens the /cases pages build with no
+ * case studies at all.
  */
 
 import * as prismic from "@prismicio/client";
@@ -39,6 +46,7 @@ import { requirePrismicRepository } from "./lib/prismic-repository.mjs";
 export const SEED_COPY = {
   "fr-fr": [
     {
+      order: 10,
       uid: "industrie",
       title: "Industrie & B2B",
       kind: "Plateformes de marque",
@@ -47,6 +55,7 @@ export const SEED_COPY = {
       tags: ["Refonte", "Génération de leads", "SEO"],
     },
     {
+      order: 20,
       uid: "medias",
       title: "Medias & Edition",
       kind: "Audience & monetisation",
@@ -55,6 +64,7 @@ export const SEED_COPY = {
       tags: ["SEO éditorial", "Audience", "Data"],
     },
     {
+      order: 30,
       uid: "marketplaces",
       title: "Marketplaces & E-commerce",
       kind: "Acquisition & conversion",
@@ -63,6 +73,7 @@ export const SEED_COPY = {
       tags: ["UX/UI", "Conversion", "Growth"],
     },
     {
+      order: 40,
       uid: "startups",
       title: "Startups & Scale-ups",
       kind: "Croissance",
@@ -73,6 +84,7 @@ export const SEED_COPY = {
   ],
   "en-us": [
     {
+      order: 10,
       uid: "industrie",
       title: "Industry & B2B",
       kind: "Brand platforms",
@@ -81,6 +93,7 @@ export const SEED_COPY = {
       tags: ["Rebuild", "Lead generation", "SEO"],
     },
     {
+      order: 20,
       uid: "medias",
       title: "Media & Publishing",
       kind: "Audience & monetisation",
@@ -89,6 +102,7 @@ export const SEED_COPY = {
       tags: ["Editorial SEO", "Audience", "Data"],
     },
     {
+      order: 30,
       uid: "marketplaces",
       title: "Marketplaces & E-commerce",
       kind: "Acquisition & conversion",
@@ -97,6 +111,7 @@ export const SEED_COPY = {
       tags: ["UX/UI", "Conversion", "Growth"],
     },
     {
+      order: 40,
       uid: "startups",
       title: "Startups & Scale-ups",
       kind: "Growth",
@@ -115,6 +130,7 @@ export function toDocument(sector, lang) {
     lang,
     data: {
       title: sector.title,
+      display_order: sector.order,
       kind: sector.kind,
       client: "",
       summary: [{ type: "paragraph", text: sector.summary, spans: [] }],
@@ -128,11 +144,12 @@ export function toDocument(sector, lang) {
 
 async function run() {
   const lang = process.argv[2];
+  const repair = process.argv.includes("--repair");
   const sectors = SEED_COPY[lang];
 
   if (!sectors) {
     console.error(
-      `Usage: pnpm prismic:seed-cases <lang>\n` +
+      `Usage: pnpm prismic:seed-cases <lang> [--repair]\n` +
         `  Known locales: ${Object.keys(SEED_COPY).join(", ")}`,
     );
     process.exit(2);
@@ -147,17 +164,49 @@ async function run() {
   }
 
   const writeClient = prismic.createWriteClient(repository, { writeToken: token });
-  const migration = prismic.createMigration();
 
+  if (repair) {
+    await repairDocuments(writeClient, repository, lang, sectors);
+    return;
+  }
+
+  const migration = prismic.createMigration();
   for (const sector of sectors) {
     migration.createDocument(toDocument(sector, lang), sector.title);
   }
-
   await writeClient.migrate(migration);
 
   console.log(
     `\nprismic:seed-cases — ${sectors.length} case studies seeded in ${lang} (repo: ${repository}).\n` +
       `They are drafts: publish them in Prismic before the next build.`,
+  );
+}
+
+/** Rewrites the already-published documents of `lang` to match the seed copy. */
+async function repairDocuments(writeClient, repository, lang, sectors) {
+  const readClient = prismic.createClient(repository, {
+    accessToken: process.env.PRISMIC_ACCESS_TOKEN,
+  });
+  const idsByUID = new Map(
+    (await readClient.getAllByType("case_study", { lang })).map((doc) => [doc.uid, doc.id]),
+  );
+
+  let repaired = 0;
+  for (const sector of sectors) {
+    const id = idsByUID.get(sector.uid);
+    if (!id) {
+      console.error(`  ! "${sector.uid}" has no published document in ${lang} — seed it first.`);
+      continue;
+    }
+    const { data } = toDocument(sector, lang);
+    await writeClient.updateDocument(id, { documentTitle: sector.title, uid: sector.uid, data });
+    console.log(`  ~ "${sector.uid}" rewritten`);
+    repaired++;
+  }
+
+  console.log(
+    `\nprismic:seed-cases — ${repaired}/${sectors.length} case studies repaired in ${lang}.\n` +
+      `The rewrites are drafts: publish them in Prismic before the next build.`,
   );
 }
 
