@@ -44,4 +44,16 @@ describe("linkResolver", () => {
   it("declines to place a document that has no uid", () => {
     expect(linkResolver(document({ uid: null }))).toBeNull();
   });
+
+  it("sends a French article to its unprefixed /blog URL", () => {
+    expect(linkResolver(document({ type: "article", uid: "notre-approche" }))).toBe(
+      "/blog/notre-approche/",
+    );
+  });
+
+  it("prefixes an English article with its locale segment", () => {
+    expect(
+      linkResolver(document({ type: "article", lang: "en-us", uid: "our-approach" })),
+    ).toBe("/en/blog/our-approach/");
+  });
 });
