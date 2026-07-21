@@ -1,0 +1,67 @@
+{
+  "id": "article",
+  "label": "Article",
+  "repeatable": true,
+  "status": true,
+  "format": "page",
+  "json": {
+    "Principal": {
+      "uid": {
+        "type": "UID",
+        "config": {
+          "label": "UID",
+          "placeholder": "titre-de-larticle"
+        }
+      },
+      "title": {
+        "type": "Text",
+        "config": {
+          "label": "Titre",
+          "placeholder": "Titre de l'article"
+        }
+      },
+      "excerpt": {
+        "type": "StructuredText",
+        "config": {
+          "label": "Extrait (liste + meta description)",
+          "single": "paragraph",
+          "placeholder": "Resume court affiche sur la liste et utilise comme meta description"
+        }
+      },
+      "publish_date": {
+        "type": "Date",
+        "config": {
+          "label": "Date de publication"
+        }
+      },
+      "cover": {
+        "type": "Image",
+        "config": {
+          "label": "Visuel de couverture",
+          "constraint": {},
+          "thumbnails": []
+        }
+      },
+      "author": {
+        "type": "Link",
+        "config": {
+          "label": "Auteur (optionnel)",
+          "select": "document",
+          "customtypes": ["author"]
+        }
+      },
+      "body": {
+        "type": "Slices",
+        "fieldset": "Corps de l'article",
+        "config": {
+          "labels": {},
+          "choices": {
+            "article_section": {
+              "type": "SharedSlice"
+            }
+          }
+        }
+      }
+    }
+  }
+}

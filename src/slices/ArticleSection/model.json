@@ -1,0 +1,42 @@
+{
+  "id": "article_section",
+  "type": "SharedSlice",
+  "name": "ArticleSection",
+  "description": "Une section du corps d'un article : titre, texte riche et visuel optionnel.",
+  "variations": [
+    {
+      "id": "default",
+      "name": "Par défaut",
+      "docURL": "...",
+      "version": "initial",
+      "description": "Titre, texte riche, visuel optionnel.",
+      "primary": {
+        "heading": {
+          "type": "StructuredText",
+          "config": {
+            "label": "Titre de la section",
+            "single": "heading2",
+            "placeholder": "Un sous-titre"
+          }
+        },
+        "body": {
+          "type": "StructuredText",
+          "config": {
+            "label": "Texte",
+            "multi": "paragraph,strong,em,hyperlink,list-item,o-list-item",
+            "placeholder": "Le contenu de la section"
+          }
+        },
+        "image": {
+          "type": "Image",
+          "config": {
+            "label": "Visuel (optionnel)",
+            "constraint": {},
+            "thumbnails": []
+          }
+        }
+      },
+      "items": {}
+    }
+  ]
+}

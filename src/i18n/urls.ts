@@ -27,9 +27,29 @@ export function localeUrl(locale: Locale, href: string): string {
  * search engines fall back to it for any language we don't publish.
  */
 export function alternateLanguages(href: string): Record<string, string> {
+  return alternateLanguagesAmong(href, routing.locales);
+}
+
+/**
+ * Same as `alternateLanguages`, but restricted to the locales a document actually
+ * exists in — the blog's per-locale content (REQ-028) has no automatic fallback, so an
+ * article published in only one language must not advertise an hreflang alternate that
+ * 404s. `x-default` follows French when it is among the available locales, and falls
+ * back to whichever locale does exist otherwise.
+ */
+export function alternateLanguagesAmong(
+  href: string,
+  availableLocales: readonly Locale[],
+): Record<string, string> {
+  if (availableLocales.length === 0) return {};
+
+  const defaultLocale = availableLocales.includes(routing.defaultLocale)
+    ? routing.defaultLocale
+    : availableLocales[0];
+
   return {
-    ...Object.fromEntries(routing.locales.map((locale) => [locale, localePath(locale, href)])),
-    "x-default": localePath(routing.defaultLocale, href),
+    ...Object.fromEntries(availableLocales.map((locale) => [locale, localePath(locale, href)])),
+    "x-default": localePath(defaultLocale, href),
   };
 }
 

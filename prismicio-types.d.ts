@@ -48,6 +48,139 @@ type ContentRelationshipFieldWithData<
 		>
 }[Exclude<TCustomType[number], string>["id"]];
 
+type ArticleDocumentDataBodySlice = ArticleSectionSlice
+
+/**
+ * Content for Article documents
+ */
+interface ArticleDocumentData {
+	/**
+	 * Titre field in *Article*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: Titre de l'article
+	 * - **API ID Path**: article.title
+	 * - **Tab**: Principal
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	title: prismic.KeyTextField;
+	
+	/**
+	 * Extrait (liste + meta description) field in *Article*
+	 *
+	 * - **Field Type**: Rich Text
+	 * - **Placeholder**: Resume court affiche sur la liste et utilise comme meta description
+	 * - **API ID Path**: article.excerpt
+	 * - **Tab**: Principal
+	 * - **Documentation**: https://prismic.io/docs/fields/rich-text
+	 */
+	excerpt: prismic.RichTextField;
+	
+	/**
+	 * Date de publication field in *Article*
+	 *
+	 * - **Field Type**: Date
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: article.publish_date
+	 * - **Tab**: Principal
+	 * - **Documentation**: https://prismic.io/docs/fields/date
+	 */
+	publish_date: prismic.DateField;
+	
+	/**
+	 * Visuel de couverture field in *Article*
+	 *
+	 * - **Field Type**: Image
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: article.cover
+	 * - **Tab**: Principal
+	 * - **Documentation**: https://prismic.io/docs/fields/image
+	 */
+	cover: prismic.ImageField<never>;
+	
+	/**
+	 * Auteur (optionnel) field in *Article*
+	 *
+	 * - **Field Type**: Content Relationship
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: article.author
+	 * - **Tab**: Principal
+	 * - **Documentation**: https://prismic.io/docs/fields/content-relationship
+	 */
+	author: prismic.ContentRelationshipField<"author">;
+	
+	/**
+	 * Corps de l'article field in *Article*
+	 *
+	 * - **Field Type**: Slice Zone
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: article.body[]
+	 * - **Tab**: Principal
+	 * - **Documentation**: https://prismic.io/docs/slices
+	 */
+	body: prismic.SliceZone<ArticleDocumentDataBodySlice>;
+}
+
+/**
+ * Article document from Prismic
+ *
+ * - **API ID**: `article`
+ * - **Repeatable**: `true`
+ * - **Documentation**: https://prismic.io/docs/content-modeling
+ *
+ * @typeParam Lang - Language API ID of the document.
+ */
+export type ArticleDocument<Lang extends string = string> = prismic.PrismicDocumentWithUID<Simplify<ArticleDocumentData>, "article", Lang>;
+
+/**
+ * Content for Auteur documents
+ */
+interface AuthorDocumentData {
+	/**
+	 * Nom field in *Auteur*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: Jean-Noe Kollo
+	 * - **API ID Path**: author.name
+	 * - **Tab**: Principal
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	name: prismic.KeyTextField;
+	
+	/**
+	 * Role field in *Auteur*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: Geek & philosophe
+	 * - **API ID Path**: author.role
+	 * - **Tab**: Principal
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	role: prismic.KeyTextField;
+	
+	/**
+	 * Avatar field in *Auteur*
+	 *
+	 * - **Field Type**: Image
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: author.avatar
+	 * - **Tab**: Principal
+	 * - **Documentation**: https://prismic.io/docs/fields/image
+	 */
+	avatar: prismic.ImageField<never>;
+}
+
+/**
+ * Auteur document from Prismic
+ *
+ * - **API ID**: `author`
+ * - **Repeatable**: `true`
+ * - **Documentation**: https://prismic.io/docs/content-modeling
+ *
+ * @typeParam Lang - Language API ID of the document.
+ */
+export type AuthorDocument<Lang extends string = string> = prismic.PrismicDocumentWithoutUID<Simplify<AuthorDocumentData>, "author", Lang>;
+
 /**
  * Item in *Étude de cas → Tags*
  */
@@ -220,7 +353,65 @@ interface PageDocumentData {
  */
 export type PageDocument<Lang extends string = string> = prismic.PrismicDocumentWithUID<Simplify<PageDocumentData>, "page", Lang>;
 
-export type AllDocumentTypes = CaseStudyDocument | PageDocument;
+export type AllDocumentTypes = ArticleDocument | AuthorDocument | CaseStudyDocument | PageDocument;
+
+/**
+ * Primary content in *ArticleSection → Par défaut → Primary*
+ */
+export interface ArticleSectionSliceDefaultPrimary {
+	/**
+	 * Titre de la section field in *ArticleSection → Par défaut → Primary*
+	 *
+	 * - **Field Type**: Rich Text
+	 * - **Placeholder**: Un sous-titre
+	 * - **API ID Path**: article_section.default.primary.heading
+	 * - **Documentation**: https://prismic.io/docs/fields/rich-text
+	 */
+	heading: prismic.RichTextField;
+	
+	/**
+	 * Texte field in *ArticleSection → Par défaut → Primary*
+	 *
+	 * - **Field Type**: Rich Text
+	 * - **Placeholder**: Le contenu de la section
+	 * - **API ID Path**: article_section.default.primary.body
+	 * - **Documentation**: https://prismic.io/docs/fields/rich-text
+	 */
+	body: prismic.RichTextField;
+	
+	/**
+	 * Visuel (optionnel) field in *ArticleSection → Par défaut → Primary*
+	 *
+	 * - **Field Type**: Image
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: article_section.default.primary.image
+	 * - **Documentation**: https://prismic.io/docs/fields/image
+	 */
+	image: prismic.ImageField<never>;
+}
+
+/**
+ * Par défaut variation for ArticleSection Slice
+ *
+ * - **API ID**: `default`
+ * - **Description**: Titre, texte riche, visuel optionnel.
+ * - **Documentation**: https://prismic.io/docs/slices
+ */
+export type ArticleSectionSliceDefault = prismic.SharedSliceVariation<"default", Simplify<ArticleSectionSliceDefaultPrimary>, never>;
+
+/**
+ * Slice variation for *ArticleSection*
+ */
+type ArticleSectionSliceVariation = ArticleSectionSliceDefault
+
+/**
+ * ArticleSection Shared Slice
+ *
+ * - **API ID**: `article_section`
+ * - **Description**: Une section du corps d'un article : titre, texte riche et visuel optionnel.
+ * - **Documentation**: https://prismic.io/docs/slices
+ */
+export type ArticleSectionSlice = prismic.SharedSlice<"article_section", ArticleSectionSliceVariation>;
 
 /**
  * Primary content in *CaseChapter → Par défaut → Primary*
@@ -425,6 +616,11 @@ declare module "@prismicio/client" {
 	
 	namespace Content {
 		export type {
+			ArticleDocument,
+			ArticleDocumentData,
+			ArticleDocumentDataBodySlice,
+			AuthorDocument,
+			AuthorDocumentData,
 			CaseStudyDocument,
 			CaseStudyDocumentData,
 			CaseStudyDocumentDataTagsItem,
@@ -433,6 +629,10 @@ declare module "@prismicio/client" {
 			PageDocumentData,
 			PageDocumentDataSlicesSlice,
 			AllDocumentTypes,
+			ArticleSectionSlice,
+			ArticleSectionSliceDefaultPrimary,
+			ArticleSectionSliceVariation,
+			ArticleSectionSliceDefault,
 			CaseChapterSlice,
 			CaseChapterSliceDefaultPrimary,
 			CaseChapterSliceVariation,

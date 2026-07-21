@@ -68,6 +68,10 @@ type LocaleContent = {
   stat: { value: string; label: string };
   /** Subpage intros, from the preview dictionary's `*.lead` keys. */
   leads: { approach: string; cases: string; culture: string };
+  /** The /blog surface (REQ-028): its content lives in Prismic, but the lead, empty
+   *  state and byline prefix are still site-wide UI copy, like the other section
+   *  routes' leads above. */
+  blog: { lead: string; emptyState: string; byline: string };
   services: readonly { title: string; body: string }[];
   impactStats: readonly { value: string; label: string }[];
   productionsIntro: { title: string; body: string };
@@ -168,6 +172,7 @@ const fr: LocaleContent = {
     { label: "Approche", href: "/approach" },
     { label: "References & Impact", href: "/cases" },
     { label: "Culture", href: "/culture" },
+    { label: "Blog", href: "/blog" },
     { label: "Contact", href: "/contact" },
   ],
   espaceB2bLabel: "Espace B2B",
@@ -186,6 +191,11 @@ const fr: LocaleContent = {
       "Une sélection de projets où le craft rencontre les chiffres. Des pics de lancement aux courbes de rétention, c’est ici qu’on montre les projets et l’impact qu’ils ont généré.",
     culture:
       "Nés sur le web, obsédés par la performance. 3D temps réel, motion fluide et ingénierie accessible, un craft exigeant qui charge vite. Voici l’équipe et les principes derrière.",
+  },
+  blog: {
+    lead: "Ce qu’on apprend en construisant, écrit chez nous plutôt que sur LinkedIn ou Medium.",
+    emptyState: "Aucun article pour le moment. Revenez bientôt.",
+    byline: "Par",
   },
   services: [
     {
@@ -310,6 +320,7 @@ const en: LocaleContent = {
     { label: "Approach", href: "/approach" },
     { label: "Cases & Impact", href: "/cases" },
     { label: "Culture", href: "/culture" },
+    { label: "Blog", href: "/blog" },
     { label: "Contact", href: "/contact" },
   ],
   espaceB2bLabel: "B2B Space",
@@ -328,6 +339,11 @@ const en: LocaleContent = {
       "Selected work where craft met numbers. From launch spikes to retention curves, this is where we show the projects and the impact they moved.",
     culture:
       "Born on the web, obsessed with performance. Real time 3D, buttery motion and accessible engineering, heavy craft that still loads fast. This is the team and the principles behind it.",
+  },
+  blog: {
+    lead: "What we learn while building, written on our own domain instead of LinkedIn or Medium.",
+    emptyState: "No articles yet. Check back soon.",
+    byline: "By",
   },
   services: [
     {
