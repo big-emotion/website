@@ -21,11 +21,11 @@ describe("SiteHeader", () => {
     }
   });
 
-  it("links the Espace client CTA out to the support portal in a new tab", () => {
+  it("links the Espace client CTA out to the b2b space in a new tab", () => {
     render(<SiteHeader />);
 
     const cta = screen.getByRole("link", { name: "Espace client" });
-    expect(cta).toHaveAttribute("href", "https://support.big-emotion.com/");
+    expect(cta).toHaveAttribute("href", "https://b2b.big-emotion.com/");
     expect(cta).toHaveAttribute("target", "_blank");
     expect(cta).toHaveAttribute("rel", "noopener noreferrer");
   });
@@ -38,7 +38,7 @@ describe("SiteHeader", () => {
     expect(drawer).not.toBeNull();
     expect(within(drawer!).getByRole("link", { name: "Espace client" })).toHaveAttribute(
       "href",
-      "https://support.big-emotion.com/",
+      "https://b2b.big-emotion.com/",
     );
   });
 });
