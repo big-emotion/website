@@ -1,0 +1,44 @@
+{
+  "id": "page",
+  "label": "Page",
+  "repeatable": true,
+  "status": true,
+  "format": "page",
+  "json": {
+    "Principal": {
+      "uid": {
+        "type": "UID",
+        "config": {
+          "label": "UID",
+          "placeholder": "home"
+        }
+      },
+      "meta_title": {
+        "type": "Text",
+        "config": {
+          "label": "Titre SEO (optionnel)",
+          "placeholder": "BIG EMOTION — L'agence B!G qui fait dire wow."
+        }
+      },
+      "meta_description": {
+        "type": "Text",
+        "config": {
+          "label": "Meta description (optionnel)",
+          "placeholder": "On ne fait pas des sites web. On cree de l'impact."
+        }
+      },
+      "slices": {
+        "type": "Slices",
+        "fieldset": "Corps de la page",
+        "config": {
+          "labels": {},
+          "choices": {
+            "home_scene": {
+              "type": "SharedSlice"
+            }
+          }
+        }
+      }
+    }
+  }
+}

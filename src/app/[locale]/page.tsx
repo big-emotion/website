@@ -1,16 +1,19 @@
+import { SliceZone } from "@prismicio/react";
 import { hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { SceneCanvas } from "@/components/scene/scene-canvas";
-import { ScenePanel } from "@/components/scene-panel";
-import { StackedHeadline } from "@/components/stacked-headline";
-import { content, site, socialHandle } from "@/content/site";
+import type { Locale } from "@/i18n/locales";
 import { routing } from "@/i18n/routing";
+import { createClient, prismicLocale } from "@/prismicio";
+import { components } from "@/slices";
 
 // The home page is the scroll spine of the 3D scene, not a stack of sections: six
 // full-viewport panels, one per `STATES` keyframe, over the fixed `SceneCanvas`
 // underlay. The Approach / Cases / Culture / Contact detail pages are their own routes
-// now (SWBE-21) — this page only sets them up emotionally.
+// now (SWBE-21) — this page only sets them up emotionally. The panels themselves are a
+// Prismic Slice Zone (`page` document, uid "home") composed of `home_scene` slices
+// (SWBE-81) — editors reorder or restyle the scroll spine without a deploy.
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   // Opts the page back into static rendering — without it every next-intl call below
@@ -19,38 +22,22 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
 
-  const { scenes, tagline } = content[locale];
+  const page = await fetchHomePage(locale);
 
   return (
     <>
       <SceneCanvas />
-
-      {scenes.map((scene, index) => (
-        <ScenePanel key={scene.id} index={index}>
-          {scene.id === "intro" ? (
-            // The visible headline of the opening beat is the 3D wordmark, which lives
-            // in a decorative canvas. The page still needs one real name for screen
-            // readers and for the document outline.
-            <h1 className="sr-only">{`${site.name} — ${tagline}`}</h1>
-          ) : (
-            <StackedHeadline
-              lines={scene.title}
-              className="font-display text-[clamp(2.25rem,7vw,5.5rem)]"
-            />
-          )}
-
-          {scene.body && (
-            <p className="mt-6 text-base leading-relaxed md:text-lg">{scene.body}</p>
-          )}
-
-          {scene.id === "final" && (
-            // Handle only, no link: the owner has not supplied the social profile URLs
-            // yet (SWBE-18 precondition 4), and a placeholder href would ship a link
-            // that goes nowhere. The icons row lands with the real URLs.
-            <p className="font-display mt-8 text-lg tracking-[0.12em]">{socialHandle}</p>
-          )}
-        </ScenePanel>
-      ))}
+      <SliceZone slices={page.data.slices} components={components} />
     </>
   );
+}
+
+async function fetchHomePage(locale: Locale) {
+  try {
+    return await createClient().getByUID("page", "home", { lang: prismicLocale(locale) });
+  } catch {
+    // A locale with no "home" document is a 404, not a build failure — the same answer
+    // an unknown path gets, so an untranslated draft can't leak its existence.
+    notFound();
+  }
 }

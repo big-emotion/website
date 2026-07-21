@@ -27,8 +27,8 @@ export default async function CulturePage({ params }: RouteProps) {
   // every next-intl call below reads headers() and the route turns dynamic.
   setRequestLocale(locale);
 
-  const { scenes, leads } = content[locale];
-  const title = scenes.find((scene) => scene.id === "culture")?.title ?? [];
+  const { sectionHeroes, leads } = content[locale];
+  const title = sectionHeroes.find((hero) => hero.id === "culture")?.title ?? [];
 
   return (
     <>

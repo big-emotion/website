@@ -2,10 +2,12 @@
 // (services, productions, team) is typed here rather than in MDX: it's short and highly
 // structured, so a typed module reads better and the components stay declarative.
 //
-// EXCEPT the case studies (SWBE-24): they are the pilot content type and now live in
-// Prismic, fetched by the /cases routes at build time. Everything else on those pages —
-// the impact figures, the agency's own productions — is still this module. Migrating the
-// rest is deliberately a later decision, not an oversight.
+// EXCEPT the case studies (SWBE-24) and the Home scroll spine (SWBE-81): both are
+// Prismic content, fetched at build time — case studies by the /cases routes, the Home
+// beats by the `page` (uid "home") document's Slice Zone. Everything else on those
+// pages — the impact figures, the agency's own productions, the three subpage heroes
+// under `sectionHeroes` — is still this module. Migrating the rest is deliberately a
+// later decision, not an oversight.
 //
 // BILINGUAL (SWBE-21): everything a visitor reads lives under `content[locale]`;
 // everything that is the same in both locales — the brand name, contact details, client
@@ -16,32 +18,36 @@
 // ACCENTS: BBH Hegarty (the `font-display` face) ships an ASCII-only cmap — no
 // é è à ç É. Any accented character in display type silently falls back to
 // another font and renders visibly mismatched, so copy that lands in a
-// `font-display` slot is written unaccented: scene headlines, nav labels, the
+// `font-display` slot is written unaccented: section-hero headlines, nav labels, the
 // scroll cue, mission, stat.label, service titles, production titles/kinds,
-// impact labels, team names/roles, values, the contact headline. Case study
-// titles land in the same display slots but are authored in Prismic, where this
-// test cannot reach them — see the accent warning in the AGENTS.md Prismic section.
+// impact labels, team names/roles, values, the contact headline. Case study titles and
+// the Home scroll spine's own headlines land in the same display slots but are
+// authored in Prismic, where this test cannot reach them — see the accent warning in
+// the AGENTS.md Prismic section.
 // Body copy keeps correct French — Bricolage Grotesque covers the full range.
 // Restore the accents here only once the display font gains the glyphs (DEC-023).
 // `contact.person` is deliberately still accented: it feeds the schema.org
 // founder, never display type, and it is a real person's name.
 // `src/content/site.test.ts` enforces the split across both locales.
 
-import type { SceneState } from "@/components/scene/states";
 import type { Locale } from "@/i18n/locales";
 
-/** Scene identities are the scroll choreography's keyframe names (SWBE-20, ARCH-009). */
-type SceneId = SceneState["name"];
-
-type Scene = {
-  id: SceneId;
+/**
+ * The Home scroll spine's own beats (its headline lines, body copy, tagline) moved to
+ * Prismic as `home_scene` slices on the `page` (uid "home") document (SWBE-81). The
+ * `approach`/`cases`/`culture` subpages, though, each reuse one beat's headline as
+ * their own `<h1>` (SubpageHero) — that reuse predates this migration and is out of
+ * this story's scope, so those three entries stay here rather than fetching the Home
+ * document from three unrelated routes. `intro`, `louder` and `final` had no such
+ * second consumer and are gone: their only home now is Prismic.
+ */
+type SectionHero = {
+  id: "approach" | "cases" | "culture";
   /**
    * Headline, one entry per rendered line — the preview encoded these as `<br>` in
    * `js/i18n.js`; an array keeps the copy out of `dangerouslySetInnerHTML`.
-   * Empty for the hero, whose headline is the 3D wordmark itself.
    */
   title: readonly string[];
-  body?: string;
 };
 
 type LinkOut = {
@@ -54,11 +60,10 @@ type LinkOut = {
 
 type LocaleContent = {
   meta: { title: string; description: string };
-  tagline: string;
   nav: readonly { label: string; href: string }[];
   espaceB2bLabel: string;
   scrollCue: string;
-  scenes: readonly Scene[];
+  sectionHeroes: readonly SectionHero[];
   mission: string;
   stat: { value: string; label: string };
   /** Subpage intros, from the preview dictionary's `*.lead` keys. */
@@ -163,7 +168,6 @@ const fr: LocaleContent = {
     description:
       "On ne fait pas des sites web. On crée de l’impact. Agence digitale : vraie identité, émotion brute.",
   },
-  tagline: "L'agence B!G qui fait dire wow.",
   nav: [
     { label: "Approche", href: "/approach" },
     { label: "References & Impact", href: "/cases" },
@@ -173,36 +177,10 @@ const fr: LocaleContent = {
   ],
   espaceB2bLabel: "Espace B2B",
   scrollCue: "Defiler",
-  scenes: [
-    {
-      id: "intro",
-      title: [],
-      body: "Big Emotion est un studio créatif digital first qui façonne des marques que l’on ressent avant même de les comprendre. Stratégie, design et motion, pensés pour émouvoir.",
-    },
-    {
-      id: "approach",
-      title: ["L'agence", "qui fait", "dire wow"],
-      body: "On part de la réaction, puis on remonte tout le fil pour l’obtenir. Chaque scroll, chaque transition, chaque frame est un temps fort d’une histoire dont votre audience se souvient vraiment.",
-    },
-    {
-      id: "cases",
-      title: ["Derriere", "chaque clic,", "une emotion"],
-      body: "Les interfaces sont des décisions émotionnelles déguisées. On dessine les micro instants, le poids d’un bouton, le timing d’une révélation, pour que l’intention devienne instinct.",
-    },
-    {
-      id: "culture",
-      title: ["Digital first,", "emotion", "toujours"],
-      body: "Nés sur le web, obsédés par la performance. 3D temps réel, motion fluide et ingénierie accessible, un craft exigeant qui charge vite et passe partout.",
-    },
-    {
-      id: "louder",
-      title: ["Votre marque,", "en plus fort"],
-      body: "Même ADN, plus de volume. On pousse le contraste, la confiance et le craft jusqu’à rendre votre marque impossible à ignorer, et impossible à oublier.",
-    },
-    {
-      id: "final",
-      title: ["On ne fait pas", "des sites,", "on cree de l'impact."],
-    },
+  sectionHeroes: [
+    { id: "approach", title: ["L'agence", "qui fait", "dire wow"] },
+    { id: "cases", title: ["Derriere", "chaque clic,", "une emotion"] },
+    { id: "culture", title: ["Digital first,", "emotion", "toujours"] },
   ],
   mission: "Donner vie a tes projets et leur transmettre des emotions.",
   stat: { value: "50+", label: "projets accompagnes" },
@@ -338,7 +316,6 @@ const en: LocaleContent = {
     description:
       "We don’t make websites. We make impact. Digital agency: real identity, raw emotion.",
   },
-  tagline: "The B!G agency that gives a wow.",
   nav: [
     { label: "Approach", href: "/approach" },
     { label: "Cases & Impact", href: "/cases" },
@@ -348,36 +325,10 @@ const en: LocaleContent = {
   ],
   espaceB2bLabel: "B2B Space",
   scrollCue: "Scroll",
-  scenes: [
-    {
-      id: "intro",
-      title: [],
-      body: "Big Emotion is a digital first creative studio building brands that people feel before they understand. Strategy, design and motion, engineered to move.",
-    },
-    {
-      id: "approach",
-      title: ["The agency", "that gives", "a wow"],
-      body: "We start with the reaction, then reverse engineer everything to get there. Every scroll, every transition, every frame is a deliberate beat in a story your audience actually remembers.",
-    },
-    {
-      id: "cases",
-      title: ["Behind", "every click,", "a feeling"],
-      body: "Interfaces are emotional decisions in disguise. We design the micro moments, the weight of a button, the timing of a reveal, so intent turns into instinct.",
-    },
-    {
-      id: "culture",
-      title: ["Digital first", "emotion,", "always"],
-      body: "Born on the web, obsessed with performance. Real time 3D, buttery motion and accessible engineering, heavy craft that still loads fast and scales everywhere.",
-    },
-    {
-      id: "louder",
-      title: ["Your brand,", "but louder"],
-      body: "Same DNA, more volume. We turn up the contrast, the confidence and the craft until your brand is impossible to scroll past, and impossible to forget.",
-    },
-    {
-      id: "final",
-      title: ["We don't make", "websites,", "we create impact."],
-    },
+  sectionHeroes: [
+    { id: "approach", title: ["The agency", "that gives", "a wow"] },
+    { id: "cases", title: ["Behind", "every click,", "a feeling"] },
+    { id: "culture", title: ["Digital first", "emotion,", "always"] },
   ],
   mission: "Bring your projects to life and make them felt.",
   stat: { value: "50+", label: "projects delivered" },

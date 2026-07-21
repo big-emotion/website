@@ -302,7 +302,58 @@ interface CaseStudyDocumentData {
  */
 export type CaseStudyDocument<Lang extends string = string> = prismic.PrismicDocumentWithUID<Simplify<CaseStudyDocumentData>, "case_study", Lang>;
 
-export type AllDocumentTypes = ArticleDocument | AuthorDocument | CaseStudyDocument;
+type PageDocumentDataSlicesSlice = HomeSceneSlice
+
+/**
+ * Content for Page documents
+ */
+interface PageDocumentData {
+	/**
+	 * Titre SEO (optionnel) field in *Page*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: BIG EMOTION — L'agence B!G qui fait dire wow.
+	 * - **API ID Path**: page.meta_title
+	 * - **Tab**: Principal
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	meta_title: prismic.KeyTextField;
+	
+	/**
+	 * Meta description (optionnel) field in *Page*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: On ne fait pas des sites web. On cree de l'impact.
+	 * - **API ID Path**: page.meta_description
+	 * - **Tab**: Principal
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	meta_description: prismic.KeyTextField;
+	
+	/**
+	 * Corps de la page field in *Page*
+	 *
+	 * - **Field Type**: Slice Zone
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: page.slices[]
+	 * - **Tab**: Principal
+	 * - **Documentation**: https://prismic.io/docs/slices
+	 */
+	slices: prismic.SliceZone<PageDocumentDataSlicesSlice>;
+}
+
+/**
+ * Page document from Prismic
+ *
+ * - **API ID**: `page`
+ * - **Repeatable**: `true`
+ * - **Documentation**: https://prismic.io/docs/content-modeling
+ *
+ * @typeParam Lang - Language API ID of the document.
+ */
+export type PageDocument<Lang extends string = string> = prismic.PrismicDocumentWithUID<Simplify<PageDocumentData>, "page", Lang>;
+
+export type AllDocumentTypes = ArticleDocument | AuthorDocument | CaseStudyDocument | PageDocument;
 
 /**
  * Primary content in *ArticleSection → Par défaut → Primary*
@@ -420,6 +471,136 @@ type CaseChapterSliceVariation = CaseChapterSliceDefault
  */
 export type CaseChapterSlice = prismic.SharedSlice<"case_chapter", CaseChapterSliceVariation>;
 
+/**
+ * Item in *HomeScene → Par defaut → Primary → Lignes du titre*
+ */
+export interface HomeSceneSliceDefaultPrimaryHeadingItem {
+	/**
+	 * Ligne field in *HomeScene → Par defaut → Primary → Lignes du titre*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: L'agence
+	 * - **API ID Path**: home_scene.default.primary.heading[].line
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	line: prismic.KeyTextField;
+}
+
+/**
+ * Primary content in *HomeScene → Par defaut → Primary*
+ */
+export interface HomeSceneSliceDefaultPrimary {
+	/**
+	 * Identifiant de la scene (choregraphie 3D) field in *HomeScene → Par defaut → Primary*
+	 *
+	 * - **Field Type**: Select
+	 * - **Placeholder**: *None*
+	 * - **Default Value**: approach
+	 * - **API ID Path**: home_scene.default.primary.scene_id
+	 * - **Documentation**: https://prismic.io/docs/fields/select
+	 */
+	scene_id: prismic.SelectField<"intro" | "approach" | "cases" | "culture" | "louder" | "final", "filled">;
+	
+	/**
+	 * Lignes du titre field in *HomeScene → Par defaut → Primary*
+	 *
+	 * - **Field Type**: Group
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: home_scene.default.primary.heading[]
+	 * - **Documentation**: https://prismic.io/docs/fields/repeatable-group
+	 */
+	heading: prismic.GroupField<Simplify<HomeSceneSliceDefaultPrimaryHeadingItem>>;
+	
+	/**
+	 * Texte (optionnel) field in *HomeScene → Par defaut → Primary*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: On part de la reaction, puis on remonte tout le fil pour l'obtenir.
+	 * - **API ID Path**: home_scene.default.primary.body
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	body: prismic.KeyTextField;
+	
+	/**
+	 * Afficher la poignee sociale field in *HomeScene → Par defaut → Primary*
+	 *
+	 * - **Field Type**: Boolean
+	 * - **Placeholder**: *None*
+	 * - **Default Value**: false
+	 * - **API ID Path**: home_scene.default.primary.social_handle
+	 * - **Documentation**: https://prismic.io/docs/fields/boolean
+	 */
+	social_handle: prismic.BooleanField;
+}
+
+/**
+ * Par defaut variation for HomeScene Slice
+ *
+ * - **API ID**: `default`
+ * - **Description**: Titre empile visible, texte optionnel, poignee sociale optionnelle.
+ * - **Documentation**: https://prismic.io/docs/slices
+ */
+export type HomeSceneSliceDefault = prismic.SharedSliceVariation<"default", Simplify<HomeSceneSliceDefaultPrimary>, never>;
+
+/**
+ * Primary content in *HomeScene → Introduction (wordmark 3D) → Primary*
+ */
+export interface HomeSceneSliceIntroHeroPrimary {
+	/**
+	 * Identifiant de la scene (choregraphie 3D) field in *HomeScene → Introduction (wordmark 3D) → Primary*
+	 *
+	 * - **Field Type**: Select
+	 * - **Placeholder**: *None*
+	 * - **Default Value**: intro
+	 * - **API ID Path**: home_scene.introHero.primary.scene_id
+	 * - **Documentation**: https://prismic.io/docs/fields/select
+	 */
+	scene_id: prismic.SelectField<"intro" | "approach" | "cases" | "culture" | "louder" | "final", "filled">;
+	
+	/**
+	 * Signature (nom accessible du h1) field in *HomeScene → Introduction (wordmark 3D) → Primary*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: L'agence B!G qui fait dire wow.
+	 * - **API ID Path**: home_scene.introHero.primary.tagline
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	tagline: prismic.KeyTextField;
+	
+	/**
+	 * Texte (optionnel) field in *HomeScene → Introduction (wordmark 3D) → Primary*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: Big Emotion est un studio creatif digital first...
+	 * - **API ID Path**: home_scene.introHero.primary.body
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	body: prismic.KeyTextField;
+}
+
+/**
+ * Introduction (wordmark 3D) variation for HomeScene Slice
+ *
+ * - **API ID**: `introHero`
+ * - **Description**: Scene d'ouverture : le titre visible est le wordmark 3D, cette variante ne rend qu'un h1 accessible.
+ * - **Documentation**: https://prismic.io/docs/slices
+ */
+export type HomeSceneSliceIntroHero = prismic.SharedSliceVariation<"introHero", Simplify<HomeSceneSliceIntroHeroPrimary>, never>;
+
+/**
+ * Slice variation for *HomeScene*
+ */
+type HomeSceneSliceVariation = HomeSceneSliceDefault | HomeSceneSliceIntroHero
+
+/**
+ * HomeScene Shared Slice
+ *
+ * - **API ID**: `home_scene`
+ * - **Description**: Un temps fort du scroll spine de la Home : titre empile, texte optionnel, poignee sociale optionnelle.
+ * - **Documentation**: https://prismic.io/docs/slices
+ */
+export type HomeSceneSlice = prismic.SharedSlice<"home_scene", HomeSceneSliceVariation>;
+
 declare module "@prismicio/client" {
 	interface CreateClient {
 		(repositoryNameOrEndpoint: string, options?: prismic.ClientConfig): prismic.Client<AllDocumentTypes>;
@@ -444,6 +625,9 @@ declare module "@prismicio/client" {
 			CaseStudyDocumentData,
 			CaseStudyDocumentDataTagsItem,
 			CaseStudyDocumentDataBodySlice,
+			PageDocument,
+			PageDocumentData,
+			PageDocumentDataSlicesSlice,
 			AllDocumentTypes,
 			ArticleSectionSlice,
 			ArticleSectionSliceDefaultPrimary,
@@ -452,7 +636,14 @@ declare module "@prismicio/client" {
 			CaseChapterSlice,
 			CaseChapterSliceDefaultPrimary,
 			CaseChapterSliceVariation,
-			CaseChapterSliceDefault
+			CaseChapterSliceDefault,
+			HomeSceneSlice,
+			HomeSceneSliceDefaultPrimaryHeadingItem,
+			HomeSceneSliceDefaultPrimary,
+			HomeSceneSliceIntroHeroPrimary,
+			HomeSceneSliceVariation,
+			HomeSceneSliceDefault,
+			HomeSceneSliceIntroHero
 		}
 	}
 }

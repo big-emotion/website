@@ -1,5 +1,7 @@
+import type { Content } from "@prismicio/client";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { STATES } from "@/components/scene/states";
 
 // The real canvas boots three.js, GSAP and Lenis on mount — none of which jsdom can
 // run, and none of which this page's contract depends on. Its own test file covers it.
@@ -12,9 +14,93 @@ vi.mock("@/components/scene/scene-canvas", () => ({
 // keep the route static — it has no bearing on what the page renders.
 vi.mock("next-intl/server", () => ({ setRequestLocale: vi.fn() }));
 
-const Home = (await import("./page")).default;
+// `notFound()` throws in Next; the stub keeps that contract so the tests can assert the
+// route bails instead of rendering a half-empty Home.
+const notFoundError = new Error("NEXT_NOT_FOUND");
+vi.mock("next/navigation", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("next/navigation")>()),
+  notFound: () => {
+    throw notFoundError;
+  },
+}));
+
+const { getByUID } = vi.hoisted(() => ({ getByUID: vi.fn() }));
+
+vi.mock("@/prismicio", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/prismicio")>()),
+  createClient: () => ({ getByUID }),
+}));
+
+const { default: Home } = await import("./page");
+
+// One `home_scene` slice per `STATES` keyframe, in choreography order — the same
+// contract the seeded copy in `scripts/seed-home.mjs` fulfils in production.
+function homePage(lang: "fr-fr" | "en-us"): Content.PageDocument {
+  const copy =
+    lang === "fr-fr"
+      ? {
+          tagline: "L'agence B!G qui fait dire wow.",
+          introBody:
+            "Big Emotion est un studio créatif digital first qui façonne des marques que l’on ressent avant même de les comprendre.",
+          approach: ["L'agence", "qui fait", "dire wow"],
+          louder: ["Votre marque,", "en plus fort"],
+          final: ["On ne fait pas", "des sites,", "on cree de l'impact."],
+        }
+      : {
+          tagline: "The B!G agency that gives a wow.",
+          introBody:
+            "Big Emotion is a digital first creative studio building brands that people feel before they understand.",
+          approach: ["The agency", "that gives", "a wow"],
+          louder: ["Your brand,", "but louder"],
+          final: ["We don't make", "websites,", "we create impact."],
+        };
+
+  const scene = (
+    sceneId: string,
+    variation: "default" | "introHero",
+    primary: Record<string, unknown>,
+  ) => ({ slice_type: "home_scene", slice_label: null, variation, primary: { scene_id: sceneId, ...primary }, items: [] });
+
+  return {
+    id: "home",
+    uid: "home",
+    data: {
+      meta_title: "",
+      meta_description: "",
+      slices: [
+        scene("intro", "introHero", { tagline: copy.tagline, body: copy.introBody }),
+        scene("approach", "default", {
+          heading: copy.approach.map((line) => ({ line })),
+          body: "",
+          social_handle: false,
+        }),
+        scene("cases", "default", {
+          heading: [{ line: "Derriere" }],
+          body: "",
+          social_handle: false,
+        }),
+        scene("culture", "default", {
+          heading: [{ line: "Digital first" }],
+          body: "",
+          social_handle: false,
+        }),
+        scene("louder", "default", {
+          heading: copy.louder.map((line) => ({ line })),
+          body: "",
+          social_handle: false,
+        }),
+        scene("final", "default", {
+          heading: copy.final.map((line) => ({ line })),
+          body: "",
+          social_handle: true,
+        }),
+      ],
+    },
+  } as unknown as Content.PageDocument;
+}
 
 async function renderHome(locale: "fr" | "en") {
+  getByUID.mockResolvedValue(homePage(locale === "fr" ? "fr-fr" : "en-us"));
   return render(await Home({ params: Promise.resolve({ locale }) }));
 }
 
@@ -80,5 +166,30 @@ describe("Home", () => {
     for (const panel of container.querySelectorAll("[data-scene]")) {
       expect(panel.className).not.toMatch(/\bbg-/);
     }
+  });
+
+  it("reads the home page in the locale of the route", async () => {
+    await renderHome("en");
+    expect(getByUID).toHaveBeenCalledWith("page", "home", { lang: "en-us" });
+  });
+
+  it("404s when the home page has no document in this locale", async () => {
+    getByUID.mockRejectedValue(new Error("No documents were returned"));
+
+    await expect(Home({ params: Promise.resolve({ locale: "en" }) })).rejects.toThrow(
+      "NEXT_NOT_FOUND",
+    );
+  });
+
+  // The coupling risk called out in AGENTS.md: a slice's rendering position is also its
+  // `ScenePanel` index, so the fixture's scene order must itself match `STATES` for this
+  // whole suite's assumptions to hold — this guards the fixture the way
+  // `scripts/seed-home.test.mjs` guards the real seed.
+  it("fixture scenes are declared in the exact STATES order and count", async () => {
+    const page = homePage("fr-fr");
+    const sceneIds = page.data.slices.map(
+      (slice) => (slice as { primary: { scene_id: string } }).primary.scene_id,
+    );
+    expect(sceneIds).toEqual(STATES.map((state) => state.name));
   });
 });

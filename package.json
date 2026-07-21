@@ -18,7 +18,8 @@
     "prismic:check": "node --env-file-if-exists=.env scripts/prismic-check.mjs",
     "prismic:pull": "node --env-file-if-exists=.env scripts/prismic-pull.mjs",
     "prismic:push": "node --env-file-if-exists=.env scripts/prismic-push.mjs",
-    "prismic:seed-cases": "node --env-file-if-exists=.env scripts/seed-case-studies.mjs"
+    "prismic:seed-cases": "node --env-file-if-exists=.env scripts/seed-case-studies.mjs",
+    "prismic:seed-home": "node --env-file-if-exists=.env scripts/seed-home.mjs"
   },
   "dependencies": {
     "@prismicio/client": "^7.21.8",
