@@ -18,7 +18,6 @@ function displayCopy(locale: Locale) {
     ...copy.contact.title,
     ...copy.services.map((service) => service.title),
     ...copy.impactStats.map((stat) => stat.label),
-    ...copy.cases.flatMap((sector) => [sector.title, sector.kind]),
     ...copy.productions.flatMap((production) => [production.title, production.kind]),
     ...copy.team.flatMap((member) => [member.name, member.role]),
     ...copy.values,
@@ -41,12 +40,6 @@ describe("locale parity", () => {
   // Both locales are authored by hand, so the identifiers a URL or an anchor is built
   // from get asserted equal rather than assumed: a slug present in one locale only
   // would 404 the moment the switcher preserves the path across it.
-  it("exposes the same sector case slugs in both locales", () => {
-    expect(content.en.cases.map((sector) => sector.slug)).toEqual(
-      content.fr.cases.map((sector) => sector.slug),
-    );
-  });
-
   it("exposes the same production slugs in both locales", () => {
     expect(content.en.productions.map((production) => production.slug)).toEqual(
       content.fr.productions.map((production) => production.slug),

@@ -8,7 +8,16 @@ COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
 COPY . .
-RUN pnpm build
+
+# Case studies are read from Prismic during `next build` (SWBE-24), so the build stage
+# needs credentials the runtime never does. The repository name is not sensitive and
+# rides in as a plain build arg; the read token is mounted as a BuildKit secret so it
+# stays out of the image layers and out of `docker history`.
+ARG PRISMIC_REPOSITORY_NAME
+ENV PRISMIC_REPOSITORY_NAME=$PRISMIC_REPOSITORY_NAME
+
+RUN --mount=type=secret,id=prismic_access_token \
+    PRISMIC_ACCESS_TOKEN="$(cat /run/secrets/prismic_access_token)" pnpm build
 
 # Stage 2: minimal production runtime
 FROM node:22-alpine AS runner
