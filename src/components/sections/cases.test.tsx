@@ -24,6 +24,15 @@ describe("Cases", () => {
     );
   });
 
+  it("links the project standard plugin to its repository", () => {
+    render(<Cases />);
+    expect(screen.getByRole("heading", { name: /project standard/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Project Standard sur GitHub" })).toHaveAttribute(
+      "href",
+      "https://github.com/big-emotion/project-standard",
+    );
+  });
+
   it("keeps Ferry's two distribution links distinguishable out of context", () => {
     render(<Cases />);
     expect(screen.getByRole("link", { name: "Ferry sur GitHub" })).toHaveAttribute(

@@ -139,6 +139,21 @@ export const productions = [
       { label: "npm", context: "sur npm", href: "https://www.npmjs.com/package/@big-emotion/ferry" },
     ],
   },
+  {
+    slug: "project-standard",
+    title: "Project Standard",
+    kind: "Outillage",
+    summary:
+      "Notre façon de monter un projet, empaquetée en plugin Claude Code : contrôles de CI, hooks de commit, skills maison, câblage Jira et Confluence. Une commande, et un repo neuf démarre déjà aux normes. Sous licence MIT.",
+    tags: ["Claude Code", "Plugin", "CI/CD"],
+    links: [
+      {
+        label: "GitHub",
+        context: "sur GitHub",
+        href: "https://github.com/big-emotion/project-standard",
+      },
+    ],
+  },
 ] as const;
 
 // Brands the founders have worked with, rendered as typographic wordmarks rather than
