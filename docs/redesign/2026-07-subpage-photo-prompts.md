@@ -60,6 +60,17 @@ Same rule for backgrounds: `no white background` is unreliable, so name the colo
 (*"deep saturated crimson and cyan background"*, *"dark saturated backdrop"*). The charter forbids
 `fond blanc neutre` and the first pass produced two grey/white cycloramas by negation alone.
 
+## Faces in frame, lit
+
+Cropping the head out is the cheapest way to guarantee no readable surface for a logo — and it is a
+trap. Two of the first four heroes did it (a backlit silhouette on `/approach`, an arched headless
+torso on `/cases`) and the owner rejected both in the same terms: *"trop sombre, mystérieux"*,
+*"le personnage est suspect, effrayant."*
+
+A body without a face in low light reads as menacing, not energetic. The brand's own moodboard is
+faces and explicit joy throughout. **Keep the face in frame, lit, and expressive** — solve the logo
+problem with blank fabric, not by hiding the person.
+
 ## The four prompts
 
 Each subject is chosen against that page's lead copy in `src/content/site.ts` and against the accent
@@ -70,40 +81,46 @@ colour, so a subject whose own palette fights it reads as a mistake.
 
 > *"On part de la réaction, puis on remonte tout le fil pour l'obtenir."*
 
-The page is about working backwards from a reaction, so the subject is the reaction itself, frozen:
-weightlessness, nothing yet resolved. The only outdoor frame of the four, and the only one that keeps
-the tail's `vivid sky` clause. Backlighting reduces the figure to a silhouette, which is also why this
-one needed no anti-lettering work — there is no readable surface in the frame.
+The page starts from the reaction and works backwards, so the subject **reacts toward the viewer** —
+hands thrown at the lens, caught at the moment of contact. It also echoes a pose from the designer's
+own moodboard.
+
+The first version here was a backlit dancer reduced to a silhouette against a sunset, and it was
+rejected under the faces rule above. The cobalt ground gives the hardest contrast against this page's
+`bg-lemon` band.
 
 ```
-Single dancer suspended at the apex of an explosive leap, body fully extended and weightless,
-shot from a radical extreme low angle so the figure floats free against an open sky, golden
-hour backlight rimming the silhouette, bold saturated colors, no pastel, no overexposure,
-natural golden hour light, deep shadows, daring framing, fisheye lens, extreme low angle,
-subject off-center, surreal or physically impossible scene, raw energy, intense or euphoric
-expression, frozen peak action, vivid sky with dramatic clouds, cinematic color grading,
-hyper-real not hyperrealistic, editorial sports photography style, shot on Phase One, 4K,
-no white background, no flat lighting, no neutral expression, plain unbranded clothing,
-no brand marks, no logos, no legible text anywhere in frame
+A laughing young man lunging toward the camera with both hands thrown out at the lens, palms
+wide and blurred by the movement, face fully visible and brightly lit behind them, shot on a
+fisheye lens at very close distance against a deep saturated cobalt blue background, dressed
+in a plain smooth t-shirt in a solid block colour with the fabric entirely blank and
+unprinted, bold saturated colors, strong directional studio light, deep shadows, daring
+framing, dutch tilt, subject off-center, raw energy, euphoric expression, motion blur and
+frozen peak action, cinematic color grading, hyper-real not hyperrealistic, editorial
+photography style, shot on Phase One, 4K
 ```
 
 ### `/cases` — accent `tangerine`
 
 > *"Une sélection de projets où le craft rencontre les chiffres."*
 
-Craft meeting numbers reads as measurable output, so the subject is peak effort at the instant it
-converts into result. Rewritten from a sprinter to a bare-torso dancer for the reason above: with no
-garment in frame there is no surface for a sponsor to appear on. The crimson ground sits under the
-tangerine band without competing with it.
+Craft meeting numbers reads as measurable output, so the subject is the moment the effort lands.
+
+Beyond the faces rule above, this page carries its own colour trap. The first accepted version put a
+low-key crimson-and-cyan frame beside `bg-tangerine`, on the reasoning that a red-adjacent ground
+would not fight the orange. On screen it does the opposite: two neighbouring reds turn to sludge, and
+a low-key image dies against a field that bright. **Turquoise is complementary to the tangerine and is
+what makes the photo read.** The inverse trap is just as real — a subject wearing tangerine dissolves
+into the band, so keep the garment off that hue.
 
 ```
-A dancer's bare torso and outstretched arms caught mid-explosive twist at the peak of the
-movement, skin taut and glistening, droplets of water flying off the shoulders, seen from a
-low dutch-tilted angle with the body pushed to the edge of the frame, deep saturated crimson
-and cyan background, bold saturated colors, strong directional studio light, deep shadows,
-daring framing, fisheye lens, subject off-center, raw energy, intense expression, motion blur
-and frozen peak action, cinematic color grading, hyper-real not hyperrealistic, editorial
-photography style, shot on Phase One, 4K, dark saturated backdrop
+A joyful athletic woman leaping high with a wide open smile, face clearly visible and lit,
+one arm thrown up in triumph, hair flying, shot from a radical low angle against a vivid
+electric turquoise sky, dressed in a plain smooth tank top in a solid block colour with the
+fabric entirely blank and unprinted, bold saturated colors, strong golden directional light
+on the face, deep shadows, daring framing, fisheye lens, subject off-center, raw energy,
+euphoric expression, frozen peak action, cinematic color grading, hyper-real not
+hyperrealistic, editorial sports photography style, shot on Phase One, 4K
 ```
 
 ### `/culture` — accent `lyon` (blue)
@@ -153,11 +170,13 @@ no logos, no legible text anywhere in frame
 
 ## Acceptance check before shipping a regeneration
 
-Open the file and confirm, in this order — the first two are what blocked SWBE-91 the first time:
+Open the file and confirm, in this order — every one of these was learned by shipping its opposite:
 
 1. No brand mark, logo, crest, bib, or legible lettering anywhere in frame, including garbled
    pseudo-text on clothing.
-2. The background is a saturated colour, not white, grey, or beige (`Interdit : fond blanc neutre`).
-3. Contrasted directional light with real shadows — not flat, not washed out.
-4. The expression is marked and unposed; the framing is off-center, tilted, or from an improbable angle.
-5. Long edge ≥ 1600px.
+2. The face is in frame, lit, and expressive — no silhouettes, no headless bodies.
+3. The background is a saturated colour, not white, grey, or beige (`Interdit : fond blanc neutre`),
+   and it does not sit next to the page's own accent on the colour wheel.
+4. Contrasted directional light with real shadows — not flat, not washed out.
+5. The expression is marked and unposed; the framing is off-center, tilted, or from an improbable angle.
+6. Long edge ≥ 1600px.

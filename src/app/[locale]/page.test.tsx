@@ -158,7 +158,7 @@ describe("Home", () => {
 
   it("closes on the handle without offering a link, the social URLs being unknown", async () => {
     const { container } = await renderHome("fr");
-    expect(container.querySelector('[data-scene="5"]')).toHaveTextContent("@bigemotionagency");
+    expect(container.querySelector('[data-scene="5"]')).toHaveTextContent("@bigemotion");
     expect(screen.queryAllByRole("link")).toHaveLength(0);
   });
 
@@ -166,7 +166,7 @@ describe("Home", () => {
     const { container } = await renderHome("fr");
     const finalPanel = container.querySelector('[data-scene="5"]')!;
     const handle = [...finalPanel.querySelectorAll("p")].find(
-      (p) => p.textContent === "@bigemotionagency",
+      (p) => p.textContent === "@bigemotion",
     );
     const headline = finalPanel.querySelector("h2");
     expect(handle).toBeDefined();
