@@ -19,10 +19,10 @@ const LEMON = "#f2ff26";
 
 // satori (the engine behind next/og) only parses TrueType/OTF/WOFF1 — it throws
 // "Unsupported OpenType signature" on a WOFF2 file, and under `output: export` that
-// throw aborts the whole build. The brand font is shipped as WOFF2 (Brotli), so we
-// read it but hand it to satori only when its 4-byte signature is one satori accepts.
-// Today that means the bundled fallback face renders the text; drop a .ttf/.otf/.woff
-// (WOFF1) Archivo build next to the WOFF2 and it switches to Archivo with no code change.
+// throw aborts the whole build. BBH Hegarty ships both a WOFF2 (for next/font/local)
+// and a WOFF1 build (for satori); read the WOFF1 file here and hand it to satori
+// only when its 4-byte signature is one satori accepts, falling back to the bundled
+// default face otherwise.
 const SATORI_FONT_SIGNATURES = new Set([
   "\x00\x01\x00\x00", // TrueType
   "true",
@@ -33,17 +33,17 @@ const SATORI_FONT_SIGNATURES = new Set([
 
 function loadDisplayFont(): Buffer | null {
   const file = readFileSync(
-    join(process.cwd(), "src/app/fonts/archivo-latin.woff2"),
+    join(process.cwd(), "src/app/fonts/bbh-hegarty-latin.woff"),
   );
   const signature = file.subarray(0, 4).toString("latin1");
   return SATORI_FONT_SIGNATURES.has(signature) ? file : null;
 }
 
 export default function OpengraphImage() {
-  const archivo = loadDisplayFont();
+  const bbhHegarty = loadDisplayFont();
   // satori throws on `fontFamily: undefined` (it splits the value unconditionally),
   // so the key must be absent — not undefined — when no custom font is registered.
-  const displayFamily = archivo ? { fontFamily: "Archivo" } : {};
+  const displayFamily = bbhHegarty ? { fontFamily: "BBH Hegarty" } : {};
 
   return new ImageResponse(
     (
@@ -61,7 +61,9 @@ export default function OpengraphImage() {
         <div
           style={{
             ...displayFamily,
-            fontWeight: 800,
+            // BBH Hegarty ships a single static weight (400); satori only resolves
+            // a custom face when the requested weight matches a registered one.
+            fontWeight: 400,
             fontSize: 168,
             lineHeight: 1,
             letterSpacing: "-0.04em",
@@ -73,7 +75,7 @@ export default function OpengraphImage() {
         <div
           style={{
             ...displayFamily,
-            fontWeight: 500,
+            fontWeight: 400,
             fontSize: 52,
             marginTop: 36,
             color: "#fff",
@@ -85,13 +87,13 @@ export default function OpengraphImage() {
     ),
     {
       ...size,
-      ...(archivo
+      ...(bbhHegarty
         ? {
             fonts: [
               {
-                name: "Archivo",
-                data: archivo,
-                weight: 800 as const,
+                name: "BBH Hegarty",
+                data: bbhHegarty,
+                weight: 400 as const,
                 style: "normal" as const,
               },
             ],
