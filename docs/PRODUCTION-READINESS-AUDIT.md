@@ -1,384 +1,434 @@
 # BIG EMOTION — Production Readiness Audit
 
 Date: 2026-07-21
-Commit audited: `a66eec0` (main, tag `v0.5.1`) — working tree clean
+Commit audited: `505a044` (main, tag `v0.6.0`) — working tree clean
 Method: read-only. Source, versions, tags, and deploy config were not modified.
 
 > Architecture note: the audit skill predates the migration to **standalone
 > Next.js + Docker + Traefik** (ADR 0005) and **tag-triggered CI deploy** (ADR
-> 0006) — it still assumes static export + Apache/PHP + rsync/`.htaccess`. Every
-> check below was re-mapped to the architecture as it actually is on disk, per
-> the skill's "report the actual state" rule.
+> 0006) — it still assumes static export + Apache/PHP + rsync/`.htaccess`, and
+> asserts the repo has no CI. All three are stale. Every check below was
+> re-mapped to the architecture as it actually is on disk, per the skill's
+> "report the actual state" rule. See §11 for the specific skill corrections.
 >
-> Scope note: this audits **`main`** — the surface that ships. `develop` is
-> 6 commits ahead (Prismic, blog, Storybook, sub-pages, FR/EN locales) and is
-> **not** covered here; see Domain 8 for why that gap is itself a finding.
+> Scope note: this audits **`main` @ `v0.6.0`**, the surface that ships.
+> `origin/develop` is level with `main` — the promotion backlog flagged in the
+> `v0.5.1` audit is cleared.
 
 ---
 
 ## 1. The four questions
 
 **1. Is the project production-ready?** — **Conditional.**
-The marketing site is live and structurally sound: `v0.5.1` is deployed, `pnpm lint`
-is clean, **156 tests across 29 files pass**, the standalone build compiles (15/15
-pages), and the deploy pipeline is tag-gated, queued, rollback-capable and
-smoke-checked against the `/api/health` JSON body. Three things stand between it and
-"unreservedly ready":
-1. **Mentions légales are still absent** — the same LCEN blocker as the 2026-07-19
-   audit, now carried through four releases (`v0.2.0` → `v0.5.1`).
-2. **The hero's 3D brand asset is a 92-byte placeholder**, so the signature chrome
-   wordmark renders as *nothing* for the default visitor while 203 KB (gzip) of
-   Three.js still ships to draw it.
-3. **The `/espace` client area dead-ends**: a successful magic-link login redirects to
-   `/espace/{clientId}`, a route that does not exist — it 404s.
+The engineering is in good shape and materially better than at `v0.5.1`: `pnpm lint`
+is clean, **432 tests across 55 files pass** in 6.6 s, the standalone build compiles
+every route, and the two auth findings that blocked the last audit — an unthrottled
+mail-sending endpoint and the enumeration timing oracle — are both **fixed**. One
+blocker remains, and it is not a code problem:
+
+1. **Mentions légales are still absent** — the LCEN art. 6-III gap, now carried
+   through five releases (`v0.2.0` → `v0.6.0`). This is the single item standing
+   between the site and "unreservedly ready".
+2. **The `/espace` client area still dead-ends** — a successful magic-link login
+   redirects to `/espace/{clientId}`, a route that does not exist. The sign-in
+   surface (login page, mail-sending endpoint) is live in production with no
+   destination behind it.
 
 **2. Is it legally compliant (RGPD/LCEN)?** — **No — one unchanged hard gap.**
 - Self-hosted fonts only, **no Google Fonts CDN** — ✅ (`next/font/local`; grep clean).
 - **No third-party trackers** loaded by default — ✅ (no gtag/analytics/hotjar/clarity/doubleclick).
 - **Mentions légales present and reachable** — ❌ **still absent**. No SIRET, legal form,
-  address, directeur de publication, or hébergeur anywhere in `src/`; no legal route in
-  the build's 15-page manifest; `site-footer.tsx` carries only a copyright line.
-  **LCEN art. 6-III requires this on a live commercial site.** This is the blocker.
+  address, directeur de publication or hébergeur anywhere in `src/`; no legal route in
+  the build manifest; `site-footer.tsx:22-24` renders only `© {year} BIG EMOTION` plus
+  a **tagline** (`footerLegal` = "On ne fait pas des sites, on crée de l'impact") — the
+  field name reads as legal content but carries none. **LCEN art. 6-III blocker.**
 - Contact/auth PII retention — proportionate (in-memory IP-keyed throttles, in-memory
   15-min magic-link store, a signed HttpOnly cookie carrying only `{userId, clientId}`).
 - **RGAA does not apply** — private agency, not a public authority.
 
-**3. Security posture?** — **Strong craft; one gap that got worse, not better.**
-Headers, auth crypto, container hardening and secret hygiene are all genuinely good.
-But the previously-*latent* rate-limit gap on `POST /api/auth/request-link` is now
-**live-exploitable**, because the Microsoft Graph mail transport shipped in the
-meantime. Worse, the same code path contains a **timing side-channel that defeats the
-route's own documented anti-enumeration guarantee**: `await sendMail()` sits inline in
-the request, so an allowlisted address costs a Graph round-trip while an unlisted one
-returns immediately — identical body, very different latency. Supply-chain hygiene is
-also unimproved: still no Dependabot, Actions still unpinned, and a **new high-severity
-CVE** has appeared alongside the known moderate one.
+**3. Security posture?** — **Good, and improved.** The two findings that dominated the
+last audit are closed: `POST /api/auth/request-link` now applies a 5/min per-IP cap
+(`route.ts:11,22`) and the send is **fire-and-forget** (`void sendMail(…).catch(…)`,
+`route.ts:41-47`) with a comment naming the timing oracle it closes. Headers, auth
+crypto, the fail-closed constant-time Prismic webhook, and container hardening are all
+genuinely strong. Two things remain: **the in-memory rate-limit stores are unbounded**
+(new finding — no eviction path in `src/lib/rate-limit.ts`, so both maps grow one entry
+per distinct IP forever), and supply-chain hygiene has **not moved in three audits** —
+still no Dependabot, still 16 mutable-tag Action references including the workflow that
+holds `DEPLOY_SSH_KEY`.
 
-**4. Is the score close to 8–9/10?** — **7.4 / 10. Slightly further away than in July.**
-The score moved 7.8 → 7.4 not because the code got worse — the craft is, if anything,
-better (tests nearly doubled, the Actions-pinning pattern is proven in `ferry-router`,
-the compose-drift deploy bug was fixed) — but because **the previously-flagged gaps went
-unaddressed across four releases while their severity increased**. The three moves that
-close the distance:
-1. **Publish mentions légales** (D2 6→8+) — still the single biggest lift.
-2. **Rate-limit `request-link` and move the send off the request path** (D1 7→9).
-3. **Ship the real GLB or drop Three.js from the landing bundle** (D7 6→8+).
-
----
+**4. Is the score close to 8–9/10?** — **7.9 / 10 — the bottom of the target band.**
+Up from 7.4. Five of the previous audit's findings were genuinely fixed (rate limit,
+timing oracle, the 92-byte placeholder GLB, the release blockage, `env.template` drift),
+and the test suite nearly tripled. The remaining distance is concentrated in **two
+non-code items**: publish the mentions légales (Domain 2: 6 → 9) and apply the
+supply-chain hygiene the repo already knows how to do (Domain 8: 7 → 9). Those two
+alone put the project at **8.5 / 10**.
 
 ## 2. Overall score
 
-**7.4 / 10** — A well-engineered site whose craft (auth crypto, accessibility,
-architecture, constant discipline) is 9-caliber, held back by one unfixed legal
-blocker, a now-live auth abuse vector, 203 KB of gzipped 3D runtime rendering an empty
-placeholder, and supply-chain hygiene that has not moved in two audits.
+**7.9 / 10** (▲ 0.5 from `v0.5.1`) — A well-engineered site that closed every
+engineering finding raised against it, now held back almost entirely by one unpublished
+legal page and by supply-chain chores that no release has yet owned.
 
 ## 3. Score per domain
 
 | # | Domain | Score | Δ | One-line basis |
 |---|--------|:-----:|:--:|----------------|
-| 1 | Application security | 7 / 10 | ▼1 | Textbook auth + headers + non-root; `request-link` unthrottled **with mail now live**, plus a confirmed enumeration timing oracle |
-| 2 | RGPD / privacy | 6 / 10 | — | Fonts/trackers clean; **mentions légales absent** (LCEN blocker, 2 audits running) |
-| 3 | Accessibility (craft) | 9 / 10 | — | Landmarks + skip link, `:focus-visible`, 4 reduced-motion blocks, per-axis SR text, WebGL fallback |
-| 4 | Architecture & standalone integrity | 8 / 10 | ▼1 | `standalone` + 301s + centralised copy + **0 P0/0 P1 hardcoded values**; but `proxy` guards an `/espace` route that doesn't exist |
-| 5 | Code quality | 9 / 10 | — | Lint clean; comments justify rather than narrate; names carry domain meaning |
-| 6 | Correctness & tests | 8 / 10 | — | 156 tests pass (up from 80), build green; no test catches the empty-GLB or `/espace` dead-ends |
-| 7 | Performance | 6 / 10 | ▼1 | 203 KB gzip Three.js on the landing page to render a **92-byte empty GLB** |
-| 8 | Supply chain + release/deploy | 6 / 10 | — | Pipeline strong; no Dependabot, Actions unpinned, **new high CVE**, `develop` 6 commits ahead of `main` with no promotion owner |
+| 1 | Application security | 8 / 10 | ▲1 | `request-link` now throttled **and** timing-neutral; headers + auth crypto + fail-closed webhook strong; rate-limit stores unbounded |
+| 2 | RGPD / privacy | 6 / 10 | — | Fonts/trackers clean; **mentions légales absent** (LCEN blocker, 3 audits running) |
+| 3 | Accessibility (craft) | 9 / 10 | — | Landmarks + skip link, `:focus-visible`, **5** reduced-motion blocks, per-axis SR text, WebGL fallback |
+| 4 | Architecture & standalone integrity | 8 / 10 | — | `standalone` + 301s + centralised copy + **0 P0/0 P1 hardcoded values**; `proxy` still guards an `/espace` route that doesn't exist |
+| 5 | Code quality | 9 / 10 | — | Lint clean; 1 TODO in `src/`; comments justify rather than narrate |
+| 6 | Correctness & tests | 8 / 10 | — | **432 tests / 55 files** pass (up from 156/29); still nothing covers the `/espace` dead-end |
+| 7 | Performance | 8 / 10 | ▲2 | Real 45 KB Draco GLB replaces the 92-byte placeholder; Three.js dynamically imported behind the `HAS_HERO_MODEL` gate |
+| 8 | Supply chain + release/deploy | 7 / 10 | ▲1 | Release unblocked, `env.template` drift fixed; **still** no Dependabot, 16 unpinned Actions, 3 CVEs |
 
-Mean = (7+6+9+8+9+8+6+6) / 8 = **7.4 / 10**.
+Mean = (8+6+9+8+9+8+8+7) / 8 = **7.875 → 7.9 / 10**.
 
 ## 4. Strengths
 
+- **The previous audit's P0 and P1 auth findings are both properly fixed, not papered
+  over.** `request-link/route.ts:22` applies `checkRateLimit(clientIp(request), {limit: 5,
+  windowMs: 60_000})` *before* parsing the body, and `route.ts:41-47` makes the send
+  fire-and-forget with a comment that states the invariant it protects ("awaiting
+  sendMail here would make the response slower for a provisioned email than an
+  unprovisioned one"). Both branches now return the same body **and** the same latency.
 - **Magic-link auth crypto is production-grade** (`src/lib/magic-link.ts`,
   `src/lib/session.ts`): single-use `randomBytes(32)` tokens deleted *unconditionally*
   on lookup (replay-safe even when expired), HMAC-SHA256 signed cookies verified with
   `timingSafeEqual`, and fail-closed decoding on every branch — missing secret, bad
   signature, malformed JSON, wrong field types, expiry.
+- **The Prismic webhook fails closed and explains why** (`api/revalidate/handler.ts:46-61`):
+  with `PRISMIC_WEBHOOK_SECRET` unset it authorises nobody rather than reading "no secret
+  required" as "everyone is welcome", compares constant-time, and returns an identical
+  response for a wrong secret and a misconfigured server. The `expire: 0` choice is
+  documented against the alternative it rejects.
 - **`src/proxy.ts` returns 404, never 403**, for a cross-client `/espace` request, so the
-  guard can't confirm another client's space exists — the anti-enumeration reasoning is
-  applied consistently at the routing layer.
-- **Constant discipline is exemplary** (`src/components/scene/states.ts`): the entire
-  six-keyframe choreography, camera, and material config are named and exported with an
-  explicit "never hardcode these inline" instruction. The Step 3.5 scan found **zero**
-  P0/P1 hardcoded values across `src/**` — twice running.
-- **Accessibility craft** (`layout.tsx`, `globals.css`, `personality-slider.tsx`):
-  landmarks + "Aller au contenu" skip link, `:focus-visible` ring, **four** distinct
-  `prefers-reduced-motion` blocks (marquee, load screen, scene loader, scroll cue), the
-  decorative client wall reflowed rather than frozen under reduced motion, and a
-  per-axis screen-reader sentence for a control that is otherwise purely visual.
-- **Deploy pipeline** (`deploy-production.yml`): `v*`-tag-gated (ADR 0006),
-  `cancel-in-progress: false`, `workflow_dispatch` rollback, and a smoke check that
-  asserts the `/api/health` **JSON body** with `curl -L` — because `trailingSlash`
-  308-redirects would otherwise let a bare 200 pass as healthy. The compose file is
-  shipped **from the CI checkout**, with a comment explaining that reading the VPS's
-  stale clone is exactly what broke the SWBE-26 cutover.
-- **No secrets committed**; `deploy/env.template` holds placeholders only; the Dockerfile
-  is multi-stage `node:22-alpine` running as non-root `nextjs`.
+  guard can't confirm another client's space exists — anti-enumeration reasoning applied
+  consistently at the routing layer.
+- **Constant discipline is exemplary.** The Step 3.5 scan found **zero** P0/P1 hardcoded
+  values across `src/**` — three audits running. Every runtime knob is named and exported.
+- **Accessibility craft**: landmarks + "Aller au contenu" skip link (`document-shell.tsx:52`),
+  `:focus-visible` ring (`globals.css:229`), **five** distinct `prefers-reduced-motion`
+  blocks plus JS-side `matchMedia` guards in `scene-canvas.tsx:26,40` and
+  `subpage-photo.tsx:13`, and a per-axis screen-reader sentence for a purely visual control.
+- **Deploy pipeline** (`deploy-production.yml`): `v*`-tag-gated (ADR 0006), queued not
+  cancelled, `workflow_dispatch` rollback, `permissions: contents: read`, pinned
+  `known_hosts` (never `StrictHostKeyChecking=no`), Prismic token passed as a BuildKit
+  `--secret` mount rather than a build arg.
+- **No secrets committed**; `deploy/env.template` holds placeholders only and is now in
+  sync with the code; the Dockerfile is multi-stage `node:22-alpine` running as non-root.
 
 ## 5. Gaps and risks
 
 ### Domain 1 — Application security
 
-- **P0 — `POST /api/auth/request-link` is unthrottled and mail is now live.**
-  `src/app/api/auth/request-link/route.ts` has no rate limiting, while
-  `src/lib/rate-limit.ts` exports `checkRateLimit` and already protects
-  `conversation-token` (5/min). Since the Graph transport shipped, this public,
-  pre-auth endpoint sends real email. An attacker who guesses one provisioned address
-  can flood that editor's mailbox and burn the tenant's Graph quota — the same app
-  registration the support portal depends on, so the blast radius crosses products.
-  *Was P1 "latent" in the 2026-07-19 audit; the mail transport landing made it live.*
-  **Fix:** `checkRateLimit` keyed on the `X-Forwarded-For` client IP, exactly as
-  `api/contact/handler.ts:49` already derives it behind Traefik.
+- **P1 (new) — The in-memory rate-limit stores have no eviction path.**
+  `src/lib/rate-limit.ts:14` keeps a module-level `buckets` Map that is only ever
+  written (`buckets.set`, lines 34 and 42) — never deleted, never swept. The contact
+  limiter has the same shape: `hitsByKey.set(key, recent)` at line 77 re-stores the key
+  even when `recent` has been pruned to an **empty array**, so a key that was seen once
+  persists for the life of the process. Both are keyed on the client IP, which an
+  attacker controls the variety of. A rotating-source flood, or simply organic traffic
+  over a long-lived container, grows both maps without bound → memory pressure on the
+  single container instance the whole site runs in. The throttle intended to prevent
+  abuse is itself the amplification path.
+  **Fix:** sweep expired buckets on write (or evict on read when `now > resetAt`), and
+  `hitsByKey.delete(key)` when `recent.length === 0`. Both are a few lines; the Redis
+  migration (SWBE-30) is not required to close this.
 
-- **P1 — The anti-enumeration guarantee is defeated by a timing side-channel.**
-  `route.ts:16-25` awaits `sendMail()` *inside* the request. `mintMagicLinkToken`
-  returns `null` for an unprovisioned address (`magic-link.ts:21`), so that path returns
-  immediately; a provisioned address pays a full OAuth + `sendMail` round-trip to
-  `graph.microsoft.com`. The response body is identical — the response *time* is not.
-  The route's own comment calls neutrality "the whole anti-enumeration point", so this
-  is a broken invariant, not a missing nice-to-have.
-  **Fix:** don't await the send in the response path (fire-and-forget with error
-  logging), or pad both branches to a fixed floor.
+- **P2 — `PORTAL_BASE_URL` falls back silently to the request origin.**
+  `request-link/route.ts:35` uses `process.env.PORTAL_BASE_URL ?? request.nextUrl.origin`.
+  `deploy/env.template:11` now sets it, so production is covered — but the fallback is
+  silent, and if it ever went unset the verification URL would be built from an
+  attacker-controllable `Host`, mailing a poisoned link to the *legitimate* provisioned
+  owner. **Fix:** require it in production (throw on startup) rather than defaulting.
 
-- **P2 — No CSP.** Documented tradeoff in `next.config.ts:54-55` (Next's inline bootstrap
+- **P2 — `/api/revalidate` is unthrottled.** The secret check fails closed and is
+  constant-time, so this is brute-force-resistant, but there is no cap on attempts and a
+  caller holding the secret can force full regeneration of every Prismic-backed page on
+  demand. Low priority given the credential gate.
+
+- **P2 — The client roster is still a placeholder.** `src/config/clients.ts:50-58` carries
+  `TODO(owner)` and maps `contact@big-emotion.com` → `clientId: "chancellerie"`. The
+  mechanism shipped (SWBE-27); the real roster did not. Combined with the missing
+  `/espace` route (D4), the auth surface is live in production with neither real users
+  nor a destination.
+
+- **P2 — No CSP.** Documented tradeoff in `next.config.ts:49-50` (Next's inline bootstrap
   script needs a per-build nonce/hash). Deliberate and reasoned; leaves a residual
-  XSS-mitigation gap. Note `layout.tsx:81-84` injects JSON-LD via
-  `dangerouslySetInnerHTML` — safe today (the payload is built from the typed `site`
-  module, not user input) but it is exactly the shape a CSP would otherwise cover.
+  XSS-mitigation gap.
 
 ### Domain 2 — RGPD / privacy
 
-- **P0 (legal) — Mentions légales absent.** Unchanged since 2026-07-19 and now shipped
-  through `v0.2.0`–`v0.5.1`. No legal identification in `src/`, no legal route among the
-  15 built pages, and `site-footer.tsx:50-52` ends at `© {year} {site.name}`.
-  LCEN art. 6-III blocker.
+- **P0 (legal) — Mentions légales absent.** Unchanged across `v0.2.0`–`v0.6.0`. No legal
+  identification anywhere in `src/`, no legal route in the build manifest, and
+  `site-footer.tsx:22-24` ends at `© {year} {site.name}` followed by `footerLegal` —
+  which despite its name holds a **marketing tagline**, not legal content. LCEN art.
+  6-III blocker for a live commercial site.
   **Fix:** add a `legal` block to `src/content/site.ts` (raison sociale, forme juridique,
   capital, RCS/SIRET, siège, directeur de publication, hébergeur = OVH + address) and
-  render it as `/mentions-legales` plus a footer link.
+  render it as `/mentions-legales` in both locales, plus a footer link.
 - **P2 — No privacy policy.** Only a strictly-necessary auth cookie today (no consent
   banner required), but the contact form and `/espace` both process PII in production
-  now that mail is live.
+  now that the Graph transport is live. RGPD art. 13 expects a notice at collection.
 
 ### Domain 3 — Accessibility
 
-- No blocking gaps. The one thing to watch is a *consequence* of the empty GLB (D7): the
-  default visual path renders no brand mark at all, while the reduced-motion / no-WebGL
-  path correctly renders the static `<Wordmark>` fallback. The accessible fallback is
-  currently richer than the default experience — the inverse of the usual failure, and
-  harmless for AT (the scene is `aria-hidden`), but worth knowing.
+- No blocking gaps. The `v0.5.1` caveat — that the reduced-motion fallback was *richer*
+  than the default path, because the default rendered an empty GLB — is **resolved**: the
+  real 45 KB scene ships and `HAS_HERO_MODEL` (`scene/model-gate.ts:15`) gates the runtime.
+- Watch item, not a finding: `src/content/site.test.ts` enforces the display-font ASCII
+  rule for `site.ts`, but Prismic-authored titles bypass it (DEC-023). `pnpm
+  prismic:check-display` exists to cover that; it is not wired into `ci.yml`.
 
 ### Domain 4 — Architecture & standalone integrity
 
-- **P1 — `src/proxy.ts` guards a route that does not exist.** The matcher is
-  `/espace/:path*` and `(auth)/verify/route.ts:20-22` redirects a *successfully*
-  authenticated user to `/espace/${clientId}`. There is no `espace` directory under
-  `src/app` and no `/espace` entry in the build manifest, so the happy path of the entire
-  sign-in flow terminates in `not-found.tsx`. Expected for in-progress Portal work — but
-  it is shipped, and no test covers it.
+- **P1 — `src/proxy.ts` guards a route that does not exist.** `(auth)/verify/route.ts:20-21`
+  redirects a *successfully* authenticated user to `/espace/${consumed.clientId}`. There
+  is no `espace` directory under `src/app` (confirmed absent) and no `/espace` entry in
+  the build manifest, so the happy path of the entire sign-in flow terminates in
+  `not-found.tsx`. Expected for in-progress Portal work — but it is shipped, and no test
+  covers it. *(Unchanged from `v0.5.1`.)*
 - **P2 — Brand hex duplicated in the OG/icon generators.** `src/app/opengraph-image.tsx:18`
   and `src/app/apple-icon.tsx:21` hardcode `#f2ff26`. **Justified exception** — `next/og`
-  (Satori) renders at build time with no access to CSS custom properties — but the two
-  copies can drift from `--color-lemon`. Lift to one shared exported constant.
-- **P2 — Stale "static export" comment** in `layout.tsx:11` ("keeps the static export
-  build offline-reproducible"), superseded by ADR 0005.
+  (Satori) renders with no access to CSS custom properties — but the two copies can drift
+  from `--color-lemon`. Lift to one shared exported constant. *(Unchanged.)*
 - **P2 — ADR 0005 numbering collision** persists: `0005-motion-stack.md` and
   `0005-nextjs-standalone-docker.md`. AGENTS.md's "ADR 0005" references are ambiguous.
+- **P2 — `public/contact.php` is still in the tree.** AGENTS.md marks it retired and
+  behavioural-reference-only; it is not executed by the Node container, and nothing but
+  comments reference it now (`handler.ts:5,28`, `contact-form.tsx:12`, `rate-limit.ts:7,75`).
+  It ships verbatim as a static asset in `public/`. Harmless but removable.
 
 #### Hardcoded values (P0/P1)
 
-**None.** The Step 3.5 scan over `src/**/*.{ts,tsx}` (tests excluded) across all five
-categories — Image & Asset Sizes, Truncation & Content Limits, Animation & Timing
-Constants, Layout & Breakpoint Constants, Default Parameters — found **0 P0 and 0 P1**.
+**None.** The Step 3.5 scan over `src/**/*.{ts,tsx}` (tests and stories excluded) across
+all five categories — Image & Asset Sizes, Truncation & Content Limits, Animation &
+Timing Constants, Layout & Breakpoint Constants, Default Parameters — found **0 P0 and
+0 P1**.
 
-Every runtime knob is lifted and named: `states.ts` (`STATES`, `CAMERA`, `MATERIAL`,
-`TAU`, `computeFit`), `scene-canvas.tsx` (`HOLD_DURATION`, `MOVE_DURATION`, `GLB_URL`,
-`DRACO_DECODER_PATH`), `session.ts` (`SESSION_TTL_MS`), `magic-link.ts` (`TOKEN_TTL_MS`),
-`rate-limit.ts` (`MIN_INTERVAL_MS`, `MAX_PER_HOUR`, `WINDOW_MS`),
-`conversation-token/route.ts` (`RATE_LIMIT`, `TOKEN_TTL_MS`), `client-wall.tsx` (`HALF`,
-derived not literal). The only bare numerals in logic are semantic midpoints and
-identities (`position === 50` for a percentage axis centre, `|| 1` as a divide guard),
-which the rubric explicitly skips. **No penalty applied to Domain 4.**
+Every runtime knob is lifted and named: `states.ts` (`STATES`, `CAMERA`, `MATERIAL`),
+`scene-canvas.tsx` (`HOLD_DURATION`, `MOVE_DURATION`, `GLB_URL`, `DRACO_DECODER_PATH`),
+`session.ts` (`SESSION_TTL_MS`), `magic-link.ts` (`TOKEN_TTL_MS`), `rate-limit.ts`
+(`MIN_INTERVAL_MS`, `MAX_PER_HOUR`, `WINDOW_MS`), `request-link/route.ts` (`RATE_LIMIT`),
+`conversation-token/route.ts` (`RATE_LIMIT`, `TOKEN_TTL_MS`), `model-gate.ts`
+(`HAS_HERO_MODEL`), `subpage-photo.tsx` (`MOTION_QUERY`), `client-wall.tsx` (`HALF`).
+
+Reviewed and classified **P2, no penalty**: the `next/og` route conventions
+(`apple-icon.tsx:6` `180×180`, `opengraph-image.tsx:9` `1200×630`) are platform-fixed
+sizes, not tunable knobs; the zod field maxima in `api/contact/handler.ts:18,23,25`
+(`200`/`200`/`5000`) read idiomatically inline in the schema they constrain and are
+ported for parity with the retired `contact.php`; the numerals in `scene-canvas.tsx:66-71`
+are 3D scene geometry, inherently artistic values. **No penalty applied to Domain 4.**
 
 ### Domain 5 — Code quality
 
-- Lint clean. Comments consistently justify rather than narrate — the z-index rationale
-  in `scene-canvas.tsx:284-290`, the compose-shipping incident note in
-  `deploy-production.yml:74-81`, and the seamless-loop reasoning in `client-wall.tsx:3-8`
-  are all load-bearing explanations a reader could not recover from the code.
-- Only the stale static-export comment above detracts.
+- Lint clean (`pnpm lint`, no output). Exactly **one** TODO/FIXME/XXX/HACK across `src/`
+  and `public/` — `config/clients.ts:50`, which is an owner action item, not code debt.
+- Comments consistently justify rather than narrate: the `expire: 0` reasoning in
+  `revalidate/handler.ts:37-40`, the fire-and-forget rationale in `request-link/route.ts:37-40`,
+  the `createNextIntlPlugin` wrapping note in `next.config.ts:77-80`, and the matcher
+  reasoning in `proxy.ts:60-69` are all load-bearing explanations a reader could not
+  recover from the code alone.
+- Server/client split respected: `"use client"` is confined to the components AGENTS.md
+  names.
 
 ### Domain 6 — Correctness & tests
 
-- **156 tests / 29 files pass** in 4.9 s (up from 80/20). Behaviour-driven through
-  rendered output; colocated. The stale `out/htaccess.test.ts` failure from the previous
-  audit is **resolved**.
-- **P1 — Two shipped dead-ends have no test coverage.** `scene-canvas.test.tsx` mocks
-  `GLTFLoader`, so nothing exercises the real 92-byte GLB → the suite is green while
-  production renders an empty hero. Likewise nothing asserts where `/verify` actually
-  lands. Both failures are invisible to CI by construction.
-- Harmless noise: jsdom prints ~19 `HTMLCanvasElement.getContext()` warnings.
+- **432 tests / 55 files pass** in 6.6 s (up from 156/29 at `v0.5.1`, 80/20 before that).
+  Behaviour-driven through rendered output; colocated with their subjects.
+- **P1 — The `/espace` dead-end still has no test coverage.** Nothing asserts where
+  `/verify` actually lands, so CI stays green while the sign-in happy path 404s. This is
+  the same finding as D4, carried here because it is invisible to the suite *by
+  construction*. *(Unchanged from `v0.5.1`.)*
+- **P2 — `pnpm prismic:check` / `prismic:check-display` are not in `ci.yml`.** Model drift
+  between git and the Prismic dashboard, and accented copy in display-font slots
+  (DEC-023), are both detectable by scripts the repo already ships — neither runs
+  automatically.
+- Harmless noise: jsdom prints ~18 `HTMLCanvasElement.getContext()` warnings.
 
 ### Domain 7 — Performance
 
-- **P1 — 203 KB (gzip) of Three.js ships to render nothing.** `public/models/scene.glb`
-  is **92 bytes** — a valid but empty glTF container (`glTF` magic, total length `0x5c`),
-  committed as a deliberate placeholder per `public/models/README.md` pending the
-  designer's asset. Because `GLTFLoader.load` *succeeds* on it, `scene-canvas.tsx:265`
-  sets status `"ready"` and the static `<Wordmark>` fallback is **not** rendered. The
-  default visitor therefore downloads the largest chunk on the site —
-  `750,015 B raw / 203,508 B gzip` — plus GSAP and Lenis, to display an empty canvas.
-  This is the payload risk the previous audit flagged as "watch", now measured, and
-  currently pure waste.
-- **P2 — 764 KB of Draco decoder assets are dead weight in the repo and image.**
-  `public/draco/` (512 KB JS + 192 KB wasm + 58 KB wrapper) is only fetched when a
-  `KHR_draco_mesh_compression` primitive appears — which an empty GLB has none of. Not
-  on the wire today, but shipped in every Docker image.
-- Fundamentals are good: self-hosted woff2 (12 KB + 44 KB, `display: swap`), the
-  `next/image` optimiser is active under standalone, animation is CSS-only outside the
-  scene, and `.next/cache` is restored in CI.
+- **The `v0.5.1` P1 is fixed.** `public/models/scene.glb` is now a real **45,592-byte**
+  Draco-compressed asset (was a 92-byte empty container), and `[locale]/page.tsx:14`
+  pulls the Three.js runtime in via dynamic import behind the `HAS_HERO_MODEL` gate
+  (DEC-027) rather than unconditionally. The 203 KB gzip of Three.js now draws something.
+- **P2 — 764 KB of Draco decoder assets ship in every image.** `public/draco/` (512 KB JS
+  + 192 KB wasm + 58 KB wrapper). Now genuinely used by the compressed GLB, so this is
+  cost-for-value rather than waste, but only the wasm path is needed by modern browsers —
+  the 512 KB JS fallback decoder is the removable half.
+- **P2 — `src/photos/` is 3.4 MB of source JPEGs.** Served through the `next/image`
+  optimiser under standalone, so visitors get resized/AVIF variants — the weight is
+  build-time and repo-size cost, not wire cost.
+- Fundamentals are good: self-hosted woff2 via `next/font/local` with `display: "swap"`
+  (`document-shell.tsx:19,27`), animation CSS-only outside the scene, `.next/cache`
+  restored in CI.
 
 ### Domain 8 — Supply chain + release/deploy
 
-- **P1 — CI Actions are still pinned by mutable tag, not SHA.** `ci.yml` (4),
-  `deploy-production.yml` (3), `deploy-preview.yml` (3), `claude.yml` (2),
-  `claude-code-review.yml` (2) all use `@v4`/`@v1`. `deploy-production.yml` runs with
-  `DEPLOY_SSH_KEY` — the highest blast radius in the repo. `ferry-router.yml:51` already
-  SHA-pins `actions/checkout@de0fac2e…`, so the pattern is proven, just not applied.
-  *(Unchanged from the previous audit.)*
-- **P1 — No `.github/dependabot.yml`.** 549 dependencies, unmonitored.
-  *(Unchanged from the previous audit.)*
-- **P1 — Release is blocked and the blocker has no owner.** `origin/develop` is **6
-  commits ahead of `origin/main`** (SWBE-21/22/24/80/82/23 — the one-pager restructure,
-  sub-pages, Prismic foundation + preview, the bilingual blog, and Storybook).
-  `/bigemotion-release` refuses to tag while `develop` leads, and AGENTS.md records that
-  the `main`←`develop` promotion "currently has no owner". Substantial reviewed,
-  CI-green work is parked indefinitely.
-- **P2 — 1 new high CVE + 1 known moderate.**
-  - **high** `brace-expansion@1.1.15` (GHSA-3jxr-9vmj-r5cp, DoS) — transitive via
-    `eslint > minimatch`, 70 paths. **Dev-only**, never in the runtime image; low real
-    risk, trivially fixed by a pnpm `overrides` to `>=1.1.16`.
-  - **moderate** `postcss@8.4.31` (GHSA-qx2v-qp2m-jg93, XSS via unescaped `</style>`) —
-    transitive via `next@16.2.9`. No user-supplied CSS is parsed. *(Unchanged.)*
-- **P2 — `deploy/env.template` still drifts from the code.** The unused `SMTP_*` block was
-  correctly removed, but it still omits **`AUTH_SECRET`** (required by `session.ts:76`;
-  auth throws on write and fails closed on read without it), **`PORTAL_BASE_URL`**
-  (`request-link/route.ts:18` — without it magic-link URLs are built from the request
-  origin), and **`AZURE_TENANT_ID`** (`mail.ts:35`, the documented tenant fallback).
-- **P2 — `deploy-preview.yml` remains incompatible with standalone output** (still
-  expects the static-export `/preview` sub-folder model). Tracked ADR 0005 follow-up.
+- **P1 — CI Actions are still pinned by mutable tag, not SHA.** **16 references** across
+  five workflows: `ci.yml` (4), `deploy-production.yml` (3), `deploy-preview.yml` (3),
+  `claude.yml` (2), `claude-code-review.yml` (2), plus `ferry-router.yml`'s three
+  `big-emotion/ferry/…@v1.1.0` composite-action references (a tag is mutable even on a
+  first-party repo). `deploy-production.yml` runs with `DEPLOY_SSH_KEY` — the highest
+  blast radius in the repo — on `actions/checkout@v4`, `pnpm/action-setup@v4`,
+  `actions/setup-node@v4`. `ferry-router.yml:51,73,150` already SHA-pins
+  `actions/checkout@de0fac2e…` **with the version in a trailing comment**, so the pattern
+  is proven in-repo, just not applied. *(Unchanged across three audits.)*
+- **P1 — No `.github/dependabot.yml`.** 1,280 dependencies, unmonitored. *(Unchanged
+  across three audits.)*
+- **P2 — 3 open advisories** (`pnpm audit`, 1,280 deps: 1 high / 1 moderate / 1 low):
+  - **high** `brace-expansion@1.1.15` (GHSA-3jxr-9vmj-r5cp, CVE-2026-13149, ReDoS) —
+    transitive via `@storybook/nextjs` and `eslint > @eslint/config-array > minimatch`.
+    **Dev-only**, never in the runtime image. Fixed by a pnpm `overrides` to `>=1.1.16`.
+  - **moderate** `postcss@8.4.31` (XSS via unescaped `</style>`) — transitive via
+    `next@16.2.9`, so it is a **production** dependency. No user-supplied CSS is parsed;
+    resolution depends on a Next patch release. *(Unchanged.)*
+  - **low** `elliptic@6.6.1` (risky cryptographic primitive) — **new**, transitive via
+    `@storybook/nextjs > node-polyfill-webpack-plugin > crypto-browserify`. Dev-only.
+- **P2 — `deploy-preview.yml` is definitively broken, not merely incompatible.** It still
+  builds a **static export** with `NEXT_PUBLIC_BASE_PATH: /preview` (line 47-50) and
+  rsyncs `out/` (line 86) — a directory `output: "standalone"` never produces. Tracked
+  ADR 0005 follow-up; it will fail on every run until rewritten.
 - **P2 — No `lint:tokens` script.** Brand-hex discipline is manual grep; the two OG/icon
-  literals (D4) are what slips through. Adding the script would make Step 3's scan
-  automatic, as it is on the chancellerie project.
-- Clean: no git-ref/`file:`/`link:` dependencies; no secrets committed; `.dockerignore`
-  excludes `.env*`, `.git`, `docs/`, `deploy/`.
+  literals (D4) are exactly what slips through. Adding the script would make Step 3's
+  scan automatic, as it is on the chancellerie project.
+- **Resolved since `v0.5.1`:** the release blockage (`develop` was 6 commits ahead with no
+  promotion owner) is cleared — `v0.6.0` is tagged, `main` and `develop` are level, and
+  ADR 0008 settled the promotion question by **declining** automation, which gives the
+  manual `git merge --ff-only` path a recorded decision behind it. `deploy/env.template`
+  no longer drifts: `AUTH_SECRET` and `PORTAL_BASE_URL` are both present and documented.
+- Clean: no git-ref/`file:`/`link:`/`workspace:` dependencies; no secrets committed;
+  `permissions: contents: read` on the CI and deploy jobs.
 
 ## 6. Legal compliance (RGPD / LCEN)
 
 | Check | Status | Evidence |
 |-------|:------:|----------|
-| Self-hosted fonts, no Google Fonts CDN | ✅ | `next/font/local` in `layout.tsx:18-32`; grep for `fonts.googleapis`/`gstatic` in `src/` clean |
+| Self-hosted fonts, no Google Fonts CDN | ✅ | `next/font/local` in `document-shell.tsx:11-27`; grep for `fonts.googleapis`/`gstatic` in `src/` clean |
 | No third-party trackers by default | ✅ | grep for gtag/analytics/hotjar/clarity/facebook.net/doubleclick in `src/` clean |
-| Mentions légales present & reachable (LCEN 6-III) | ❌ | No SIRET/address/directeur de publication in `src/`; no legal route among 15 built pages; `site-footer.tsx:50` is copyright-only |
+| Mentions légales present & reachable (LCEN 6-III) | ❌ | No SIRET/address/directeur de publication in `src/`; no legal route in the build manifest; `site-footer.tsx:22-24` is copyright + tagline only |
+| Privacy notice at PII collection (RGPD art. 13) | ❌ | Contact form and `/espace` both process PII with no notice |
 | Contact/auth PII retention proportionate | ✅ | In-memory IP throttles, 15-min in-memory token store, cookie carries only `{userId, clientId}` |
 | RGAA accessibility declaration | N/A | Private agency, not a public authority |
 
 **Verdict:** privacy-respecting **by construction** — no CDN fonts, no trackers, no
-analytics, minimal retention. But **not LCEN-compliant** until mentions légales are
-published, and that has now been true across four releases.
+analytics, minimal retention. The data-protection posture is genuinely better than most
+commercial sites. But it is **not LCEN-compliant** until mentions légales are published,
+and that has now been true across five releases.
 
 ## 7. Security posture
 
-Strong cryptographic and infrastructure craft, undermined by one abuse vector that
-became live between audits and supply-chain hygiene that has not moved.
+Strong cryptographic and infrastructure craft. The two findings that dominated the
+`v0.5.1` audit are closed; what remains is one resource-exhaustion gap and the
+supply-chain chores.
 
 **Strengths**
-- Headers from `next.config.ts:56-79`: HSTS (`max-age=31536000; includeSubDomains`),
+- Headers from `next.config.ts:51-74`: HSTS (`max-age=31536000; includeSubDomains`),
   `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`,
   `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`
   (geolocation/camera/microphone/browsing-topics all denied).
 - Auth: single-use tokens deleted unconditionally on lookup, HMAC-SHA256 sessions with
   `timingSafeEqual`, fail-closed on every decode branch, `httpOnly` + `secure` in prod +
-  `sameSite: lax`, POST-only logout.
-- `conversation-token` is auth-gated (401) **and** rate-limited (5/min/user).
+  `sameSite: lax`.
+- **`request-link` is now both throttled (5/min/IP) and timing-neutral** — the
+  anti-enumeration guarantee the route documents is actually held.
+- `conversation-token` is auth-gated (401) **and** rate-limited.
 - Contact route: honeypot → rate limit → zod validation, in that order, with the throttle
   ahead of parsing so malformed floods stay cheap.
-- Deploy SSH uses pinned `known_hosts` (never `StrictHostKeyChecking=no`); non-root
-  container; TLS terminated by Traefik with an HTTP→HTTPS permanent redirect.
+- Prismic webhook: constant-time secret comparison, fails closed when unconfigured,
+  identical response for wrong-secret and misconfigured.
+- Deploy SSH uses pinned `known_hosts`; non-root container; Prismic token via BuildKit
+  `--secret` mount, not a build arg.
 
 **Gaps**
-- `request-link` unthrottled **with live mail** — **P0** (email bomb + shared Graph quota).
-- `request-link` timing oracle defeats its own anti-enumeration contract — **P1**.
-- Actions unpinned, no Dependabot, 1 high (dev-only) + 1 moderate CVE — **P1/P2** (D8).
-- `AUTH_SECRET` / `PORTAL_BASE_URL` / `AZURE_TENANT_ID` undocumented in `env.template` —
-  a config gap that silently fails auth closed in production — **P2** (D8).
-- No CSP — documented and deliberate — **P2**.
+- **Unbounded rate-limit stores** (`src/lib/rate-limit.ts` — no eviction) — P1.
+- **16 mutable-tag Action references**, including the `DEPLOY_SSH_KEY` workflow — P1.
+- **No Dependabot** across 1,280 dependencies — P1.
+- Silent `PORTAL_BASE_URL` → request-origin fallback — P2.
+- No CSP (documented, deliberate) — P2.
+- Placeholder client roster still in `config/clients.ts` — P2.
 
 ## 8. Deploy consistency
 
-Re-mapped to the standalone Docker / tag-deploy model (ADR 0005 / 0006).
-
 | Location | Value | Status |
-|----------|-------|--------|
-| `package.json` `.version` | `0.5.1` | canonical |
-| Latest git tag | `v0.5.1` | match |
-| `CHANGELOG.md` top entry | `## [0.5.1] - 2026-07-21` | match (Keep a Changelog) |
-| `next.config.ts` `output` | `standalone` | match (ADR 0005) |
-| `next.config.ts` `trailingSlash` | `true` | match (SEO invariant) |
-| Legacy WordPress 301s | 4 routes × 2 (bare + trailing-slash) = 8 rules, targets verified | match |
-| `deploy-production.yml` trigger | `push: tags: ["v*"]` + `workflow_dispatch(ref)` | match (ADR 0006 — no push-to-main deploy) |
-| `deploy-production.yml` concurrency | `cancel-in-progress: false` | match (queues, never cancels) |
-| `deploy-production.yml` smoke check | `curl -L` + asserts `"status":"ok"` body | present |
-| Compose shipped from CI checkout | yes (SWBE-26 drift fix, commented) | match |
-| `deploy.sh` break-glass marker | header documents CI-primary + outage-only fallback | present |
-| `Dockerfile` | multi-stage `node:22-alpine`, non-root `USER nextjs` | hardened |
-| Traefik HTTP→HTTPS redirect | `redirectscheme` middleware, `permanent=true` | match |
-| CI Actions SHA-pinning | mutable `@v4`/`@v1` in 5 of 6 workflows | **MISSING** |
+|----------|-------|:------:|
+| `package.json` `.version` | `0.6.0` | canonical |
+| Latest git tag | `v0.6.0` | match |
+| `main` tip | `505a044` (`release: v0.6.0`) | match |
+| `origin/develop` vs `main` | level — promotion backlog cleared | match |
+| `deploy-production.yml` trigger | `push: tags: ["v*"]` + `workflow_dispatch` (ADR 0006) | match |
+| `deploy-production.yml` permissions | `contents: read` | match |
+| `deploy.sh` role | break-glass only, documented in the header comment | match |
+| `deploy.sh` VPS path | `/home/ubuntu/big-emotion/website` | match |
+| `deploy/env.template` vs code | `AUTH_SECRET`, `PORTAL_BASE_URL`, `GRAPH_*`, `MAIL_*` all present | match (▲ fixed) |
+| Legacy WordPress 301s | 4 rules × 2 slash variants = 8, `permanent: true`, targets verified | match |
+| `CHANGELOG.md` / tags | 8 tags `v0.1.0` → `v0.6.0` | match |
+| Actions pinned by SHA | 3 of 19 (`ferry-router.yml` only) | **MISSING** |
 | `.github/dependabot.yml` | absent | **MISSING** |
-| `deploy/env.template` completeness | omits `AUTH_SECRET`, `PORTAL_BASE_URL`, `AZURE_TENANT_ID` | **DRIFT** |
-| `main` vs `develop` | `develop` +6 commits; promotion has no owner | **BLOCKED** |
-| `deploy-preview.yml` | expects static-export `/preview` | **INCOMPATIBLE (tracked)** |
-| `pnpm audit` (moderate+) | 1 high (`brace-expansion`, dev-only) + 1 moderate (`postcss`) | **2 open** |
+| `deploy-preview.yml` | still static-export + `out/` — cannot succeed under `standalone` | **BROKEN** |
+
+The three flagged rows are the Domain 8 findings above. Everything version-, tag-, and
+path-related is consistent; the gaps are all supply-chain and the stale preview workflow.
 
 ## 9. Prioritized action list
 
-| # | P | Action | Anchor |
-|---|---|--------|--------|
-| 1 | P0 | Publish **mentions légales** (raison sociale, RCS/SIRET, siège, directeur de publication, hébergeur OVH) — add a `legal` block to `site.ts`, render `/mentions-legales` + footer link | LCEN 6-III; unfixed since 2026-07-19 |
-| 2 | P0 | **Rate-limit `POST /api/auth/request-link`** on client IP via `checkRateLimit` — mail is live, this is an active email-bomb vector | `rate-limit.ts`; `handler.ts:49` |
-| 3 | P1 | Move `sendMail()` off the `request-link` response path (or pad both branches) to close the enumeration timing oracle | `request-link/route.ts:16-25` |
-| 4 | P1 | Ship the real Draco GLB **or** lazy-load/drop Three.js until it exists — 203 KB gzip currently renders an empty canvas | `public/models/README.md`; ADR 0005 |
-| 5 | P1 | Build the `/espace/{clientId}` route (or stop redirecting there) so a successful login doesn't 404 | `verify/route.ts:20`; `proxy.ts` |
-| 6 | P1 | Assign an owner to the `main`←`develop` promotion; 6 CI-green commits are parked | AGENTS.md "Branching"; `/bigemotion-release` |
-| 7 | P1 | Add `.github/dependabot.yml` (npm, weekly) | 549 deps unmonitored |
-| 8 | P1 | SHA-pin all CI Actions across the 5 unpinned workflows — mirror `ferry-router.yml:51` | Domain 8 |
-| 9 | P2 | Fix `deploy/env.template`: add `AUTH_SECRET`, `PORTAL_BASE_URL`, `AZURE_TENANT_ID` | `session.ts:76`; `mail.ts:35` |
-| 10 | P2 | pnpm `overrides`: `brace-expansion@>=1.1.16`, `postcss@>=8.5.10` | `pnpm audit` |
-| 11 | P2 | Cover the real GLB load and the post-login destination in tests — both dead-ends are green in CI today | `scene-canvas.test.tsx`; `verify/route.test.ts` |
-| 12 | P2 | Replace the placeholder client roster (`contact@big-emotion.com`) with real provisioned editors before relying on sign-in | `clients.ts:50` TODO |
-| 13 | P2 | Add a `lint:tokens` script to automate brand-hex enforcement; lift the OG/icon `#f2ff26` to one shared constant | `opengraph-image.tsx:18`, `apple-icon.tsx:21` |
-| 14 | P2 | Update `deploy-preview.yml` for standalone; renumber one ADR 0005; refresh the stale static-export comment | ADR 0005 follow-up; `layout.tsx:11` |
-| 15 | P2 | Track a nonce-based CSP as a follow-up | `next.config.ts:54` |
+| # | Pri | Action | Anchor |
+|---|:---:|--------|--------|
+| 1 | **P0** | Publish **mentions légales** — `legal` block in `src/content/site.ts`, `/mentions-legales` route in both locales, footer link | LCEN 6-III; AGENTS.md "All copy lives in `src/content/site.ts`" |
+| 2 | **P1** | Add eviction to `src/lib/rate-limit.ts` — sweep expired buckets on write; `hitsByKey.delete(key)` when the pruned window is empty | AGENTS.md "Shared server libs"; precedes SWBE-30 |
+| 3 | **P1** | Add `.github/dependabot.yml` covering `npm` + `github-actions` | Domain 8, unchanged 3 audits |
+| 4 | **P1** | SHA-pin all 16 mutable Action references, `deploy-production.yml` first | follow `ferry-router.yml:51` |
+| 5 | **P1** | Ship `/espace/[clientId]` or gate the sign-in surface off until it exists; add a test asserting where `/verify` lands | SWBE-27; ADR 0005 |
+| 6 | **P2** | Publish a privacy notice at the contact form and `/espace` | RGPD art. 13 |
+| 7 | **P2** | Rewrite `deploy-preview.yml` for standalone output, or delete it until it can be | ADR 0005 follow-up |
+| 8 | **P2** | Replace the placeholder roster in `src/config/clients.ts` with real provisioned editors | `clients.ts:50` TODO |
+| 9 | **P2** | Require `PORTAL_BASE_URL` in production rather than falling back to the request origin | `request-link/route.ts:35` |
+| 10 | **P2** | pnpm `overrides` for `brace-expansion >=1.1.16`; track the `postcss` fix into `next` | Domain 8 CVEs |
+| 11 | **P2** | Add `pnpm prismic:check` + `prismic:check-display` to `ci.yml` | AGENTS.md Prismic section; DEC-023 |
+| 12 | **P2** | Add a `lint:tokens` script; lift `#f2ff26` to one shared constant for the OG/icon routes | AGENTS.md "never hardcode brand values" |
+| 13 | **P2** | Rate-limit `/api/revalidate` | Domain 1 |
+| 14 | **P2** | Renumber one of the two ADR 0005 files | `docs/adr/` |
+| 15 | **P2** | Delete `public/contact.php` — nothing but comments reference it | AGENTS.md "can go once nothing references it" |
 
 ## 10. Conclusion
 
-The BIG EMOTION site remains **well-engineered**. The auth cryptography, accessibility
-craft, constant discipline, and deploy pipeline are all genuinely 9-caliber, and the
-engineering has visibly progressed since July 19 — tests nearly doubled to 156, the
-stale-artifact test failure is gone, the compose-drift deploy bug was found and fixed
-with an explanatory comment, and the Step 3.5 hardcoded-values scan came back at **zero**
-P0/P1 for the second audit running.
+`v0.6.0` is the strongest release this project has audited. Every engineering finding
+raised at `v0.5.1` was fixed properly rather than worked around — the rate limit and the
+timing oracle were closed with code that explains the invariant it protects, the hero
+GLB is real, and the release backlog cleared. The test suite nearly tripled to 432.
 
-It scores **7.4 / 10**, down from 7.8 — and the reason is worth stating plainly: **no
-finding from the previous audit was closed.** Mentions légales are still absent. Actions
-are still unpinned. Dependabot still doesn't exist. Meanwhile two of those open findings
-got worse on their own: the unthrottled `request-link` became live-exploitable when the
-Graph transport shipped, and the "unbudgeted 3D payload" resolved into a measured
-203 KB gzip of Three.js rendering a 92-byte empty placeholder. Two new gaps surfaced
-alongside them — a login flow that 404s on success, and six weeks of CI-green work parked
-on `develop` behind a promotion step nobody owns.
+The score sits at **7.9 / 10** — the bottom edge of the 8–9 target — and what holds it
+there is now almost entirely **not code**. One unpublished legal page moves Domain 2 from
+6 to 9. Two configuration chores the repo already demonstrates it knows how to do
+(`ferry-router.yml` SHA-pins correctly; Dependabot is a 12-line file) move Domain 8 from
+7 to 9. Those three items alone would put BIG EMOTION at **8.5 / 10**.
 
-None of this is a live-site regression; the marketing page works, looks right, and
-deploys safely. But the gap between "shipping" and "production-ready" is now made
-entirely of items that have been written down once already. Close the legal blocker and
-the auth throttle — two focused changes — and this clears 8.
+The one finding worth acting on quickly regardless of scoring is the unbounded
+rate-limit store: it is a small fix, it is in the code path specifically built to resist
+abuse, and it is the kind of gap that stays invisible until a container has been up long
+enough to matter.
+
+## 11. Audit-skill corrections
+
+The `bigemotion-audit` skill is now materially out of date with the repository. Recorded
+here so a future run does not re-derive it:
+
+| Skill assumes | Actual state |
+|---------------|--------------|
+| Static export (`output: "export"`) | `output: "standalone"` (ADR 0005) |
+| Apache + `public/.htaccess` headers & 301s | No Apache. Headers and redirects in `next.config.ts:27-74` |
+| `public/contact.php` is the live server code | Retired. `src/app/api/contact/` + `src/lib/mail.ts` |
+| Manual SSH deploy, no CI | 6 workflows; tag-gated CI deploy (ADR 0006); `deploy.sh` is break-glass |
+| No release tags ("pre-launch") | 8 tags, `v0.1.0` → `v0.6.0`, with `CHANGELOG.md` |
+| `NEXT_PUBLIC_BASE_PATH=/preview` staging model | Incompatible with standalone; `deploy-preview.yml` is broken |
+| No CMS ("add a domain note once Prismic lands") | Prismic shipped (SWBE-24/80/81); models in git, webhook revalidation |
+| Single-locale site | Routed FR/EN via next-intl (ADR 0007) |
+| `git grep -E` with `\s` for the Actions-pinning check | POSIX ERE has no `\s` — the check silently passes. Use `grep -rn` |
+| `git grep -- 'src/**/*.ts'` for Step 3.5 | git pathspec does not glob `**` this way — returns nothing. Use `grep -r src --include='*.ts'` |
+
+The last two are the dangerous ones: both fail **open**, reporting a clean result when
+the check never ran. The Actions-pinning check in particular would have reported "all
+pinned by SHA" against 16 unpinned references.
