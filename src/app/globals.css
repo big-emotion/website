@@ -141,6 +141,89 @@ body {
   }
 }
 
+/* ============================================================
+   Long-form reading type scale (SWBE-118) — the article body's comfortable
+   reading experience. Consumed by the rich-text serializer
+   (src/components/blog/rich-text.tsx), which renders plain semantic
+   elements (h2/h3/p/ul/...) and leaves the styling to this scope, so every
+   node type stays covered without per-element utility classes. Sizes and
+   the reading measure are new (no prior long-form surface existed); colors
+   and fonts are the existing brand tokens only, never hardcoded.
+   ============================================================ */
+.article-prose {
+  max-width: 68ch;
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  line-height: 1.75;
+  color: var(--color-ink);
+}
+.article-prose > :first-child {
+  margin-top: 0;
+}
+.article-prose :where(h2, h3, h4) {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+.article-prose h2 {
+  margin-top: 2.5em;
+  margin-bottom: 0.6em;
+  font-size: clamp(1.75rem, 1rem + 4vw, 2.75rem);
+}
+.article-prose h3 {
+  margin-top: 2em;
+  margin-bottom: 0.5em;
+  font-size: clamp(1.375rem, 1rem + 2.5vw, 2rem);
+}
+.article-prose h4 {
+  margin-top: 1.75em;
+  margin-bottom: 0.4em;
+  font-size: clamp(1.125rem, 1rem + 1.5vw, 1.5rem);
+}
+.article-prose p,
+.article-prose ul,
+.article-prose ol,
+.article-prose blockquote,
+.article-prose img {
+  margin-top: 1.5em;
+}
+.article-prose ul,
+.article-prose ol {
+  padding-left: 1.25em;
+}
+.article-prose ul {
+  list-style: disc;
+}
+.article-prose ol {
+  list-style: decimal;
+}
+.article-prose li + li {
+  margin-top: 0.5em;
+}
+.article-prose blockquote {
+  border-left: 3px solid var(--color-ink);
+  padding-left: 1.25em;
+  font-style: italic;
+  opacity: 0.85;
+}
+.article-prose a {
+  color: var(--color-lyon);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+.article-prose a:hover {
+  color: var(--color-tangerine);
+}
+.article-prose strong {
+  font-weight: 700;
+}
+.article-prose img {
+  width: 100%;
+  height: auto;
+}
+
 /* Guarantee a visible keyboard focus indicator everywhere (WCAG 2.4.7 / 2.4.11).
    Components may override with their own focus-visible ring. */
 :focus-visible {
