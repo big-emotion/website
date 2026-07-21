@@ -1,6 +1,7 @@
 import type { Content } from "@prismicio/client";
 import { asText } from "@prismicio/client";
 import { ClientWall } from "@/components/client-wall";
+import { HEADING_LINK } from "@/components/heading-link";
 import { content } from "@/content/site";
 import type { Locale } from "@/i18n/locales";
 import { Link } from "@/i18n/navigation";
@@ -54,7 +55,7 @@ export function Cases({
               {caseStudy.data.client || caseStudy.data.kind}
             </p>
             <h2 className="font-display mt-2 text-[clamp(1.6rem,7vw,4rem)] text-lemon [overflow-wrap:anywhere]">
-              <Link href={`/cases/${caseStudy.uid}`} className="hover:underline">
+              <Link href={`/cases/${caseStudy.uid}`} className={HEADING_LINK}>
                 {caseStudy.data.title}
               </Link>
             </h2>
