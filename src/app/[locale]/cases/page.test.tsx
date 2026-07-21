@@ -85,9 +85,9 @@ describe("/cases", () => {
     expect(screen.getByRole("heading", { name: /medias & edition/i })).toBeInTheDocument();
   });
 
-  // Publication order is the running order of the page; left to the API it would be
-  // whatever the index happens to return.
-  it("runs the studies oldest first", async () => {
+  // The studies were published in a single release, so publication timestamps tie and
+  // would leave the running order to the API — and liable to differ between builds.
+  it("runs the studies in their editorial order rather than by publication date", async () => {
     caseStudiesByLang.value = {};
 
     await renderPage("fr");
@@ -95,7 +95,7 @@ describe("/cases", () => {
     expect(getAllByType).toHaveBeenCalledWith(
       "case_study",
       expect.objectContaining({
-        orderings: [{ field: "document.first_publication_date", direction: "asc" }],
+        orderings: [{ field: "my.case_study.display_order", direction: "asc" }],
       }),
     );
   });

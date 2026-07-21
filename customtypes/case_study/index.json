@@ -20,6 +20,13 @@
           "placeholder": "Industrie & B2B"
         }
       },
+      "display_order": {
+        "type": "Number",
+        "config": {
+          "label": "Ordre d'affichage (croissant) sur la page Cases",
+          "placeholder": "10"
+        }
+      },
       "kind": {
         "type": "Text",
         "config": {

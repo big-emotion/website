@@ -36,11 +36,12 @@ export default async function CasesPage({ params }: RouteProps) {
   const { scenes, leads } = content[locale];
   const title = scenes.find((scene) => scene.id === "cases")?.title ?? [];
 
-  // Oldest first, so the running order is the one the studies were published in rather
-  // than whatever the API happens to return.
+  // Ordered by an explicit editorial field, not by publication date: the studies were
+  // all published in one release, so their timestamps tie and the resulting order would
+  // be arbitrary — and could differ between two builds of the same content.
   const caseStudies = await createClient().getAllByType("case_study", {
     lang: prismicLocale(locale),
-    orderings: [{ field: "document.first_publication_date", direction: "asc" }],
+    orderings: [{ field: "my.case_study.display_order", direction: "asc" }],
   });
 
   return (

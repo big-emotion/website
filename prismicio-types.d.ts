@@ -81,6 +81,17 @@ interface CaseStudyDocumentData {
 	title: prismic.KeyTextField;
 	
 	/**
+	 * Ordre d'affichage (croissant) sur la page Cases field in *Étude de cas*
+	 *
+	 * - **Field Type**: Number
+	 * - **Placeholder**: 10
+	 * - **API ID Path**: case_study.display_order
+	 * - **Tab**: Principal
+	 * - **Documentation**: https://prismic.io/docs/fields/number
+	 */
+	display_order: prismic.NumberField;
+	
+	/**
 	 * Nature de la mission field in *Étude de cas*
 	 *
 	 * - **Field Type**: Text
