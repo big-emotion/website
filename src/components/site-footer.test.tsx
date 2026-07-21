@@ -3,23 +3,34 @@ import { describe, expect, it } from "vitest";
 import { SiteFooter } from "./site-footer";
 
 describe("SiteFooter", () => {
-  it("offers the public inbox and phone number as actionable links", () => {
-    render(<SiteFooter />);
+  it("signs the site with the brand and its tagline", () => {
+    render(<SiteFooter locale="fr" />);
 
-    expect(screen.getByRole("link", { name: "hello@big-emotion.com" })).toHaveAttribute(
-      "href",
-      "mailto:hello@big-emotion.com",
-    );
-    expect(screen.getByRole("link", { name: "+33 7 66 26 40 43" })).toHaveAttribute(
-      "href",
-      "tel:+33766264043",
-    );
+    expect(
+      screen.getByText(new RegExp(`${new Date().getFullYear()} BIG EMOTION`)),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/L'agence B!G qui fait dire wow/)).toBeInTheDocument();
   });
 
-  // The agency answers as a team here; individual names belong to the Culture section.
-  it("does not name an individual contact", () => {
-    render(<SiteFooter />);
+  it("signs off in the visitor's language", () => {
+    render(<SiteFooter locale="en" />);
 
-    expect(screen.queryByText("Jean-Noé Kollo")).not.toBeInTheDocument();
+    expect(screen.getByText(/The B!G agency that gives a wow/)).toBeInTheDocument();
+  });
+
+  // It renders on every route, so anything that belongs to one page — the contact
+  // details and the form — has to live on /contact instead.
+  it("carries no contact surface of its own", () => {
+    const { container } = render(<SiteFooter locale="fr" />);
+
+    expect(container.querySelector("form")).toBeNull();
+    expect(screen.queryByRole("link", { name: "hello@big-emotion.com" })).not.toBeInTheDocument();
+  });
+
+  it("keeps the oversized wordmark decorative, since the brand is already named below", () => {
+    const { container } = render(<SiteFooter locale="fr" />);
+
+    const wordmark = container.querySelector('[aria-label="BIG EMOTION"]');
+    expect(wordmark?.closest('[aria-hidden="true"]')).not.toBeNull();
   });
 });

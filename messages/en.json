@@ -1,0 +1,31 @@
+{
+  "layout": {
+    "skipToContent": "Skip to content"
+  },
+  "header": {
+    "home": "BIG EMOTION — home",
+    "openMenu": "Menu",
+    "closeMenu": "Close",
+    "mainMenu": "Main menu",
+    "languageSwitcher": "Language",
+    "switchToFrench": "French",
+    "switchToEnglish": "English"
+  },
+  "contact": {
+    "nameLabel": "Your name",
+    "emailLabel": "Your email",
+    "messageLabel": "Your message",
+    "submit": "Send",
+    "submitting": "Sending…",
+    "success": "Message sent. We reply within 24 h.",
+    "errorGeneric": "Something went wrong. Try again.",
+    "errorRateLimit": "Too many messages sent. Try again in a moment.",
+    "errorNetwork": "Network unavailable. Write to us at {email}."
+  },
+  "culture": {
+    "personalityTitle": "Brand personality",
+    "clientWallTitle": "They trusted us",
+    "axisBalanced": "{start} to {end}: balanced",
+    "axisLeans": "{start} to {end}: leans {pole}"
+  }
+}

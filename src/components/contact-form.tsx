@@ -1,26 +1,21 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { site } from "@/content/site";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
-type Reply = { ok: boolean; message: string };
-
-function isReply(value: unknown): value is Reply {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    typeof (value as Reply).ok === "boolean" &&
-    typeof (value as Reply).message === "string"
-  );
-}
-
-// Posts to the same-origin /api/contact route handler. Works without JS via the
-// form action (303 back to #contact); JS upgrades it to an async submit with
-// inline feedback (the {ok, message} JSON contract).
+// Posts to the same-origin /api/contact route handler. Works without JS via the form
+// action; JS upgrades it to an async submit with inline feedback.
+//
+// The route answers in French only (its copy is ported from the retired contact.php), so
+// the outcome is read from the HTTP status and phrased here in the visitor's language
+// rather than echoed from the response body.
 export function ContactForm() {
+  const t = useTranslations("contact");
   const [status, setStatus] = useState<Status>("idle");
-  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -32,34 +27,27 @@ export function ContactForm() {
         body: new FormData(form),
         headers: { "X-Requested-With": "fetch", Accept: "application/json" },
       });
-      // A 200 with a non-JSON/garbled body is a server problem, not a network one —
-      // narrow it here so the user doesn't get a misleading "offline" message.
-      let reply: Reply | null = null;
-      try {
-        const raw: unknown = await res.json();
-        if (isReply(raw)) reply = raw;
-      } catch {
-        reply = null;
+
+      if (res.ok) {
+        setStatus("success");
+        form.reset();
+        return;
       }
 
-      if (res.ok && reply?.ok) {
-        setStatus("success");
-        setMessage(reply.message);
-        form.reset();
-      } else {
-        setStatus("error");
-        setMessage(reply?.message ?? "Une erreur est survenue. Réessaie.");
-      }
-    } catch {
       setStatus("error");
-      setMessage("Réseau indisponible. Écris-nous à hello@big-emotion.com.");
+      setError(res.status === 429 ? t("errorRateLimit") : t("errorGeneric"));
+    } catch {
+      // Only a request that never got an answer lands here — anything the server did
+      // reply, however badly, is handled above and must not read as "you are offline".
+      setStatus("error");
+      setError(t("errorNetwork", { email: site.contact.email }));
     }
   }
 
   if (status === "success") {
     return (
       <p role="status" className="font-display text-2xl md:text-3xl">
-        {message} ✶
+        {t("success")} ✶
       </p>
     );
   }
@@ -82,11 +70,11 @@ export function ContactForm() {
         className="absolute left-[-9999px] h-0 w-0 opacity-0"
       />
 
-      <Field name="name" label="Ton nom" type="text" autoComplete="name" />
-      <Field name="email" label="Ton e-mail" type="email" autoComplete="email" />
+      <Field name="name" label={t("nameLabel")} type="text" autoComplete="name" />
+      <Field name="email" label={t("emailLabel")} type="email" autoComplete="email" />
 
       <label className="grid gap-2">
-        <span className="font-display text-sm uppercase tracking-wide">Ton message</span>
+        <span className="font-display text-sm uppercase tracking-wide">{t("messageLabel")}</span>
         <textarea
           name="message"
           required
@@ -97,7 +85,7 @@ export function ContactForm() {
 
       {status === "error" && (
         <p role="alert" className="font-display text-sm text-tangerine">
-          {message}
+          {error}
         </p>
       )}
 
@@ -106,7 +94,7 @@ export function ContactForm() {
         disabled={status === "submitting"}
         className="font-display mt-2 w-full bg-ink px-6 py-4 text-lg uppercase tracking-wide text-lemon transition-opacity hover:opacity-80 disabled:opacity-50 sm:w-auto"
       >
-        {status === "submitting" ? "Envoi…" : "Envoyer"}
+        {status === "submitting" ? t("submitting") : t("submit")}
       </button>
     </form>
   );

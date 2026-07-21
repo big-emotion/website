@@ -52,6 +52,22 @@ function clientIp(request: Request): string {
   return request.headers.get("x-real-ip") ?? "unknown";
 }
 
+// The form posts to an unlocalized /api/contact, so the referring page is the only
+// signal of which locale the visitor was reading. A cross-origin referer is ignored
+// rather than parsed: it decides where we send the browser, so it stays untrusted.
+function contactPath(request: Request): string {
+  const referer = request.headers.get("referer");
+  if (!referer) return "/contact/";
+
+  try {
+    const from = new URL(referer);
+    if (from.origin !== new URL(request.url).origin) return "/contact/";
+    return from.pathname.startsWith("/en/") ? "/en/contact/" : "/contact/";
+  } catch {
+    return "/contact/";
+  }
+}
+
 function reply(request: Request, body: Reply, status: number): Response {
   if (wantsJson(request)) {
     return new Response(JSON.stringify(body), {
@@ -59,9 +75,10 @@ function reply(request: Request, body: Reply, status: number): Response {
       headers: { "content-type": "application/json; charset=utf-8" },
     });
   }
-  // 303 See Other so the browser re-GETs. `/contact/` doesn't exist yet
-  // (SWBE-22), so land on the homepage #contact anchor like contact.php did.
-  const target = new URL(`/?sent=${body.ok ? "1" : "0"}#contact`, request.url);
+  // 303 See Other so the browser re-GETs. `/contact/` is a real route since SWBE-21,
+  // so the no-JS path lands back on the form it was submitted from rather than on a
+  // home-page anchor that no longer exists.
+  const target = new URL(`${contactPath(request)}?sent=${body.ok ? "1" : "0"}`, request.url);
   return new Response(null, { status: 303, headers: { location: target.href } });
 }
 

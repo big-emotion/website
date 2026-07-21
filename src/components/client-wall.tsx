@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { clients } from "@/content/site";
 
 // Two rows scrolling in opposite directions, so the wall reads as a wall and not as a
@@ -10,14 +11,16 @@ const HALF = Math.ceil(clients.length / 2);
 const rows = [clients, [...clients.slice(HALF), ...clients.slice(0, HALF)]];
 
 export function ClientWall() {
+  const t = useTranslations("culture");
+
   return (
     <section aria-labelledby="client-wall-title" className="mt-16 md:mt-24">
-      <h3
+      <h2
         id="client-wall-title"
         className="font-display text-sm tracking-[0.2em] opacity-80 md:text-base"
       >
-        Ils nous ont fait confiance
-      </h3>
+        {t("clientWallTitle")}
+      </h2>
 
       {/* Full-bleed: the rows escape the section's horizontal padding so wordmarks run
           edge to edge, which is what makes the scroll feel continuous. */}
@@ -36,11 +39,7 @@ export function ClientWall() {
                 className={`marquee-track flex w-max ${decorative ? "marquee-track--reverse" : ""}`}
               >
                 {[0, 1].map((copy) => (
-                  <ul
-                    key={copy}
-                    aria-hidden={decorative || copy === 1}
-                    className="flex shrink-0"
-                  >
+                  <ul key={copy} aria-hidden={decorative || copy === 1} className="flex shrink-0">
                     {row.map((brand) => (
                       <li
                         key={brand}

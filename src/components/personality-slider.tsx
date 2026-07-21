@@ -1,17 +1,22 @@
+import { useTranslations } from "next-intl";
 import { personalityAxes } from "@/content/site";
 
-function axisDescription(start: string, end: string, position: number) {
-  if (position === 50) {
-    return `${start} to ${end}: balanced`;
-  }
-  const pole = position < 50 ? start : end;
-  return `${start} to ${end}: leans ${pole.toLowerCase()}`;
-}
-
 export function PersonalitySlider() {
+  const t = useTranslations("culture");
+
+  // The line and the dot are pure graphics, so each axis carries its reading as text:
+  // which two poles it spans and which way the brand sits on it.
+  const axisDescription = (start: string, end: string, position: number) => {
+    if (position === 50) return t("axisBalanced", { start, end });
+    const pole = position < 50 ? start : end;
+    return t("axisLeans", { start, end, pole: pole.toLowerCase() });
+  };
+
   return (
     <div className="mt-16 md:mt-24">
-      <h3 className="font-display text-sm tracking-[0.2em] opacity-80">Brand personality</h3>
+      <h2 className="font-display text-sm tracking-[0.2em] opacity-80">
+        {t("personalityTitle")}
+      </h2>
       <ul className="mt-6 flex flex-col gap-6">
         {personalityAxes.map((axis) => (
           <li

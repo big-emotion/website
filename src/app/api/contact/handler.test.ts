@@ -31,14 +31,37 @@ describe("handleContact", () => {
     expect(send.mock.calls[0][0]).toEqual(valid);
   });
 
-  it("303-redirects a no-JS form post back to the contact anchor", async () => {
+  it("303-redirects a no-JS form post back to the contact page", async () => {
     const res = await handleContact(formRequest(valid), {
       rateLimiter: allow,
       send: vi.fn().mockResolvedValue(undefined),
     });
 
+    const location = new URL(res.headers.get("location")!);
     expect(res.status).toBe(303);
-    expect(res.headers.get("location")).toContain("/?sent=1#contact");
+    expect(location.pathname).toBe("/contact/");
+    expect(location.searchParams.get("sent")).toBe("1");
+  });
+
+  // The form posts to an unlocalized /api/contact from either locale, so the referring
+  // page is the only signal of which one the visitor was reading. Without it an English
+  // visitor with JS disabled would be dropped onto the French contact page.
+  it("returns a no-JS English submission to the English contact page", async () => {
+    const res = await handleContact(
+      formRequest(valid, { referer: "https://big-emotion.com/en/contact/" }),
+      { rateLimiter: allow, send: vi.fn().mockResolvedValue(undefined) },
+    );
+
+    expect(new URL(res.headers.get("location")!).pathname).toBe("/en/contact/");
+  });
+
+  it("ignores a cross-origin referer rather than trusting it to pick the locale", async () => {
+    const res = await handleContact(
+      formRequest(valid, { referer: "https://evil.example/en/contact/" }),
+      { rateLimiter: allow, send: vi.fn().mockResolvedValue(undefined) },
+    );
+
+    expect(new URL(res.headers.get("location")!).pathname).toBe("/contact/");
   });
 
   it("silently accepts a filled honeypot without sending mail", async () => {

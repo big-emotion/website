@@ -1,11 +1,16 @@
 "use client";
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
-import { espaceB2bCta, nav } from "@/content/site";
+import { content, espaceB2bHref } from "@/content/site";
+import type { Locale } from "@/i18n/locales";
+import { Link } from "@/i18n/navigation";
+import { LocaleSwitcher } from "./locale-switcher";
 import { Wordmark } from "./wordmark";
 
-export function SiteHeader() {
+export function SiteHeader({ locale }: { locale: Locale }) {
+  const t = useTranslations("header");
+  const { nav, espaceB2bLabel } = content[locale];
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
@@ -33,9 +38,9 @@ export function SiteHeader() {
     // Visible only: the desktop nav links are display:none on mobile, so getClientRects
     // excludes them (offsetParent can't be used — the overlay is position:fixed).
     const focusables = () =>
-      Array.from(
-        header.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'),
-      ).filter((el) => el.getClientRects().length > 0);
+      Array.from(header.querySelectorAll<HTMLElement>("a[href], button:not([disabled])")).filter(
+        (el) => el.getClientRects().length > 0,
+      );
 
     header.querySelector<HTMLElement>("#mobile-nav a")?.focus();
 
@@ -65,6 +70,7 @@ export function SiteHeader() {
     };
   }, [open]);
 
+  const close = () => setOpen(false);
   const textColor = scrolled || open ? "text-paper" : "text-ink";
   const background = scrolled && !open ? "bg-ink" : "";
 
@@ -74,11 +80,7 @@ export function SiteHeader() {
       className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${textColor} ${background}`}
     >
       <div className="relative z-50 flex items-center justify-between px-5 py-4 md:px-8 md:py-5">
-        <Link
-          href="/"
-          aria-label="BIG EMOTION — accueil"
-          onClick={() => setOpen(false)}
-        >
+        <Link href="/" aria-label={t("home")} onClick={close}>
           <Wordmark className="text-[1.45rem] md:text-2xl" />
         </Link>
 
@@ -92,15 +94,16 @@ export function SiteHeader() {
               {item.label}
             </Link>
           ))}
+          <LocaleSwitcher locale={locale} />
           {/* External app (opens in a new tab); border-current keeps it legible on
               both the transparent and the scrolled solid bar. */}
           <a
-            href={espaceB2bCta.href}
+            href={espaceB2bHref}
             target="_blank"
             rel="noopener noreferrer"
             className="font-display border-2 border-current px-4 py-2 text-sm uppercase tracking-wide hover:opacity-60"
           >
-            {espaceB2bCta.label}
+            {espaceB2bLabel}
           </a>
         </nav>
 
@@ -112,34 +115,37 @@ export function SiteHeader() {
           aria-controls="mobile-nav"
           onClick={() => setOpen((v) => !v)}
         >
-          {open ? "Close" : "Menu"}
+          {open ? t("closeMenu") : t("openMenu")}
         </button>
       </div>
 
       {open && (
         <nav
           id="mobile-nav"
-          aria-label="Menu principal"
+          aria-label={t("mainMenu")}
           className="fixed inset-0 z-40 flex flex-col justify-center gap-2 bg-ink px-6 text-paper md:hidden"
         >
           {nav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              onClick={() => setOpen(false)}
+              onClick={close}
               className="font-display text-5xl uppercase leading-none hover:text-lemon"
             >
               {item.label}
             </Link>
           ))}
+          {/* -ml-3 cancels the first option's tap-target padding so "FR" lines up with
+              the left edge of the nav links above it. */}
+          <LocaleSwitcher locale={locale} className="mt-6 -ml-3" onNavigate={close} />
           <a
-            href={espaceB2bCta.href}
+            href={espaceB2bHref}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => setOpen(false)}
+            onClick={close}
             className="font-display mt-6 w-fit border-2 border-current px-6 py-3 text-3xl uppercase leading-none hover:text-lemon"
           >
-            {espaceB2bCta.label}
+            {espaceB2bLabel}
           </a>
         </nav>
       )}

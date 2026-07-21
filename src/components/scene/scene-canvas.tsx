@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useLocale } from "next-intl";
 import * as THREE from "three";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
@@ -9,6 +10,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import { CAMERA, computeFit, MATERIAL, STATES, TAU } from "./states";
 import { Wordmark } from "@/components/wordmark";
+import { content } from "@/content/site";
+import { defaultLocale, isLocale } from "@/i18n/locales";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -83,6 +86,10 @@ export function SceneCanvas() {
   );
   const [status, setStatus] = useState<Status>("loading");
   const [hasScrolled, setHasScrolled] = useState(false);
+  // The cue is display type, so its label is marketing copy and lives in site.ts, not in
+  // messages/*.json. `isLocale` is the narrowing — routing already rejects the rest.
+  const activeLocale = useLocale();
+  const { scrollCue } = content[isLocale(activeLocale) ? activeLocale : defaultLocale];
 
   // Scroll cue: visible on first screen only, independent of WebGL availability.
   useEffect(() => {
@@ -285,9 +292,9 @@ export function SceneCanvas() {
   // BEHIND the page. A position:fixed layer with z-index:auto paints above its
   // static in-flow siblings, so without a negative z-index the opaque
   // .scene-stage covers every section below the hero and buries their content.
-  // -z-10 puts the whole scene behind the flow; each section's own opaque
-  // background covers it and only the transparent <Hero> reveals it. The header
-  // and scroll-cue sit above via their own higher z-index.
+  // -z-10 puts the whole scene behind the flow, where the transparent scroll
+  // panels let it show through for the length of the page. The header and
+  // scroll-cue sit above via their own higher z-index.
   return (
     <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10">
       <div className="scene-stage fixed inset-0" />
@@ -310,13 +317,16 @@ export function SceneCanvas() {
           aria-live="polite"
           className="scene-loader fixed inset-0 flex items-center justify-center"
         >
+          {/* Left untranslated on purpose: this whole subtree sits under aria-hidden, so
+              no assistive tech ever reads it. Translate it the day the loader is exposed
+              — that is also when it earns a messages/*.json key. */}
           <span className="sr-only">Loading</span>
           <Wordmark stacked={false} className="scene-loader-mark text-[16vw]" />
         </div>
       )}
 
       <p className="scene-scrollcue" data-visible={effectiveStatus !== "loading" && !hasScrolled}>
-        Scroll
+        {scrollCue}
       </p>
     </div>
   );
