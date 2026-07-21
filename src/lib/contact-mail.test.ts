@@ -47,6 +47,7 @@ describe("sendContactEmail", () => {
     expect(send).toHaveBeenCalledOnce();
     expect(send.mock.calls[0][0]).toMatchObject({
       to: "hello@big-emotion.com",
+      sender: "hello@big-emotion.com",
       replyTo: { address: "ada@example.com", name: "Ada" },
     });
   });

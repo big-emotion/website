@@ -6,8 +6,10 @@ export type ContactSubmission = {
   message: string;
 };
 
-// The team's shared inbox; the sending mailbox is the shared Graph MAIL_SENDER.
+// The team's public inbox (REQ-031/DEC-025); the sending mailbox is per-purpose
+// SENDER below, not the portal's shared Graph MAIL_SENDER.
 const RECIPIENT = "hello@big-emotion.com";
+const SENDER = "hello@big-emotion.com";
 
 // Collapse to a single line so a submitted value can't smuggle structure into
 // the subject or the reply-to display name.
@@ -30,6 +32,7 @@ export function buildContactMail(submission: ContactSubmission) {
   const email = singleLine(submission.email);
   return {
     to: RECIPIENT,
+    sender: SENDER,
     // Hitting "reply" answers the visitor, not the shared sending mailbox.
     replyTo: { address: email, name },
     subject: `Nouveau message de ${name} — big-emotion.com`,
