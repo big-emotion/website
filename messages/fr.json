@@ -1,0 +1,31 @@
+{
+  "layout": {
+    "skipToContent": "Aller au contenu"
+  },
+  "header": {
+    "home": "BIG EMOTION — accueil",
+    "openMenu": "Menu",
+    "closeMenu": "Fermer",
+    "mainMenu": "Menu principal",
+    "languageSwitcher": "Langue",
+    "switchToFrench": "Francais",
+    "switchToEnglish": "Anglais"
+  },
+  "contact": {
+    "nameLabel": "Ton nom",
+    "emailLabel": "Ton e-mail",
+    "messageLabel": "Ton message",
+    "submit": "Envoyer",
+    "submitting": "Envoi…",
+    "success": "Message envoye. On te repond sous 24 h.",
+    "errorGeneric": "Une erreur est survenue. Réessaie.",
+    "errorRateLimit": "Trop de messages envoyés. Réessaie dans un moment.",
+    "errorNetwork": "Réseau indisponible. Écris-nous à {email}."
+  },
+  "culture": {
+    "personalityTitle": "Brand personality",
+    "clientWallTitle": "Ils nous ont fait confiance",
+    "axisBalanced": "{start} a {end} : equilibre",
+    "axisLeans": "{start} a {end} : penche vers {pole}"
+  }
+}

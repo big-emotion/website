@@ -8,6 +8,10 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./vitest.setup.ts"],
+    // next-intl ships ESM whose `react-server` export condition Vitest would otherwise
+    // resolve; inlining it makes `createNavigation` and the client hooks load as the
+    // browser build the jsdom tests actually render against.
+    server: { deps: { inline: ["next-intl"] } },
   },
   resolve: {
     alias: {

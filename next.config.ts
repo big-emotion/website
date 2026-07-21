@@ -1,3 +1,4 @@
+import createNextIntlPlugin from "next-intl/plugin";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -10,41 +11,35 @@ const nextConfig: NextConfig = {
 
   // next/image optimizer runs on the standalone server — no longer unoptimized.
 
-  // Legacy WordPress → one-page anchor 301s (replaced .htaccess RewriteRules).
+  // Legacy WordPress 301s (replaced .htaccess RewriteRules). These now land on the
+  // real section routes rather than a home-page anchor: SWBE-21 turned the one-pager
+  // into six scene panels, so `/#culture` and friends no longer exist as anchors and
+  // would have dumped every legacy visitor at the top of the home page.
+  //
+  // The source URLs, their trailing-slash variants and `permanent: true` are the SEO
+  // invariant and stay exactly as they were — only the destination moved.
+  // Destinations are FR (the default locale, unprefixed): every one of these URLs was
+  // indexed from the French WordPress site.
+  //
   // Trailing-slash variants included because next.config redirects run before
-  // Next.js's own trailing-slash normalisation.
+  // Next.js's own trailing-slash normalisation. They also run *before* the proxy, so
+  // locale routing never sees them.
   async redirects() {
     return [
-      {
-        source: "/contactez-nous",
-        destination: "/#contact",
-        permanent: true,
-      },
-      {
-        source: "/contactez-nous/",
-        destination: "/#contact",
-        permanent: true,
-      },
-      { source: "/les-membres", destination: "/#culture", permanent: true },
-      { source: "/les-membres/", destination: "/#culture", permanent: true },
-      {
-        source: "/case-study-mamiezi",
-        destination: "/#cases",
-        permanent: true,
-      },
-      {
-        source: "/case-study-mamiezi/",
-        destination: "/#cases",
-        permanent: true,
-      },
+      { source: "/contactez-nous", destination: "/contact/", permanent: true },
+      { source: "/contactez-nous/", destination: "/contact/", permanent: true },
+      { source: "/les-membres", destination: "/culture/", permanent: true },
+      { source: "/les-membres/", destination: "/culture/", permanent: true },
+      { source: "/case-study-mamiezi", destination: "/cases/", permanent: true },
+      { source: "/case-study-mamiezi/", destination: "/cases/", permanent: true },
       {
         source: "/case-study-adolebatisseur",
-        destination: "/#cases",
+        destination: "/cases/",
         permanent: true,
       },
       {
         source: "/case-study-adolebatisseur/",
-        destination: "/#cases",
+        destination: "/cases/",
         permanent: true,
       },
     ];
@@ -79,4 +74,10 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// The plugin must wrap the config that carries `trailingSlash`: it copies that flag
+// into an env var the next-intl middleware reads when it normalises its own rewrites
+// and redirects. Wrapping an empty object instead would make every locale redirect
+// drop the trailing slash and bounce through an extra hop.
+const withNextIntl = createNextIntlPlugin();
+
+export default withNextIntl(nextConfig);
