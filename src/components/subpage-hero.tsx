@@ -5,17 +5,22 @@ import { SubpagePhoto } from "./subpage-photo";
 type Photo = { src: string; alt: string; width: number; height: number };
 
 /**
- * TODO(SWBE-91): fill these in once brand-compliant photography exists under
- * `public/photos/`. Deliberately empty rather than pointing at the designer's prototype
- * JPEGs: two of those four carry third-party trademarks and all are below the 1600px
- * floor, so shipping them as BIG EMOTION assets would be an IP risk. Until then every
- * page renders the placeholder, and wiring a photo is a one-line change here.
+ * SWBE-91. Generated to the brand's iconography rules rather than taken from the
+ * designer's prototype: two of those four JPEGs carried third-party trademarks (adidas,
+ * AITO) and all were below the 1600px floor. The prompt behind each file is versioned in
+ * `docs/redesign/2026-07-subpage-photo-prompts.md` — regenerate from there, not from
+ * scratch, or the four heroes drift apart.
+ *
+ * The alt is empty on purpose: each photo sits beside the h1 and the lead that carry the
+ * page's message, so it is decorative and belongs out of the accessibility tree. A page
+ * left at `null` falls back to the placeholder, which is how a new section route can ship
+ * before its photography exists.
  */
 export const SUBPAGE_PHOTOS: Record<SubpageId, Photo | null> = {
-  approach: null,
-  cases: null,
-  culture: null,
-  contact: null,
+  approach: { src: "/photos/approach.jpg", alt: "", width: 1536, height: 2048 },
+  cases: { src: "/photos/cases.jpg", alt: "", width: 1536, height: 2048 },
+  culture: { src: "/photos/culture.jpg", alt: "", width: 1536, height: 2048 },
+  contact: { src: "/photos/contact.jpg", alt: "", width: 1536, height: 2048 },
 };
 
 /**

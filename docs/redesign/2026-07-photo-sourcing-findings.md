@@ -1,6 +1,12 @@
 # Sub-page photo sourcing — findings (SWBE-91)
 
-Status: **blocked, needs an owner decision** — investigation only, no photos committed.
+Status: **resolved** — the owner took option 2 of §6 on 2026-07-21. The four photos were generated
+to the brand's iconography rules and now ship under `public/photos/`; the prompts behind them are
+versioned in [`2026-07-subpage-photo-prompts.md`](./2026-07-subpage-photo-prompts.md). §4 below is
+what has changed: this run did have image generation available.
+
+The rest of this document is kept as the record of *why* the designer's prototype JPEGs were not
+shipped — that reasoning still governs any future photography added to this site.
 
 Ticket: [SWBE-91](https://big-emotion.atlassian.net/browse/SWBE-91) "Brand-compliant photography set for the sub-pages". Companion documents: [`2026-07-brand-alignment-audit.md`](./2026-07-brand-alignment-audit.md) §2 (iconography rules), [`2026-07-brand-alignment-backlog.md`](./2026-07-brand-alignment-backlog.md) B6.
 

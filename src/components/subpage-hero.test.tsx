@@ -1,4 +1,6 @@
 import { render, screen } from "@testing-library/react";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { SUBPAGE_PHOTOS, SubpageHero } from "./subpage-hero";
 
@@ -46,23 +48,25 @@ describe("SubpageHero", () => {
 });
 
 describe("SubpageHero photo slot", () => {
-  // SWBE-91 has shipped no photography, so every page is on the placeholder path.
-  // The placeholder carries no meaning, so it must not reach the accessibility tree —
-  // and it must not request an image that does not exist.
-  it("renders a decorative placeholder while no photo is configured", () => {
-    const { container } = renderHero();
+  // The photo sits beside the h1 and the lead, which carry the whole message. It adds
+  // atmosphere and nothing a screen reader needs, so it ships as decorative: an empty
+  // alt keeps it out of the accessibility tree rather than reading a description
+  // nobody asked for.
+  it.each(["approach", "cases", "culture", "contact"] as const)(
+    "renders %s's photo as decorative",
+    (page) => {
+      const { container } = renderHero(page);
 
-    expect(container.querySelector("img")).toBeNull();
-    expect(container.querySelector("[data-testid='subpage-photo-placeholder']")).toHaveAttribute(
-      "aria-hidden",
-      "true",
-    );
-  });
+      const photo = container.querySelector("img");
+      expect(photo).toHaveAttribute("alt", "");
+      expect(container.querySelector("[data-testid='subpage-photo-placeholder']")).toBeNull();
+    },
+  );
 
   // Mobile shows the photo above the headline, but that is a visual reordering only:
   // the heading has to stay first in the document so it leads for assistive tech and
   // for the document outline. Getting this backwards would bury the h1 behind a
-  // decorative placeholder.
+  // decorative photo.
   it("keeps the heading ahead of the photo in reading order", () => {
     const { container } = renderHero();
 
@@ -73,9 +77,12 @@ describe("SubpageHero photo slot", () => {
     ]);
   });
 
-  // Guards the hand-off to SWBE-91: it should only have to drop files in and fill this
-  // map. A stray src here would ship a 404 into the hero.
-  it("declares no photo source until SWBE-91 delivers", () => {
-    expect(Object.values(SUBPAGE_PHOTOS).every((photo) => photo === null)).toBe(true);
+  // next/image takes the declared dimensions on faith to reserve the box, so a src that
+  // resolves to nothing still lays out correctly and only fails as a 404 in the browser.
+  // Reading the real files is what catches a typo or a photo dropped from public/.
+  it.each(Object.entries(SUBPAGE_PHOTOS))("serves %s's photo from public/", (_page, photo) => {
+    expect(existsSync(join(process.cwd(), "public", photo!.src))).toBe(true);
+    expect(photo!.width).toBeGreaterThan(0);
+    expect(photo!.height).toBeGreaterThan(photo!.width);
   });
 });

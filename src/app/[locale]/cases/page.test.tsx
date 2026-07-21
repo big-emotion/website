@@ -139,16 +139,13 @@ describe("/cases hero", () => {
     expect(container.querySelector("section")).toHaveClass("bg-tangerine");
   });
 
-  it("introduces the page with its lead and a decorative photo placeholder", async () => {
+  it("introduces the page with its lead and its decorative photo", async () => {
     caseStudiesByLang.value = {};
 
     const { container } = await renderPage("fr");
 
     expect(screen.getByText(new RegExp("Une sélection de projets"))).toBeInTheDocument();
-    expect(container.querySelector("[data-testid='subpage-photo-placeholder']")).toHaveAttribute(
-      "aria-hidden",
-      "true",
-    );
+    expect(container.querySelector("img")).toHaveAttribute("alt", "");
   });
 
   it("titles the hero in English on the English route", async () => {
