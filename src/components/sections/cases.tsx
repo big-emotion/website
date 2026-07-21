@@ -95,8 +95,12 @@ export function Cases({
               <p className="font-display text-sm uppercase tracking-wide opacity-70">
                 {production.kind}
               </p>
+              {/* `slug` doubles as the article's Prismic uid — the card is the teaser,
+                  the blog carries the write-up. */}
               <h3 className="font-display mt-2 text-[clamp(1.6rem,7vw,4rem)] text-lemon [overflow-wrap:anywhere]">
-                {production.title}
+                <Link href={`/blog/${production.slug}`} className="hover:underline">
+                  {production.title}
+                </Link>
               </h3>
               <p className="mt-4 max-w-prose text-lg leading-relaxed">{production.summary}</p>
               <ul className="mt-6 flex flex-wrap gap-2">

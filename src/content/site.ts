@@ -76,6 +76,11 @@ type LocaleContent = {
   impactStats: readonly { value: string; label: string }[];
   productionsIntro: { title: string; body: string };
   productions: readonly {
+    /**
+     * Also the uid of the production's article in Prismic: the `/cases` card links to
+     * `/blog/<slug>`. Renaming one without the other 404s the reader, and nothing fails
+     * at build time to warn you — `src/components/sections/cases.test.tsx` pins the pairs.
+     */
     slug: string;
     title: string;
     kind: string;

@@ -148,6 +148,21 @@ describe("Cases", () => {
     );
   });
 
+  // Each production now has a write-up on the blog, and `slug` is what ties the card to
+  // it: the value doubles as the article's Prismic uid. A mismatch here 404s the reader.
+  it.each([
+    ["EthniAfrica", "ethniafrica"],
+    ["Ferry", "ferry"],
+    ["Project Standard", "project-standard"],
+  ])("links %s to its write-up", (title, uid) => {
+    renderCases();
+
+    expect(screen.getByRole("link", { name: title })).toHaveAttribute(
+      "href",
+      `/blog/${uid}`,
+    );
+  });
+
   it("answers in English on the English route, link labels included", () => {
     renderCases("en");
 
