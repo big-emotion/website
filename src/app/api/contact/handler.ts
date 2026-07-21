@@ -11,7 +11,7 @@ const MESSAGES = {
   tooLong: "Message trop long.",
   invalidEmail: "Adresse e-mail invalide.",
   rateLimited: "Trop de tentatives. Réessaie dans un instant.",
-  failed: "L’envoi a échoué. Écris-nous à contact@big-emotion.com.",
+  failed: "L’envoi a échoué. Écris-nous à hello@big-emotion.com.",
 } as const;
 
 const submissionSchema = z.object({

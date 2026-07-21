@@ -10,7 +10,7 @@ export const site = {
   mission: "Donner vie à tes projets et leur transmettre des émotions.",
   stat: { value: "50+", label: "projets accompagnés" },
   contact: {
-    email: "contact@big-emotion.com",
+    email: "hello@big-emotion.com",
     phone: "+33 7 03 676 43 22",
     // Keep the dialed digits identical to the displayed number above.
     phoneHref: "tel:+337036764322",
