@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { STATES } from "@/components/scene/states";
 import { locales, type Locale } from "@/i18n/locales";
 import { content, site } from "./site";
 
@@ -14,7 +13,7 @@ function displayCopy(locale: Locale) {
     copy.stat.label,
     copy.scrollCue,
     ...copy.nav.map((item) => item.label),
-    ...copy.scenes.flatMap((scene) => scene.title),
+    ...copy.sectionHeroes.flatMap((hero) => hero.title),
     ...copy.contact.title,
     ...copy.services.map((service) => service.title),
     ...copy.impactStats.map((stat) => stat.label),
@@ -27,12 +26,6 @@ function displayCopy(locale: Locale) {
 describe.each(locales)("%s copy", (locale) => {
   it.each(displayCopy(locale))("renders %s without accented characters", (copy) => {
     expect(copy).not.toMatch(/[À-ſ]/);
-  });
-
-  it("names the six scenes in the order the scroll choreography plays them", () => {
-    expect(content[locale].scenes.map((scene) => scene.id)).toEqual(
-      STATES.map((state) => state.name),
-    );
   });
 });
 
@@ -62,9 +55,12 @@ describe("locale parity", () => {
 });
 
 describe("body copy", () => {
+  // The Home scroll spine's own prose (formerly `content.fr.scenes`) moved to Prismic
+  // with the rest of the Home beats (SWBE-81) — see `scripts/seed-home.test.mjs` for
+  // the equivalent guarantee over the seeded copy.
   it("leaves French prose correctly accented", () => {
-    const intro = content.fr.scenes.find((scene) => scene.id === "intro");
-    expect(intro?.body).toContain("créatif");
+    const founder = content.fr.team.find((member) => member.name === "Jean-Noe Kollo");
+    expect(founder?.bio).toContain("démarre");
   });
 
   it("keeps the schema.org founder name correctly accented", () => {

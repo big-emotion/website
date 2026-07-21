@@ -33,8 +33,8 @@ export default async function CasesPage({ params }: RouteProps) {
   // every next-intl call below reads headers() and the route turns dynamic.
   setRequestLocale(locale);
 
-  const { scenes, leads } = content[locale];
-  const title = scenes.find((scene) => scene.id === "cases")?.title ?? [];
+  const { sectionHeroes, leads } = content[locale];
+  const title = sectionHeroes.find((hero) => hero.id === "cases")?.title ?? [];
 
   // Ordered by an explicit editorial field, not by publication date: the studies were
   // all published in one release, so their timestamps tie and the resulting order would

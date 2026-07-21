@@ -7,10 +7,24 @@ import { STATES } from "@/components/scene/states";
  * background: the fixed `SceneCanvas` underlay owns the colour and `body[data-active]`
  * flips it as the scroll crosses into this panel.
  */
-export function ScenePanel({ index, children }: { index: number; children: ReactNode }) {
+export function ScenePanel({
+  index,
+  children,
+  dataSliceType,
+  dataSliceVariation,
+}: {
+  index: number;
+  children: ReactNode;
+  /** Stamped on the root element when a slice renders the panel (repo convention — see
+   *  `CaseChapter`), so the beat's origin is inspectable in the DOM. */
+  dataSliceType?: string;
+  dataSliceVariation?: string;
+}) {
   return (
     <section
       data-scene={index}
+      data-slice-type={dataSliceType}
+      data-slice-variation={dataSliceVariation}
       className={`scene-panel relative flex min-h-[100svh] flex-col items-start justify-end px-5 pt-28 pb-28 md:px-10 ${placementFor(index)}`}
     >
       <div className="max-w-[82vw] md:max-w-[36rem]">{children}</div>

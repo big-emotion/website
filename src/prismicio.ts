@@ -102,5 +102,9 @@ export const linkResolver: prismic.LinkResolverFunction = (document) => {
     return localePath(locale, `/cases/${document.uid}`);
   }
 
+  if (document.type === "page" && document.uid === "home") {
+    return localePath(locale, "/");
+  }
+
   return null;
 };

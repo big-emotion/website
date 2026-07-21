@@ -1,0 +1,89 @@
+{
+  "id": "home_scene",
+  "type": "SharedSlice",
+  "name": "HomeScene",
+  "description": "Un temps fort du scroll spine de la Home : titre empile, texte optionnel, poignee sociale optionnelle.",
+  "variations": [
+    {
+      "id": "default",
+      "name": "Par defaut",
+      "docURL": "...",
+      "version": "initial",
+      "description": "Titre empile visible, texte optionnel, poignee sociale optionnelle.",
+      "primary": {
+        "scene_id": {
+          "type": "Select",
+          "config": {
+            "label": "Identifiant de la scene (choregraphie 3D)",
+            "options": ["intro", "approach", "cases", "culture", "louder", "final"],
+            "default_value": "approach"
+          }
+        },
+        "heading": {
+          "type": "Group",
+          "config": {
+            "label": "Lignes du titre",
+            "fields": {
+              "line": {
+                "type": "Text",
+                "config": {
+                  "label": "Ligne",
+                  "placeholder": "L'agence"
+                }
+              }
+            }
+          }
+        },
+        "body": {
+          "type": "Text",
+          "config": {
+            "label": "Texte (optionnel)",
+            "placeholder": "On part de la reaction, puis on remonte tout le fil pour l'obtenir."
+          }
+        },
+        "social_handle": {
+          "type": "Boolean",
+          "config": {
+            "label": "Afficher la poignee sociale",
+            "placeholder_true": "Oui",
+            "placeholder_false": "Non",
+            "default_value": false
+          }
+        }
+      },
+      "items": {}
+    },
+    {
+      "id": "introHero",
+      "name": "Introduction (wordmark 3D)",
+      "docURL": "...",
+      "version": "initial",
+      "description": "Scene d'ouverture : le titre visible est le wordmark 3D, cette variante ne rend qu'un h1 accessible.",
+      "primary": {
+        "scene_id": {
+          "type": "Select",
+          "config": {
+            "label": "Identifiant de la scene (choregraphie 3D)",
+            "options": ["intro", "approach", "cases", "culture", "louder", "final"],
+            "default_value": "intro"
+          }
+        },
+        "tagline": {
+          "type": "Text",
+          "config": {
+            "label": "Signature (nom accessible du h1)",
+            "placeholder": "L'agence B!G qui fait dire wow."
+          }
+        },
+        "body": {
+          "type": "Text",
+          "config": {
+            "label": "Texte (optionnel)",
+            "placeholder": "Big Emotion est un studio creatif digital first..."
+          }
+        }
+      },
+      "items": {}
+    }
+  ]
+}
