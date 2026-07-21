@@ -70,7 +70,7 @@ describe("/culture hero", () => {
     expect(container.querySelector("section")).toHaveClass("bg-lyon");
   });
 
-  it("introduces the page with its lead and a decorative photo placeholder", async () => {
+  it("introduces the page with its lead and its decorative photo", async () => {
     const { container } = render(
       <NextIntlClientProvider locale="fr" messages={fr}>
         {await CulturePage({ params: Promise.resolve({ locale: "fr" }) })}
@@ -78,10 +78,7 @@ describe("/culture hero", () => {
     );
 
     expect(screen.getByText(new RegExp("Nés sur le web"))).toBeInTheDocument();
-    expect(container.querySelector("[data-testid='subpage-photo-placeholder']")).toHaveAttribute(
-      "aria-hidden",
-      "true",
-    );
+    expect(container.querySelector("img")).toHaveAttribute("alt", "");
   });
 
   it("titles the hero in English on the English route", async () => {

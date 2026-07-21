@@ -1,21 +1,33 @@
+import type { StaticImageData } from "next/image";
+import approachPhoto from "@/photos/approach.jpg";
+import casesPhoto from "@/photos/cases.jpg";
+import contactPhoto from "@/photos/contact.jpg";
+import culturePhoto from "@/photos/culture.jpg";
 import { StackedHeadline } from "./stacked-headline";
 import { SUBPAGE_ACCENTS, type SubpageId } from "./subpage-accents";
 import { SubpagePhoto } from "./subpage-photo";
 
-type Photo = { src: string; alt: string; width: number; height: number };
-
 /**
- * TODO(SWBE-91): fill these in once brand-compliant photography exists under
- * `public/photos/`. Deliberately empty rather than pointing at the designer's prototype
- * JPEGs: two of those four carry third-party trademarks and all are below the 1600px
- * floor, so shipping them as BIG EMOTION assets would be an IP risk. Until then every
- * page renders the placeholder, and wiring a photo is a one-line change here.
+ * SWBE-91. Generated to the brand's iconography rules rather than taken from the
+ * designer's prototype: two of those four JPEGs carried third-party trademarks (adidas,
+ * AITO) and all were below the 1600px floor. The prompt behind each file is versioned in
+ * `docs/redesign/2026-07-subpage-photo-prompts.md` — regenerate from there, not from
+ * scratch, or the four heroes drift apart.
+ *
+ * These are imported rather than referenced by a `public/` path so the emitted URL carries
+ * a hash of the file's contents. Art direction replaces these images in place, keeping the
+ * filename; under a stable URL a browser or CDN then serves the previous photo until its
+ * cache expires, which is exactly what happened while this set was being reviewed. The
+ * import also derives the intrinsic dimensions, so they cannot drift from the real file.
+ *
+ * A page left at `null` falls back to the placeholder, which is how a new section route
+ * can ship before its photography exists.
  */
-export const SUBPAGE_PHOTOS: Record<SubpageId, Photo | null> = {
-  approach: null,
-  cases: null,
-  culture: null,
-  contact: null,
+export const SUBPAGE_PHOTOS: Record<SubpageId, StaticImageData | null> = {
+  approach: approachPhoto,
+  cases: casesPhoto,
+  culture: culturePhoto,
+  contact: contactPhoto,
 };
 
 /**

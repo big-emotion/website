@@ -40,7 +40,7 @@ describe("Contact", () => {
     renderContact("fr");
 
     expect(screen.getByText("On te répond sous 24 h.")).toBeInTheDocument();
-    expect(screen.getByText(/@bigemotionagency sur les réseaux/)).toBeInTheDocument();
+    expect(screen.getByText(/@bigemotion sur les réseaux/)).toBeInTheDocument();
   });
 
   // The agency answers as a team here; individual names belong to the Culture page.
@@ -60,6 +60,6 @@ describe("Contact", () => {
     renderContact("en");
 
     expect(screen.getByText("We reply within 24 h.")).toBeInTheDocument();
-    expect(screen.getByText(/@bigemotionagency on socials/)).toBeInTheDocument();
+    expect(screen.getByText(/@bigemotion on socials/)).toBeInTheDocument();
   });
 });

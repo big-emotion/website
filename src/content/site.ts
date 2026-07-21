@@ -118,7 +118,7 @@ export const site = {
 /** The handle shown on the closing scene. Social profile URLs are still pending from
  *  the owner (SWBE-18 precondition 4), so the closing scene renders the handle as plain
  *  text and nothing there is clickable until real hrefs exist. */
-export const socialHandle = "@bigemotionagency";
+export const socialHandle = "@bigemotion";
 
 // The "Espace B2B" area is a separate app — the sibling B2B client space at
 // b2b.big-emotion.com (renamed from the support portal). It is not a section of this

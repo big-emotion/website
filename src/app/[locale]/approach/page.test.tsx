@@ -64,16 +64,13 @@ describe("/approach hero", () => {
     expect(container.querySelector("section")).toHaveClass("bg-lemon");
   });
 
-  it("introduces the page with its lead and a decorative photo placeholder", async () => {
+  it("introduces the page with its lead and its decorative photo", async () => {
     const { container } = render(
       await ApproachPage({ params: Promise.resolve({ locale: "fr" }) }),
     );
 
     expect(screen.getByText(new RegExp("On part de la réaction"))).toBeInTheDocument();
-    expect(container.querySelector("[data-testid='subpage-photo-placeholder']")).toHaveAttribute(
-      "aria-hidden",
-      "true",
-    );
+    expect(container.querySelector("img")).toHaveAttribute("alt", "");
   });
 
   it("titles the hero in English on the English route", async () => {

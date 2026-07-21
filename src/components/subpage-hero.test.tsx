@@ -46,23 +46,25 @@ describe("SubpageHero", () => {
 });
 
 describe("SubpageHero photo slot", () => {
-  // SWBE-91 has shipped no photography, so every page is on the placeholder path.
-  // The placeholder carries no meaning, so it must not reach the accessibility tree —
-  // and it must not request an image that does not exist.
-  it("renders a decorative placeholder while no photo is configured", () => {
-    const { container } = renderHero();
+  // The photo sits beside the h1 and the lead, which carry the whole message. It adds
+  // atmosphere and nothing a screen reader needs, so it ships as decorative: an empty
+  // alt keeps it out of the accessibility tree rather than reading a description
+  // nobody asked for.
+  it.each(["approach", "cases", "culture", "contact"] as const)(
+    "renders %s's photo as decorative",
+    (page) => {
+      const { container } = renderHero(page);
 
-    expect(container.querySelector("img")).toBeNull();
-    expect(container.querySelector("[data-testid='subpage-photo-placeholder']")).toHaveAttribute(
-      "aria-hidden",
-      "true",
-    );
-  });
+      const photo = container.querySelector("img");
+      expect(photo).toHaveAttribute("alt", "");
+      expect(container.querySelector("[data-testid='subpage-photo-placeholder']")).toBeNull();
+    },
+  );
 
   // Mobile shows the photo above the headline, but that is a visual reordering only:
   // the heading has to stay first in the document so it leads for assistive tech and
   // for the document outline. Getting this backwards would bury the h1 behind a
-  // decorative placeholder.
+  // decorative photo.
   it("keeps the heading ahead of the photo in reading order", () => {
     const { container } = renderHero();
 
@@ -73,9 +75,12 @@ describe("SubpageHero photo slot", () => {
     ]);
   });
 
-  // Guards the hand-off to SWBE-91: it should only have to drop files in and fill this
-  // map. A stray src here would ship a 404 into the hero.
-  it("declares no photo source until SWBE-91 delivers", () => {
-    expect(Object.values(SUBPAGE_PHOTOS).every((photo) => photo === null)).toBe(true);
+  // The map is four near-identical lines, so wiring one page to another's import is an
+  // easy slip that still builds, still renders, and only shows up as the wrong hero.
+  // Whether the files themselves resolve is settled by `next build`, not here.
+  it("gives every page its own photo", () => {
+    const sources = Object.values(SUBPAGE_PHOTOS).map((photo) => photo!.src);
+
+    expect(new Set(sources).size).toBe(sources.length);
   });
 });
