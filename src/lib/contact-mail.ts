@@ -7,7 +7,7 @@ export type ContactSubmission = {
 };
 
 // The team's shared inbox; the sending mailbox is the shared Graph MAIL_SENDER.
-const RECIPIENT = "contact@big-emotion.com";
+const RECIPIENT = "hello@big-emotion.com";
 
 // Collapse to a single line so a submitted value can't smuggle structure into
 // the subject or the reply-to display name.
