@@ -52,4 +52,32 @@ describe("ArticleHeader", () => {
     expect(screen.getByText(/Camille/)).toBeInTheDocument();
     expect(screen.getByText(/6 min/)).toBeInTheDocument();
   });
+
+  it("omits the eyebrow when no kind is given, keeping title as the single h1", () => {
+    render(<ArticleHeader locale="fr" title="Titre" date="2026-07-21" />);
+
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+    expect(screen.queryByText("Kind")).not.toBeInTheDocument();
+  });
+
+  it("promotes the thesis as a focal pull-quote distinct from the title and meta line", () => {
+    render(
+      <ArticleHeader
+        locale="fr"
+        title="Titre"
+        kind="Kind"
+        date="2026-07-21"
+        thesis="Le brief n'est jamais le probleme, la reaction si."
+      />,
+    );
+
+    const thesis = screen.getByText("Le brief n'est jamais le probleme, la reaction si.");
+    expect(thesis.closest("blockquote")).toBeInTheDocument();
+  });
+
+  it("renders no pull-quote when no thesis is given", () => {
+    const { container } = render(<ArticleHeader locale="fr" title="Titre" kind="Kind" date="2026-07-21" />);
+
+    expect(container.querySelector("blockquote")).not.toBeInTheDocument();
+  });
 });

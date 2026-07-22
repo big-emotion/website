@@ -15,14 +15,16 @@ import { ArticleCard } from "./article-card";
 
 const messages = { fr: frMessages, en: enMessages };
 
-function renderCard(props: Partial<React.ComponentProps<typeof ArticleCard>> = {}, locale: Locale = "fr") {
+function renderCard(
+  props: Partial<React.ComponentProps<typeof ArticleCard>> = {},
+  locale: Locale = "fr",
+) {
   return render(
     <NextIntlClientProvider locale={locale} messages={messages[locale]}>
       <ArticleCard
-        href="/blog/le-brief-qui-change-tout"
-        title="Le brief qui change tout"
-        kind="Strategie de marque"
-        excerpt="Ce qu'on a fait et ce que ca a change."
+        href="/blog/le-jugement-ne-se-reproduit-pas"
+        title="Le jugement ne se reproduit pas"
+        date="10 juin 2026"
         {...props}
       />
     </NextIntlClientProvider>,
@@ -30,44 +32,33 @@ function renderCard(props: Partial<React.ComponentProps<typeof ArticleCard>> = {
 }
 
 describe("ArticleCard", () => {
-  it("renders the title, kind and excerpt", () => {
+  it("renders the title as a level-3 heading (the demoted index sits under the featured h2)", () => {
     renderCard();
 
-    expect(screen.getByRole("heading", { name: /le brief qui change tout/i })).toBeInTheDocument();
-    expect(screen.getByText("Strategie de marque")).toBeInTheDocument();
-    expect(screen.getByText(/ce qu'on a fait/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /le jugement ne se reproduit pas/i, level: 3 }),
+    ).toBeInTheDocument();
   });
 
   it("links the title to the article via the locale-aware Link", () => {
     renderCard();
 
-    expect(screen.getByRole("link", { name: /le brief qui change tout/i })).toHaveAttribute(
-      "href",
-      "/blog/le-brief-qui-change-tout",
-    );
+    expect(
+      screen.getByRole("link", { name: /le jugement ne se reproduit pas/i }),
+    ).toHaveAttribute("href", "/blog/le-jugement-ne-se-reproduit-pas");
   });
 
-  it("renders the cover through next/image when provided", () => {
-    renderCard({ cover: { src: "/cover.jpg", alt: "Une legende", width: 800, height: 500 } });
+  it("renders the publish date", () => {
+    renderCard();
 
-    const image = screen.getByRole("img", { name: "Une legende" });
-    expect(image).toHaveAttribute("width", "800");
-    expect(image).toHaveAttribute("height", "500");
-  });
-
-  it("falls back to a decorative placeholder when no cover is provided", () => {
-    const { container } = renderCard();
-
-    expect(screen.queryByRole("img")).toBeNull();
-    expect(container.querySelector('[aria-hidden="true"]')).toBeInTheDocument();
+    expect(screen.getByText("10 juin 2026")).toBeInTheDocument();
   });
 
   it("prefixes the link on the English route", () => {
     renderCard({}, "en");
 
-    expect(screen.getByRole("link", { name: /le brief qui change tout/i })).toHaveAttribute(
-      "href",
-      "/en/blog/le-brief-qui-change-tout",
-    );
+    expect(
+      screen.getByRole("link", { name: /le jugement ne se reproduit pas/i }),
+    ).toHaveAttribute("href", "/en/blog/le-jugement-ne-se-reproduit-pas");
   });
 });

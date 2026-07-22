@@ -16,12 +16,21 @@ const INTL_LOCALES: Record<Locale, string> = { fr: "fr-FR", en: "en-US" };
  * correctly and stripping them would just be worse typography.
  */
 export function formatPublishDate(locale: Locale, isoDate: string): string {
-  const formatted = new Intl.DateTimeFormat(INTL_LOCALES[locale], { dateStyle: "long" }).format(
-    new Date(isoDate),
-  );
-
   // Decompose, then drop the combining marks: "é" becomes "e" + U+0301, and removing the
   // mark leaves the base letter. Deleting the accented character outright would give
   // "fvrier".
-  return formatted.normalize("NFD").replace(/\p{Diacritic}/gu, "");
+  return formatArticleDate(locale, isoDate)
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "");
+}
+
+/**
+ * The same date for a body/sans slot, where the full glyph set renders — so it keeps its
+ * accents ("21 février 2026"). Stripping them here, as `formatPublishDate` must for
+ * `font-display`, would only be worse typography (see the note above).
+ */
+export function formatArticleDate(locale: Locale, isoDate: string): string {
+  return new Intl.DateTimeFormat(INTL_LOCALES[locale], { dateStyle: "long" }).format(
+    new Date(isoDate),
+  );
 }

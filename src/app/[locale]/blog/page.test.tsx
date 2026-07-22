@@ -89,6 +89,53 @@ describe("/blog", () => {
     );
   });
 
+  it("promotes the newest article to a featured block and demotes the rest to a level-3 list", async () => {
+    articlesByLang.value = {
+      "fr-fr": [
+        article("ferry", "Ferry", "2026-07-21"),
+        article("standard", "Project Standard", "2026-07-20"),
+        article("jugement", "Le jugement", "2026-06-10"),
+      ],
+    };
+
+    await renderPage("fr");
+
+    // Newest → the single featured block, and never repeated as a list row.
+    expect(screen.getByRole("heading", { name: "Ferry", level: 2 })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Ferry", level: 3 })).not.toBeInTheDocument();
+    // The rest → the demoted index.
+    expect(screen.getByRole("heading", { name: "Project Standard", level: 3 })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Le jugement", level: 3 })).toBeInTheDocument();
+  });
+
+  it("keeps the excerpt on the featured post but drops it from the demoted list", async () => {
+    articlesByLang.value = {
+      "fr-fr": [
+        article("ferry", "Ferry", "2026-07-21"),
+        article("standard", "Project Standard", "2026-07-20"),
+      ],
+    };
+
+    await renderPage("fr");
+
+    expect(screen.getByText("Extrait de Ferry")).toBeInTheDocument();
+    expect(screen.queryByText("Extrait de Project Standard")).not.toBeInTheDocument();
+  });
+
+  it("counts the published articles in the hero", async () => {
+    articlesByLang.value = {
+      "fr-fr": [
+        article("ferry", "Ferry", "2026-07-21"),
+        article("standard", "Project Standard", "2026-07-20"),
+        article("jugement", "Le jugement", "2026-06-10"),
+      ],
+    };
+
+    await renderPage("fr");
+
+    expect(screen.getByText("3 articles")).toBeInTheDocument();
+  });
+
   it("links each card to its detail page via the locale-aware Link", async () => {
     articlesByLang.value = {
       "fr-fr": [article("notre-approche", "Notre approche", "2026-01-10")],

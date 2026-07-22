@@ -150,12 +150,18 @@ body {
    the reading measure are new (no prior long-form surface existed); colors
    and fonts are the existing brand tokens only, never hardcoded.
    ============================================================ */
+/* Direction B type scale (SWBE-190): a 1.25 major-third step off the body size, mobile
+   (1rem base) through desktop (1.125rem base), so every step stays a fixed ratio at
+   both ends of the clamp rather than converging on one shared max like the prior scale.
+   Colors were rebased off paper/lemon/tangerine (from --color-ink/--color-lyon): this
+   scope's one real consumer is the article body on the bg-lyon/text-paper article page,
+   so ink-on-light values here would be illegible against that dark surface. */
 .article-prose {
   max-width: 68ch;
   font-family: var(--font-body);
-  font-size: 1.125rem;
+  font-size: clamp(1rem, 0.97rem + 0.3vw, 1.125rem);
   line-height: 1.75;
-  color: var(--color-ink);
+  color: var(--color-paper);
 }
 .article-prose > :first-child {
   margin-top: 0;
@@ -170,17 +176,17 @@ body {
 .article-prose h2 {
   margin-top: 2.5em;
   margin-bottom: 0.6em;
-  font-size: clamp(1.75rem, 1rem + 4vw, 2.75rem);
+  font-size: clamp(1.95rem, 1.6rem + 3vw, 2.2rem);
 }
 .article-prose h3 {
   margin-top: 2em;
   margin-bottom: 0.5em;
-  font-size: clamp(1.375rem, 1rem + 2.5vw, 2rem);
+  font-size: clamp(1.56rem, 1.3rem + 2vw, 1.76rem);
 }
 .article-prose h4 {
   margin-top: 1.75em;
   margin-bottom: 0.4em;
-  font-size: clamp(1.125rem, 1rem + 1.5vw, 1.5rem);
+  font-size: clamp(1.25rem, 1.1rem + 1.2vw, 1.41rem);
 }
 .article-prose p,
 .article-prose ul,
@@ -203,13 +209,13 @@ body {
   margin-top: 0.5em;
 }
 .article-prose blockquote {
-  border-left: 3px solid var(--color-ink);
+  border-left: 3px solid var(--color-paper);
   padding-left: 1.25em;
   font-style: italic;
   opacity: 0.85;
 }
 .article-prose a {
-  color: var(--color-lyon);
+  color: var(--color-lemon);
   text-decoration: underline;
   text-underline-offset: 0.15em;
 }
@@ -434,5 +440,122 @@ body[data-active="5"] {
   .subpage-photo-media {
     transform: none;
     transition: none;
+  }
+}
+
+/* ============================================================
+   Pipeline board figure (SWBE-191, ARCH-018) — the Ferry "card
+   slides into a reviewed PR" mechanism, rendered by
+   src/slices/PipelineBoard. Motion is CSS keyframes +
+   IntersectionObserver, not the home GSAP/Lenis stack (DEC-029):
+   the slice only flips data-visible once the figure scrolls into
+   view, everything below reacts to that attribute alone.
+   ============================================================ */
+
+.pipeline-board {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 3vw, 24px);
+}
+
+.pipeline-board-lanes {
+  display: flex;
+}
+
+.pipeline-board-lane {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: clamp(64px, 10vw, 96px);
+  padding: 10px 12px;
+  border: 2px dashed var(--color-ink);
+}
+.pipeline-board-lane + .pipeline-board-lane {
+  border-left: none;
+}
+
+.pipeline-board-lane-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Sized to exactly one lane and overlaid on the lane row, so the slide distance
+   below is content-true regardless of how many lanes an editor adds. */
+.pipeline-board-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100% / var(--pipeline-lane-count));
+  min-height: clamp(64px, 10vw, 96px);
+  padding: 10px 12px;
+  background: var(--color-lemon);
+  color: var(--color-ink);
+  border: 2px solid var(--color-ink);
+  box-shadow: 3px 3px 0 var(--color-ink);
+  font-weight: 700;
+  transform: translateX(0);
+}
+
+.pipeline-board-chip {
+  align-self: flex-end;
+  width: fit-content;
+  padding: 6px 12px;
+  background: var(--color-tangerine);
+  color: var(--color-ink);
+  border: 2px solid var(--color-ink);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0;
+}
+
+[data-visible="true"] .pipeline-board-card {
+  animation: pipeline-board-card-slide 1.4s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+[data-visible="true"] .pipeline-board-chip {
+  animation: pipeline-board-chip-in 1.4s ease-out forwards;
+}
+
+@keyframes pipeline-board-card-slide {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc((var(--pipeline-lane-count) - 1) * 100%));
+  }
+}
+@keyframes pipeline-board-chip-in {
+  0%,
+  60% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.pipeline-board-caption {
+  margin-top: 10px;
+  font-size: 14px;
+  opacity: 0.75;
+}
+
+/* Reduced motion renders the mechanism's end state directly — card in the last
+   lane, chip visible — with no animation, regardless of data-visible: the
+   component also skips attaching the IntersectionObserver in this case, but the
+   override is repeated at equal specificity here so the static end state holds
+   even if data-visible were ever set some other way. */
+@media (prefers-reduced-motion: reduce) {
+  .pipeline-board-card,
+  .pipeline-board[data-visible="true"] .pipeline-board-card {
+    animation: none;
+    transform: translateX(calc((var(--pipeline-lane-count) - 1) * 100%));
+  }
+  .pipeline-board-chip,
+  .pipeline-board[data-visible="true"] .pipeline-board-chip {
+    animation: none;
+    opacity: 1;
   }
 }

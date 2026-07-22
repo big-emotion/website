@@ -114,7 +114,9 @@ describe("/blog/[uid]", () => {
     await renderPage("fr", "notre-approche");
 
     expect(screen.getByRole("heading", { level: 2, name: "Le contexte" })).toBeInTheDocument();
-    expect(screen.getByText("On a commence par ecouter.")).toBeInTheDocument();
+    const bodyParagraph = screen.getByText("On a commence par ecouter.");
+    expect(bodyParagraph).toBeInTheDocument();
+    expect(bodyParagraph.closest(".article-prose")).toBeInTheDocument();
   });
 
   it("credits the author when the relationship is filled", async () => {
@@ -128,6 +130,16 @@ describe("/blog/[uid]", () => {
     await renderPage("fr", "notre-approche");
 
     expect(screen.getByText(/Jean-Noe Kollo/)).toBeInTheDocument();
+  });
+
+  it("promotes the excerpt as a focal thesis pull-quote", async () => {
+    docsByLangUid.value = { "fr-fr:notre-approche": article("notre-approche") };
+
+    const { container } = await renderPage("fr", "notre-approche");
+
+    const thesis = screen.getByText("Ce qu'on a appris.");
+    expect(thesis.closest("blockquote")).toBeInTheDocument();
+    expect(container.querySelectorAll("blockquote")).toHaveLength(1);
   });
 
   it("404s when the article has no document in this locale", async () => {
