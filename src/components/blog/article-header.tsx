@@ -28,9 +28,7 @@ export function ArticleHeader({ locale, title, kind, date, author, readingTime, 
       {/* Title and kind land in font-display slots: BBH Hegarty has an ASCII-only cmap
           (DEC-023), so Prismic authors must keep this copy unaccented. */}
       {kind && <p className="font-display text-sm uppercase tracking-wide opacity-70">{kind}</p>}
-      <h1 className="font-display mt-2 text-[clamp(2.25rem,9vw,7rem)] text-lemon [overflow-wrap:anywhere]">
-        {title}
-      </h1>
+      <h1 className="font-display mt-2 text-[clamp(2rem,8vw,5rem)] [overflow-wrap:anywhere]">{title}</h1>
       {hasMetaLine && (
         <p className="mt-4 text-sm uppercase tracking-wide opacity-70">
           {formattedDate && <time dateTime={date}>{formattedDate}</time>}

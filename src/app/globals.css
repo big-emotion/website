@@ -152,13 +152,16 @@ body {
    ============================================================ */
 /* Direction B type scale (SWBE-190): a 1.25 major-third step off the body size, mobile
    (1rem base) through desktop (1.125rem base), so every step stays a fixed ratio at
-   both ends of the clamp rather than converging on one shared max like the prior scale. */
+   both ends of the clamp rather than converging on one shared max like the prior scale.
+   Colors were rebased off paper/lemon/tangerine (from --color-ink/--color-lyon): this
+   scope's one real consumer is the article body on the bg-lyon/text-paper article page,
+   so ink-on-light values here would be illegible against that dark surface. */
 .article-prose {
   max-width: 68ch;
   font-family: var(--font-body);
   font-size: clamp(1rem, 0.97rem + 0.3vw, 1.125rem);
   line-height: 1.75;
-  color: var(--color-ink);
+  color: var(--color-paper);
 }
 .article-prose > :first-child {
   margin-top: 0;
@@ -206,13 +209,13 @@ body {
   margin-top: 0.5em;
 }
 .article-prose blockquote {
-  border-left: 3px solid var(--color-ink);
+  border-left: 3px solid var(--color-paper);
   padding-left: 1.25em;
   font-style: italic;
   opacity: 0.85;
 }
 .article-prose a {
-  color: var(--color-lyon);
+  color: var(--color-lemon);
   text-decoration: underline;
   text-underline-offset: 0.15em;
 }

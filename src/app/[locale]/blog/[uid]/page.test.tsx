@@ -114,7 +114,9 @@ describe("/blog/[uid]", () => {
     await renderPage("fr", "notre-approche");
 
     expect(screen.getByRole("heading", { level: 2, name: "Le contexte" })).toBeInTheDocument();
-    expect(screen.getByText("On a commence par ecouter.")).toBeInTheDocument();
+    const bodyParagraph = screen.getByText("On a commence par ecouter.");
+    expect(bodyParagraph).toBeInTheDocument();
+    expect(bodyParagraph.closest(".article-prose")).toBeInTheDocument();
   });
 
   it("credits the author when the relationship is filled", async () => {

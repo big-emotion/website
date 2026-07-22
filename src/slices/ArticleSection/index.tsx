@@ -2,6 +2,7 @@ import type { Content } from "@prismicio/client";
 import { PrismicNextImage } from "@prismicio/next";
 import { PrismicRichText } from "@prismicio/react";
 import type { SliceComponentProps } from "@prismicio/react";
+import { ArticleRichText } from "@/components/blog/rich-text";
 
 export type ArticleSectionProps = SliceComponentProps<Content.ArticleSectionSlice>;
 
@@ -22,8 +23,8 @@ export default function ArticleSection({ slice }: ArticleSectionProps) {
           ),
         }}
       />
-      <div className="mt-4 max-w-prose text-lg leading-relaxed">
-        <PrismicRichText field={slice.primary.body} />
+      <div className="mt-4">
+        <ArticleRichText field={slice.primary.body} />
       </div>
       <PrismicNextImage
         field={slice.primary.image}
