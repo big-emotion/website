@@ -6,11 +6,11 @@ import type { Metadata } from "next";
 import { hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { ArticleHeader } from "@/components/blog/article-header";
 import { content, site } from "@/content/site";
 import { locales, type Locale } from "@/i18n/locales";
 import { routing } from "@/i18n/routing";
 import { alternateLanguagesAmong, localePath, localeUrl, openGraphLocales } from "@/i18n/urls";
-import { formatPublishDate } from "@/lib/display-date";
 import { createClient, prismicLocale } from "@/prismicio";
 import { components } from "@/slices";
 
@@ -86,20 +86,13 @@ export default async function ArticlePage({ params }: RouteProps) {
 
   return (
     <article className="bg-lyon px-5 py-20 text-paper md:px-8 md:py-32">
-      {publish_date && (
-        <p className="font-display text-sm uppercase tracking-wide opacity-70">
-          {formatPublishDate(locale, publish_date)}
-        </p>
-      )}
-      <h1 className="font-display mt-2 text-[clamp(2.25rem,9vw,7rem)] text-lemon [overflow-wrap:anywhere]">
-        {title}
-      </h1>
-      {authorDoc && (
-        <p className="mt-4 text-lg opacity-90">
-          {content[locale].blog.byline} {authorDoc.data.name}
-        </p>
-      )}
-      <p className="mt-6 max-w-prose text-lg leading-relaxed">{asText(excerpt)}</p>
+      <ArticleHeader
+        locale={locale}
+        title={title ?? ""}
+        date={publish_date ?? undefined}
+        author={authorDoc ? `${content[locale].blog.byline} ${authorDoc.data.name}` : undefined}
+        thesis={asText(excerpt) || undefined}
+      />
 
       <PrismicNextImage
         field={cover}

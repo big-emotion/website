@@ -130,6 +130,16 @@ describe("/blog/[uid]", () => {
     expect(screen.getByText(/Jean-Noe Kollo/)).toBeInTheDocument();
   });
 
+  it("promotes the excerpt as a focal thesis pull-quote", async () => {
+    docsByLangUid.value = { "fr-fr:notre-approche": article("notre-approche") };
+
+    const { container } = await renderPage("fr", "notre-approche");
+
+    const thesis = screen.getByText("Ce qu'on a appris.");
+    expect(thesis.closest("blockquote")).toBeInTheDocument();
+    expect(container.querySelectorAll("blockquote")).toHaveLength(1);
+  });
+
   it("404s when the article has no document in this locale", async () => {
     docsByLangUid.value = {};
 

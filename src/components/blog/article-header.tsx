@@ -3,32 +3,50 @@ import type { Locale } from "@/i18n/locales";
 export interface ArticleHeaderProps {
   locale: Locale;
   title: string;
-  /** Nature of the piece (e.g. "Strategie de marque") — same eyebrow role as case_study's `kind`. */
-  kind: string;
+  /** Nature of the piece (e.g. "Strategie de marque") — same eyebrow role as case_study's `kind`. Omitted until a source field exists on the `article` type. */
+  kind?: string;
   /** ISO 8601 date (e.g. "2026-07-21"); formatted for display, kept raw in `<time datetime>`. */
-  date: string;
+  date?: string;
   author?: string;
   readingTime?: string;
+  /** The article's thesis (SWBE-190), reusing the existing `excerpt` field rather than a
+   *  new Prismic field. Rendered as a focal "thesis sticker" pull-quote, promoted above
+   *  body-copy weight so a scanning reader gets the point without reading every line. */
+  thesis?: string;
 }
 
 /**
- * The branded hero for an article page. Content types, routes and data-fetching are
- * SWBE-82 — this component only renders the props it is given.
+ * The branded hero for an article page. Direction B (SWBE-190): eyebrow, title, meta
+ * line and thesis sticker are stepped apart by size, weight and space, not colour alone.
  */
-export function ArticleHeader({ locale, title, kind, date, author, readingTime }: ArticleHeaderProps) {
-  const formattedDate = new Intl.DateTimeFormat(locale, { dateStyle: "long" }).format(new Date(date));
+export function ArticleHeader({ locale, title, kind, date, author, readingTime, thesis }: ArticleHeaderProps) {
+  const formattedDate = date ? new Intl.DateTimeFormat(locale, { dateStyle: "long" }).format(new Date(date)) : null;
+  const hasMetaLine = formattedDate || author || readingTime;
 
   return (
-    <header className="border-b-2 border-ink pb-8">
+    <header className="border-b-2 border-paper/30 pb-8">
       {/* Title and kind land in font-display slots: BBH Hegarty has an ASCII-only cmap
           (DEC-023), so Prismic authors must keep this copy unaccented. */}
-      <p className="font-display text-sm uppercase tracking-wide opacity-70">{kind}</p>
-      <h1 className="font-display mt-2 text-[clamp(2rem,8vw,5rem)] [overflow-wrap:anywhere]">{title}</h1>
-      <p className="mt-4 text-sm uppercase tracking-wide opacity-70">
-        <time dateTime={date}>{formattedDate}</time>
-        {author && <> · {author}</>}
-        {readingTime && <> · {readingTime}</>}
-      </p>
+      {kind && <p className="font-display text-sm uppercase tracking-wide opacity-70">{kind}</p>}
+      <h1 className="font-display mt-2 text-[clamp(2.25rem,9vw,7rem)] text-lemon [overflow-wrap:anywhere]">
+        {title}
+      </h1>
+      {hasMetaLine && (
+        <p className="mt-4 text-sm uppercase tracking-wide opacity-70">
+          {formattedDate && <time dateTime={date}>{formattedDate}</time>}
+          {author && <> · {author}</>}
+          {readingTime && <> · {readingTime}</>}
+        </p>
+      )}
+      {/* The "thesis sticker": a paper-and-ink card (not font-display — this is
+          freely-authored copy, so DEC-023's ASCII constraint doesn't apply) that reads
+          as a physical label stuck onto the branded background, promoted above body
+          weight but subordinate to the title. */}
+      {thesis && (
+        <blockquote className="mt-8 max-w-prose -rotate-1 border-2 border-ink bg-paper px-6 py-5 text-ink shadow-[6px_6px_0_var(--color-ink)]">
+          <p className="text-[clamp(1.25rem,1.05rem+1.4vw,1.75rem)] leading-snug font-semibold">{thesis}</p>
+        </blockquote>
+      )}
     </header>
   );
 }
