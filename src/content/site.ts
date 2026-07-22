@@ -69,9 +69,20 @@ type LocaleContent = {
   /** Subpage intros, from the preview dictionary's `*.lead` keys. */
   leads: { approach: string; cases: string; culture: string };
   /** The /blog surface (REQ-028): its content lives in Prismic, but the lead, empty
-   *  state and byline prefix are still site-wide UI copy, like the other section
-   *  routes' leads above. */
-  blog: { lead: string; emptyState: string; byline: string };
+   *  state, byline prefix and the index's own chrome are still site-wide UI copy, like
+   *  the other section routes' leads above. `featuredLabel`/`readMore`/`postCount` sit
+   *  in sans (tangerine/lemon) slots, not `font-display`, so they keep their accents. */
+  blog: {
+    lead: string;
+    emptyState: string;
+    byline: string;
+    /** Eyebrow on the promoted lead article. */
+    featuredLabel: string;
+    /** CTA on the promoted lead article. */
+    readMore: string;
+    /** Hero count chip. The number is interpolated; the noun is chosen by the count. */
+    postCount: { one: string; other: string };
+  };
   services: readonly { title: string; body: string }[];
   impactStats: readonly { value: string; label: string }[];
   team: readonly {
@@ -187,6 +198,9 @@ const fr: LocaleContent = {
     lead: "Ce qu’on apprend en construisant, écrit chez nous plutôt que sur LinkedIn ou Medium.",
     emptyState: "Aucun article pour le moment. Revenez bientôt.",
     byline: "Par",
+    featuredLabel: "À la une",
+    readMore: "Lire l’article",
+    postCount: { one: "article", other: "articles" },
   },
   services: [
     {
@@ -287,6 +301,9 @@ const en: LocaleContent = {
     lead: "What we learn while building, written on our own domain instead of LinkedIn or Medium.",
     emptyState: "No articles yet. Check back soon.",
     byline: "By",
+    featuredLabel: "Featured",
+    readMore: "Read the article",
+    postCount: { one: "post", other: "posts" },
   },
   services: [
     {

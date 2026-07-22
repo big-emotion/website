@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatPublishDate } from "./display-date";
+import { formatArticleDate, formatPublishDate } from "./display-date";
 
 describe("formatPublishDate", () => {
   // The reason this helper exists: BBH Hegarty has an ASCII-only cmap (DEC-023), so an
@@ -21,5 +21,17 @@ describe("formatPublishDate", () => {
   // still get "fevrier", never "fvrier".
   it("keeps the base letter of every accented character", () => {
     expect(formatPublishDate("fr", "2019-02-21")).toMatch(/^\d{1,2} [a-z]+ \d{4}$/);
+  });
+});
+
+describe("formatArticleDate", () => {
+  // The sans-slot counterpart keeps the accents a body face renders correctly — the blog
+  // index (Direction B) sets its dates in Bricolage, not the ASCII-only display face.
+  it("keeps French month accents", () => {
+    expect(formatArticleDate("fr", "2019-02-21")).toBe("21 février 2019");
+  });
+
+  it("formats English dates the long way", () => {
+    expect(formatArticleDate("en", "2019-02-21")).toBe("February 21, 2019");
   });
 });

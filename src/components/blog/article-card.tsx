@@ -1,51 +1,33 @@
-import Image from "next/image";
 import { HEADING_LINK } from "@/components/heading-link";
 import { Link } from "@/i18n/navigation";
 
-export interface ArticleCardCover {
-  src: string;
-  alt: string;
-  width: number;
-  height: number;
-}
-
 export interface ArticleCardProps {
-  /** Locale-agnostic path (e.g. "/blog/le-brief-qui-change-tout") — `Link` adds the locale prefix. */
+  /** Locale-agnostic path (e.g. "/blog/le-jugement-ne-se-reproduit-pas") — `Link` adds the locale prefix. */
   href: string;
   title: string;
-  /** Nature of the piece (e.g. "Strategie de marque") — same eyebrow role as case_study's `kind`. */
-  kind: string;
-  excerpt: string;
-  cover?: ArticleCardCover;
+  /** Already formatted for display (`formatArticleDate`), so the card stays presentational. */
+  date: string;
 }
 
 /**
- * A card previewing an article on a listing surface. Content types, routes and
- * data-fetching are SWBE-82 — this component only renders the props it is given.
+ * A row in the demoted index below the featured post (Direction B): date + title only,
+ * no cover or excerpt — the weight belongs to the lead article above. The whole card
+ * lifts on hover/focus to signal it is one target.
+ *
+ * The title is Bricolage, not `font-display`: BBH Hegarty is uppercase-only with an
+ * ASCII cmap (DEC-023), which mangles a sentence-case French headline like
+ * "L'humain est le nouveau CI/CD de l'IA". Its permanent tangerine underline (never a
+ * hover-only reveal) keeps the link legible as a link on touch — see `heading-link.ts`.
  */
-export function ArticleCard({ href, title, kind, excerpt, cover }: ArticleCardProps) {
+export function ArticleCard({ href, title, date }: ArticleCardProps) {
   return (
-    <article className="border-t-2 border-ink pt-6">
-      {cover ? (
-        <Image
-          src={cover.src}
-          alt={cover.alt}
-          width={cover.width}
-          height={cover.height}
-          className="mb-4 h-48 w-full object-cover"
-        />
-      ) : (
-        <div aria-hidden="true" className="mb-4 h-48 w-full bg-current opacity-10" />
-      )}
-      {/* Title and kind land in font-display slots: BBH Hegarty has an ASCII-only cmap
-          (DEC-023), so Prismic authors must keep this copy unaccented. */}
-      <p className="font-display text-sm uppercase tracking-wide opacity-70">{kind}</p>
-      <h3 className="font-display mt-2 text-[clamp(1.4rem,5vw,2.5rem)] [overflow-wrap:anywhere]">
-        <Link href={href} className={HEADING_LINK}>
+    <article className="border-t-2 border-paper pt-4 transition-transform duration-200 ease-out motion-reduce:transition-none hover:-translate-y-1.5 focus-within:-translate-y-1.5">
+      <p className="text-sm uppercase tracking-wide text-paper/70">{date}</p>
+      <h3 className="mt-3 text-[clamp(1.3rem,6vw,1.7rem)] leading-snug font-bold tracking-tight text-balance break-words">
+        <Link href={href} className={`${HEADING_LINK} decoration-tangerine`}>
           {title}
         </Link>
       </h3>
-      <p className="mt-3 max-w-prose text-base leading-relaxed opacity-90">{excerpt}</p>
     </article>
   );
 }

@@ -1,14 +1,13 @@
 import { asText } from "@prismicio/client";
-import { PrismicNextImage } from "@prismicio/next";
 import type { Metadata } from "next";
 import { hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { HEADING_LINK } from "@/components/heading-link";
+import { ArticleCard } from "@/components/blog/article-card";
+import { FeaturedArticle } from "@/components/blog/featured-article";
 import { content } from "@/content/site";
-import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
-import { formatPublishDate } from "@/lib/display-date";
+import { formatArticleDate } from "@/lib/display-date";
 import { createClient, prismicLocale } from "@/prismicio";
 import { sectionMetadata } from "../section-metadata";
 
@@ -47,38 +46,58 @@ export default async function BlogPage({ params }: RouteProps) {
     orderings: [{ field: "my.article.publish_date", direction: "desc" }],
   });
 
+  // Direction B's hierarchy: the newest post is promoted to the single featured block,
+  // the rest fall into a calm date-and-title index. Lemon is spent on the hero title
+  // alone; tangerine carries interaction. `getAllByType` already returned them newest-first.
+  const [featured, ...rest] = articles;
+  const postCount = articles.length === 1 ? blog.postCount.one : blog.postCount.other;
+
   return (
     <section className="bg-lyon px-5 py-20 text-paper md:px-8 md:py-32">
-      <h1 className="font-display text-[clamp(2.75rem,9vw,7rem)] text-lemon">{title}</h1>
-      <p className="mt-6 max-w-prose text-lg leading-relaxed opacity-90">{blog.lead}</p>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+        <h1 className="font-display text-[clamp(2.75rem,9vw,7rem)] text-lemon">{title}</h1>
+        {articles.length > 0 && (
+          <span className="rounded-full bg-tangerine px-3 py-1 text-sm font-bold uppercase tracking-wide text-ink">
+            {articles.length} {postCount}
+          </span>
+        )}
+      </div>
+      <p className="mt-6 max-w-[44ch] text-lg leading-relaxed">{blog.lead}</p>
 
       {articles.length === 0 ? (
-        <p className="mt-14 max-w-prose text-lg leading-relaxed opacity-70">{blog.emptyState}</p>
+        <p className="mt-14 max-w-prose text-lg leading-relaxed text-paper/70">{blog.emptyState}</p>
       ) : (
-        <div className="mt-14 grid gap-12 md:grid-cols-2 md:gap-8">
-          {articles.map((article) => (
-            <article key={article.id} className="border-t-2 border-paper pt-6">
-              <PrismicNextImage
-                field={article.data.cover}
-                sizes="(min-width: 768px) 50vw, 100vw"
-                className="h-auto w-full"
-              />
-              {article.data.publish_date && (
-                <p className="font-display mt-4 text-sm uppercase tracking-wide opacity-70">
-                  {formatPublishDate(locale, article.data.publish_date)}
-                </p>
-              )}
-              <h2 className="font-display mt-2 text-[clamp(1.6rem,7vw,4rem)] text-lemon [overflow-wrap:anywhere]">
-                <Link href={`/blog/${article.uid}`} className={HEADING_LINK}>
-                  {article.data.title}
-                </Link>
-              </h2>
-              <p className="mt-4 max-w-prose text-lg leading-relaxed">
-                {asText(article.data.excerpt)}
-              </p>
-            </article>
-          ))}
-        </div>
+        <>
+          <FeaturedArticle
+            href={`/blog/${featured.uid}`}
+            label={blog.featuredLabel}
+            title={featured.data.title ?? ""}
+            excerpt={asText(featured.data.excerpt)}
+            date={
+              featured.data.publish_date
+                ? formatArticleDate(locale, featured.data.publish_date)
+                : ""
+            }
+            readMore={blog.readMore}
+          />
+
+          {rest.length > 0 && (
+            <div className="mt-14 grid gap-x-8 gap-y-10 md:mt-20 md:grid-cols-2 xl:grid-cols-3">
+              {rest.map((article) => (
+                <ArticleCard
+                  key={article.id}
+                  href={`/blog/${article.uid}`}
+                  title={article.data.title ?? ""}
+                  date={
+                    article.data.publish_date
+                      ? formatArticleDate(locale, article.data.publish_date)
+                      : ""
+                  }
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
     </section>
   );
