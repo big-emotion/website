@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-07-23
+
+### Added
+
+- The `/blog` index is rebuilt on Direction B, the bold-brand hierarchy chosen
+  over the editorial-serif and terminal directions. The old listing gave the
+  page title and all eight articles the same lemon-on-blue treatment at near
+  identical size, so nothing led; lemon is now spent on the hero alone, the
+  newest post is promoted to a featured lead with excerpt and CTA, and the rest
+  fall into a calm date-and-title index. Tangerine becomes the interaction
+  accent (SWBE-190).
+- Article titles move to the body face in sentence case. `font-display` forces
+  uppercase and BBH Hegarty is ASCII-only (DEC-023), which mangled accented
+  French titles — so this fixes the accent bug and carries the hero-versus-index
+  hierarchy in the same change.
+- Article pages gain a stepped hero: the previously-unused `ArticleHeader` is
+  wired into the template so eyebrow, title and meta line are separated by size,
+  weight and space, and the excerpt is promoted from a body-sized paragraph into
+  a focal thesis-sticker pull-quote.
+- A `PipelineBoard` figure slice for articles — dashed Jira lanes, a lemon card
+  and a tangerine PR chip, all content-driven — with a card-to-PR entrance
+  animation. Motion is CSS keyframes gated by one `IntersectionObserver`,
+  deliberately not the home page's GSAP + Lenis stack; `prefers-reduced-motion`
+  visitors get the end state and never attach an observer at all (SWBE-191,
+  ADR/DEC-029).
+
+### Fixed
+
+- Article body copy now actually renders through the Direction B type scale.
+  `ArticleSection` had been drawing body text with its own hardcoded size, so
+  the 1.25 major-third scale never reached the run-on paragraphs it was added to
+  break up. The `.article-prose` colors are also rebased onto paper/lemon/
+  tangerine, since its one real consumer is the `lyon` article surface where the
+  prior ink-based values were illegible.
+- The article H1 reverts to its smaller clamp — it had been sized byte-identical
+  to the giant lemon hero it was meant to replace.
+- The header no longer falls back to `ink` over the blog's `lyon` surface
+  (2.12:1, below the 4.5:1 AA floor). `blog` was missing from the accent map;
+  it now uses the same lyon/paper pair as `culture` (~9.9:1).
+
 ## [0.6.0] - 2026-07-21
 
 ### Added
@@ -218,7 +258,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   under the Node.js container and its `/api/contact` replacement is not shipped
   (SWBE-31).
 
-[Unreleased]: https://github.com/big-emotion/website/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/big-emotion/website/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/big-emotion/website/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/big-emotion/website/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/big-emotion/website/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/big-emotion/website/compare/v0.4.0...v0.5.0
