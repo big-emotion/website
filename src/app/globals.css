@@ -442,3 +442,120 @@ body[data-active="5"] {
     transition: none;
   }
 }
+
+/* ============================================================
+   Pipeline board figure (SWBE-191, ARCH-018) — the Ferry "card
+   slides into a reviewed PR" mechanism, rendered by
+   src/slices/PipelineBoard. Motion is CSS keyframes +
+   IntersectionObserver, not the home GSAP/Lenis stack (DEC-029):
+   the slice only flips data-visible once the figure scrolls into
+   view, everything below reacts to that attribute alone.
+   ============================================================ */
+
+.pipeline-board {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 3vw, 24px);
+}
+
+.pipeline-board-lanes {
+  display: flex;
+}
+
+.pipeline-board-lane {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: clamp(64px, 10vw, 96px);
+  padding: 10px 12px;
+  border: 2px dashed var(--color-ink);
+}
+.pipeline-board-lane + .pipeline-board-lane {
+  border-left: none;
+}
+
+.pipeline-board-lane-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Sized to exactly one lane and overlaid on the lane row, so the slide distance
+   below is content-true regardless of how many lanes an editor adds. */
+.pipeline-board-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100% / var(--pipeline-lane-count));
+  min-height: clamp(64px, 10vw, 96px);
+  padding: 10px 12px;
+  background: var(--color-lemon);
+  color: var(--color-ink);
+  border: 2px solid var(--color-ink);
+  box-shadow: 3px 3px 0 var(--color-ink);
+  font-weight: 700;
+  transform: translateX(0);
+}
+
+.pipeline-board-chip {
+  align-self: flex-end;
+  width: fit-content;
+  padding: 6px 12px;
+  background: var(--color-tangerine);
+  color: var(--color-ink);
+  border: 2px solid var(--color-ink);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0;
+}
+
+[data-visible="true"] .pipeline-board-card {
+  animation: pipeline-board-card-slide 1.4s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+[data-visible="true"] .pipeline-board-chip {
+  animation: pipeline-board-chip-in 1.4s ease-out forwards;
+}
+
+@keyframes pipeline-board-card-slide {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc((var(--pipeline-lane-count) - 1) * 100%));
+  }
+}
+@keyframes pipeline-board-chip-in {
+  0%,
+  60% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.pipeline-board-caption {
+  margin-top: 10px;
+  font-size: 14px;
+  opacity: 0.75;
+}
+
+/* Reduced motion renders the mechanism's end state directly — card in the last
+   lane, chip visible — with no animation, regardless of data-visible: the
+   component also skips attaching the IntersectionObserver in this case, but the
+   override is repeated at equal specificity here so the static end state holds
+   even if data-visible were ever set some other way. */
+@media (prefers-reduced-motion: reduce) {
+  .pipeline-board-card,
+  .pipeline-board[data-visible="true"] .pipeline-board-card {
+    animation: none;
+    transform: translateX(calc((var(--pipeline-lane-count) - 1) * 100%));
+  }
+  .pipeline-board-chip,
+  .pipeline-board[data-visible="true"] .pipeline-board-chip {
+    animation: none;
+    opacity: 1;
+  }
+}

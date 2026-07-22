@@ -48,7 +48,7 @@ type ContentRelationshipFieldWithData<
 		>
 }[Exclude<TCustomType[number], string>["id"]];
 
-type ArticleDocumentDataBodySlice = ArticleSectionSlice
+type ArticleDocumentDataBodySlice = ArticleSectionSlice | PipelineBoardSlice
 
 /**
  * Content for Article documents
@@ -612,6 +612,79 @@ type HomeSceneSliceVariation = HomeSceneSliceDefault | HomeSceneSliceIntroHero
  */
 export type HomeSceneSlice = prismic.SharedSlice<"home_scene", HomeSceneSliceVariation>;
 
+/**
+ * Primary content in *PipelineBoard → Par defaut → Primary*
+ */
+export interface PipelineBoardSliceDefaultPrimary {
+	/**
+	 * Legende de la figure field in *PipelineBoard → Par defaut → Primary*
+	 *
+	 * - **Field Type**: Rich Text
+	 * - **Placeholder**: Une carte glisse de lane en lane jusqu'a la PR revue.
+	 * - **API ID Path**: pipeline_board.default.primary.caption
+	 * - **Documentation**: https://prismic.io/docs/fields/rich-text
+	 */
+	caption: prismic.RichTextField;
+	
+	/**
+	 * Libelle de la carte field in *PipelineBoard → Par defaut → Primary*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: Ticket
+	 * - **API ID Path**: pipeline_board.default.primary.card_label
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	card_label: prismic.KeyTextField;
+	
+	/**
+	 * Libelle de la puce PR field in *PipelineBoard → Par defaut → Primary*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: PR revue
+	 * - **API ID Path**: pipeline_board.default.primary.chip_label
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	chip_label: prismic.KeyTextField;
+}
+
+/**
+ * Primary content in *PipelineBoard → Items*
+ */
+export interface PipelineBoardSliceDefaultItem {
+	/**
+	 * Libelle de la lane field in *PipelineBoard → Items*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: A faire
+	 * - **API ID Path**: pipeline_board.items[].lane_label
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	lane_label: prismic.KeyTextField;
+}
+
+/**
+ * Par defaut variation for PipelineBoard Slice
+ *
+ * - **API ID**: `default`
+ * - **Description**: Legende, carte et puce PR, lanes repetables.
+ * - **Documentation**: https://prismic.io/docs/slices
+ */
+export type PipelineBoardSliceDefault = prismic.SharedSliceVariation<"default", Simplify<PipelineBoardSliceDefaultPrimary>, Simplify<PipelineBoardSliceDefaultItem>>;
+
+/**
+ * Slice variation for *PipelineBoard*
+ */
+type PipelineBoardSliceVariation = PipelineBoardSliceDefault
+
+/**
+ * PipelineBoard Shared Slice
+ *
+ * - **API ID**: `pipeline_board`
+ * - **Description**: Figure labellisee : des lanes type Jira et une carte qui glisse d'une lane a l'autre pendant qu'une puce PR revue apparait.
+ * - **Documentation**: https://prismic.io/docs/slices
+ */
+export type PipelineBoardSlice = prismic.SharedSlice<"pipeline_board", PipelineBoardSliceVariation>;
+
 declare module "@prismicio/client" {
 	interface CreateClient {
 		(repositoryNameOrEndpoint: string, options?: prismic.ClientConfig): prismic.Client<AllDocumentTypes>;
@@ -654,7 +727,12 @@ declare module "@prismicio/client" {
 			HomeSceneSliceIntroHeroPrimary,
 			HomeSceneSliceVariation,
 			HomeSceneSliceDefault,
-			HomeSceneSliceIntroHero
+			HomeSceneSliceIntroHero,
+			PipelineBoardSlice,
+			PipelineBoardSliceDefaultPrimary,
+			PipelineBoardSliceDefaultItem,
+			PipelineBoardSliceVariation,
+			PipelineBoardSliceDefault
 		}
 	}
 }

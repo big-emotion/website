@@ -6,9 +6,11 @@
 import ArticleSection from "./ArticleSection";
 import CaseChapter from "./CaseChapter";
 import HomeScene from "./HomeScene";
+import PipelineBoard from "./PipelineBoard";
 
 export const components = {
   case_chapter: CaseChapter,
   home_scene: HomeScene,
   article_section: ArticleSection,
+  pipeline_board: PipelineBoard,
 };

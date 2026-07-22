@@ -1,0 +1,48 @@
+{
+  "id": "pipeline_board",
+  "type": "SharedSlice",
+  "name": "PipelineBoard",
+  "description": "Figure labellisee : des lanes type Jira et une carte qui glisse d'une lane a l'autre pendant qu'une puce PR revue apparait.",
+  "variations": [
+    {
+      "id": "default",
+      "name": "Par defaut",
+      "docURL": "...",
+      "version": "initial",
+      "description": "Legende, carte et puce PR, lanes repetables.",
+      "primary": {
+        "caption": {
+          "type": "StructuredText",
+          "config": {
+            "label": "Legende de la figure",
+            "single": "paragraph",
+            "placeholder": "Une carte glisse de lane en lane jusqu'a la PR revue."
+          }
+        },
+        "card_label": {
+          "type": "Text",
+          "config": {
+            "label": "Libelle de la carte",
+            "placeholder": "Ticket"
+          }
+        },
+        "chip_label": {
+          "type": "Text",
+          "config": {
+            "label": "Libelle de la puce PR",
+            "placeholder": "PR revue"
+          }
+        }
+      },
+      "items": {
+        "lane_label": {
+          "type": "Text",
+          "config": {
+            "label": "Libelle de la lane",
+            "placeholder": "A faire"
+          }
+        }
+      }
+    }
+  ]
+}
