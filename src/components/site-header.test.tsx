@@ -174,6 +174,8 @@ describe("SiteHeader over a sub-page hero", () => {
     ["/cases/", "text-ink"],
     ["/culture/", "text-paper"],
     ["/contact/", "text-lemon"],
+    ["/blog/", "text-paper"],
+    ["/blog/some-article/", "text-paper"],
   ])("takes the hero's ink on %s", (pathname, ink) => {
     const { container } = renderHeader("fr", pathname);
 
@@ -184,5 +186,17 @@ describe("SiteHeader over a sub-page hero", () => {
     const { container } = renderHeader("fr", "/");
 
     expect(container.querySelector("header")).toHaveClass("text-ink");
+  });
+
+  // REQ-036: blog articles render on bg-lyon, so the resting header must not fall back to
+  // the black default (2.12:1 on blue, below the 4.5:1 AA floor). text-paper on lyon
+  // measures ~9.9:1 — the same pair culture already relies on — so no solid bar is
+  // needed, only the ink swap `blog` was missing from SUBPAGE_ACCENTS.
+  it("meets AA at rest over /blog/ without falling back to a solid bar", () => {
+    const { container } = renderHeader("fr", "/blog/");
+    const header = container.querySelector("header");
+
+    expect(header).toHaveClass("text-paper");
+    expect(header).not.toHaveClass("bg-ink");
   });
 });
