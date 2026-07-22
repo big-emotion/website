@@ -65,6 +65,9 @@
           "choices": {
             "article_section": {
               "type": "SharedSlice"
+            },
+            "pipeline_board": {
+              "type": "SharedSlice"
             }
           }
         }
