@@ -1,3 +1,9 @@
+// @vitest-environment node
+//
+// The default jsdom environment (vitest.config.ts) swaps in cross-realm
+// Uint8Array/ArrayBuffer globals that break the wasm PNG encoder ImageResponse
+// calls internally; forcing Node here lets the response body actually resolve
+// so Satori's own layout validation (see the assertion below) can run.
 import { describe, expect, it, vi } from "vitest";
 import type { PlaygroundEffect } from "@/components/playground/effects";
 
@@ -37,6 +43,11 @@ describe("playground effect opengraph-image", () => {
     });
 
     expect(response).toBeInstanceOf(Response);
+    // ImageResponse defers the Satori render to the stream body, so an invalid
+    // layout (e.g. a multi-child div missing `display: flex`) only throws once
+    // the body is actually read — matching what happens during `pnpm build`'s
+    // static prerender. Consuming it here is what makes this test catch that.
+    await expect(response.arrayBuffer()).resolves.toBeInstanceOf(ArrayBuffer);
   });
 
   it("404s for a slug with no registry entry", async () => {

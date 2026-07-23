@@ -32,6 +32,16 @@ export type PlaygroundEffect = {
 
 export const playgroundEffects: readonly PlaygroundEffect[] = [
   {
+    id: "lumiere",
+    slug: "lumiere",
+    title: { fr: "LUMIERE", en: "LUMIERE" },
+    description: {
+      fr: "Fais pivoter le chrome sous la lumière du studio et zoome pour en inspecter chaque reflet.",
+      en: "Spin the chrome under the studio light and zoom in to inspect every reflection.",
+    },
+    component: lazy(() => import("./effects/lumiere")),
+  },
+  {
     id: "poids-lourd",
     slug: "poids-lourd",
     title: { fr: "Poids Lourd", en: "Heavyweight" },
