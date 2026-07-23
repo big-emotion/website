@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { CounterChip } from "@/components/playground/counter-chip";
 import { EffectStage } from "@/components/playground/effect-stage";
 import { playgroundEffects, type PlaygroundEffect } from "@/components/playground/effects";
 import { EffectHud } from "@/components/playground/hud";
@@ -73,8 +74,8 @@ export default async function PlaygroundEffectPage({ params }: RouteProps) {
         shareUrl={localeUrl(locale, href)}
         copy={{ back: playground.back, share: playground.share }}
       >
-        {/* Counter chip (story 6) and challenge badge (story 7) slot in here once
-            their own stories ship — this frame has nothing to pass them yet. */}
+        <CounterChip locale={locale} copy={playground.counter} />
+        {/* Challenge badge (story 7) slots in here once that story ships. */}
       </EffectHud>
 
       <EffectStage
