@@ -17,6 +17,9 @@
 /.next/
 /out/
 
+# local runtime data (e.g. the Playground counter's dev-mode flat file, SWBE-216)
+/.data/
+
 # production
 /build
 

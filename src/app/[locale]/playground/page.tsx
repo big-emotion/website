@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { CounterChip } from "@/components/playground/counter-chip";
 import { playgroundEffects } from "@/components/playground/effects";
 import { content } from "@/content/site";
 import { Link } from "@/i18n/navigation";
@@ -41,6 +42,9 @@ export default async function PlaygroundPage({ params }: RouteProps) {
     <section className="bg-brutal px-5 py-20 text-ink md:px-8 md:py-32">
       <h1 className="font-display text-[clamp(2.75rem,9vw,7rem)]">{title}</h1>
       <p className="mt-6 max-w-[44ch] text-lg leading-relaxed">{playground.lead}</p>
+      <div className="mt-4">
+        <CounterChip locale={locale} copy={playground.counter} />
+      </div>
 
       {playgroundEffects.length === 0 ? (
         <p className="mt-14 max-w-prose text-lg leading-relaxed text-ink/70">
