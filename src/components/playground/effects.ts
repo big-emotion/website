@@ -3,8 +3,8 @@
 // entry here — nothing else in the gallery route, nav, per-effect page frame or
 // studio rig changes shape (REQ-038's "registry-driven growth").
 //
-// v1 (SWBE-211) ships the shell only: zero effects, zero extra JS (DEC-030 budget).
-// Stories 3-5 each add one entry whose `component` is `lazy(() => import(...))`,
+// v1 (SWBE-211) shipped the shell only: zero effects, zero extra JS (DEC-030 budget).
+// Each following story adds one entry whose `component` is `lazy(() => import(...))`,
 // called once here at module scope (never inside a render function, which is why
 // `EffectStage` takes the already-built component rather than a loader to call
 // itself) — so the effect's chunk is only fetched once `EffectStage` mounts it.
@@ -14,7 +14,7 @@
 // of either field. `title` lands in a `font-display` slot (the page's h1 and the OG
 // card) — BBH Hegarty is ASCII-only (DEC-023), so keep it unaccented in both locales.
 
-import type { ComponentType, LazyExoticComponent } from "react";
+import { lazy, type ComponentType, type LazyExoticComponent } from "react";
 import type { Locale } from "@/i18n/locales";
 
 export type PlaygroundEffect = {
@@ -30,4 +30,15 @@ export type PlaygroundEffect = {
   component: LazyExoticComponent<ComponentType>;
 };
 
-export const playgroundEffects: readonly PlaygroundEffect[] = [];
+export const playgroundEffects: readonly PlaygroundEffect[] = [
+  {
+    id: "poids-lourd",
+    slug: "poids-lourd",
+    title: { fr: "Poids Lourd", en: "Heavyweight" },
+    description: {
+      fr: "Saisissez, glissez et lancez le logo chromé contre des murs élastiques.",
+      en: "Grab, drag and throw the chrome logo against elastic walls.",
+    },
+    component: lazy(() => import("./effects/poids-lourd")),
+  },
+];
