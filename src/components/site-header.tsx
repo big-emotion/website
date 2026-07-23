@@ -78,6 +78,10 @@ export function SiteHeader({ locale }: { locale: Locale }) {
   // ink hero would otherwise render a black header on black.
   const subpage = subpageFromPathname(pathname);
   const restingInk = subpage ? SUBPAGE_ACCENTS[subpage].headerInk : "text-ink";
+  // Dim the link of the section you're already in ("you are here"). `subpage` is that
+  // section, resolved from the path, so any route under it (`/cases/[uid]`) still marks
+  // its parent. Home resolves to null, so nothing is marked there.
+  const isCurrent = (href: string) => subpage !== null && href === `/${subpage}`;
   const textColor = scrolled || open ? "text-paper" : restingInk;
   const background = scrolled && !open ? "bg-ink" : "";
 
@@ -96,7 +100,8 @@ export function SiteHeader({ locale }: { locale: Locale }) {
             <Link
               key={item.href}
               href={item.href}
-              className="font-display text-sm uppercase tracking-wide hover:opacity-60"
+              aria-current={isCurrent(item.href) ? "page" : undefined}
+              className="font-display text-sm uppercase tracking-wide hover:opacity-60 aria-[current=page]:opacity-40"
             >
               {item.label}
             </Link>
@@ -137,7 +142,8 @@ export function SiteHeader({ locale }: { locale: Locale }) {
               key={item.href}
               href={item.href}
               onClick={close}
-              className="font-display text-5xl uppercase leading-none hover:text-lemon"
+              aria-current={isCurrent(item.href) ? "page" : undefined}
+              className="font-display text-5xl uppercase leading-none hover:text-lemon aria-[current=page]:opacity-40"
             >
               {item.label}
             </Link>
