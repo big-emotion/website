@@ -2,9 +2,31 @@ import { describe, expect, it } from "vitest";
 import { locales } from "@/i18n/locales";
 import { playgroundEffects } from "./effects";
 
+const ASCII_ONLY = /^[\x00-\x7F]*$/;
+
 describe("playgroundEffects", () => {
-  it("registers BIG BANG (SWBE-214), the first effect past the empty v1 shell (DEC-030)", () => {
-    expect(playgroundEffects.map((effect) => effect.id)).toEqual(["big-bang"]);
+  it("registers poids-lourd (SWBE-213) and BIG BANG (SWBE-214)", () => {
+    expect(playgroundEffects.map((effect) => effect.id)).toEqual([
+      "poids-lourd",
+      "big-bang",
+    ]);
+  });
+
+  it("registers poids-lourd (SWBE-213)", () => {
+    const effect = playgroundEffects.find((e) => e.id === "poids-lourd");
+    expect(effect).toBeDefined();
+    expect(effect!.slug).toBe("poids-lourd");
+    expect(effect!.title).toEqual({ fr: "Poids Lourd", en: "Heavyweight" });
+    expect(effect!.description.fr).toContain("chromé");
+    expect(effect!.description.en).toContain("chrome");
+  });
+
+  it("keeps every registered title ASCII-only, per DEC-023's font-display constraint", () => {
+    for (const effect of playgroundEffects) {
+      for (const locale of locales) {
+        expect(effect.title[locale]).toMatch(ASCII_ONLY);
+      }
+    }
   });
 
   it("gives every effect a lazy component, never an eagerly-imported one", () => {

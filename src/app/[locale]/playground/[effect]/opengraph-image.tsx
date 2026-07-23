@@ -84,7 +84,7 @@ export default async function OpengraphImage({ params }: Props) {
             opacity: 0.7,
           }}
         >
-          {site.name} — Playground
+          {`${site.name} — Playground`}
         </div>
         <div
           style={{

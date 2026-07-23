@@ -29,6 +29,10 @@ describe("/playground", () => {
     );
 
     expect(screen.getByText(/espace vivant/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "poids-lourd" })).toHaveAttribute(
+      "href",
+      "/playground/poids-lourd",
+    );
     expect(screen.getByRole("link", { name: "big-bang" })).toHaveAttribute(
       "href",
       "/playground/big-bang",
