@@ -84,6 +84,52 @@ describe("SiteHeader navigation", () => {
   });
 });
 
+// The maquette dims the link of the page you are already on ("you are here"). The dim is
+// keyed off aria-current="page", which is the real contract: it both announces the current
+// page to assistive tech and gives the CSS its styling hook.
+describe("SiteHeader current-page marker", () => {
+  const navItem = (href: string) => content.fr.nav.find((item) => item.href === href)!;
+
+  it("marks the nav link of the page you are on as current", () => {
+    renderHeader("fr", "/contact/");
+
+    expect(screen.getByRole("link", { name: navItem("/contact").label })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(screen.getByRole("link", { name: navItem("/approach").label })).not.toHaveAttribute(
+      "aria-current",
+    );
+  });
+
+  it("marks the section link even on a nested route below it", () => {
+    renderHeader("fr", "/cases/some-study/");
+
+    expect(screen.getByRole("link", { name: navItem("/cases").label })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+  });
+
+  it("marks nothing on the home page, which is not a nav destination", () => {
+    renderHeader("fr", "/");
+
+    for (const item of content.fr.nav) {
+      expect(screen.getByRole("link", { name: item.label })).not.toHaveAttribute("aria-current");
+    }
+  });
+
+  it("marks the current page inside the mobile drawer too", () => {
+    renderHeader("fr", "/culture/");
+    const drawer = openDrawer("fr");
+
+    expect(within(drawer).getByRole("link", { name: navItem("/culture").label })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+  });
+});
+
 describe("SiteHeader locale switcher", () => {
   it("offers the current page in the other locale, both ways", () => {
     const { unmount } = renderHeader("fr", "/cases/");

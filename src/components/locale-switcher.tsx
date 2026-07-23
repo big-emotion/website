@@ -47,7 +47,10 @@ export function LocaleSwitcher({ locale, className = "", onNavigate }: LocaleSwi
           hrefLang={option}
           aria-current={option === locale ? "true" : undefined}
           onClick={onNavigate}
-          className="font-display inline-flex min-h-11 min-w-11 items-center justify-center px-3 text-sm uppercase tracking-wide hover:opacity-60 aria-[current=true]:underline aria-[current=true]:underline-offset-4"
+          // The active locale reads full-strength, the other is dimmed (the maquette's
+          // FR-bright / EN-grey treatment). Keyed off the same aria-current that announces
+          // the choice, so the dim never disagrees with what assistive tech reports.
+          className="font-display inline-flex min-h-11 min-w-11 items-center justify-center px-3 text-sm uppercase tracking-wide opacity-40 hover:opacity-70 aria-[current=true]:opacity-100"
         >
           {option.toUpperCase()}
           {/* Keeping the visible "FR" inside the accessible name — instead of replacing
