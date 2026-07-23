@@ -14,7 +14,7 @@
 // of either field. `title` lands in a `font-display` slot (the page's h1 and the OG
 // card) — BBH Hegarty is ASCII-only (DEC-023), so keep it unaccented in both locales.
 
-import type { ComponentType, LazyExoticComponent } from "react";
+import { lazy, type ComponentType, type LazyExoticComponent } from "react";
 import type { Locale } from "@/i18n/locales";
 
 export type PlaygroundEffect = {
@@ -30,4 +30,15 @@ export type PlaygroundEffect = {
   component: LazyExoticComponent<ComponentType>;
 };
 
-export const playgroundEffects: readonly PlaygroundEffect[] = [];
+export const playgroundEffects: readonly PlaygroundEffect[] = [
+  {
+    id: "big-bang",
+    slug: "big-bang",
+    title: { fr: "BIG BANG", en: "BIG BANG" },
+    description: {
+      fr: "Touchez le logo : il explose en milliers de particules, puis se reforme sous vos yeux.",
+      en: "Tap the logo: it shatters into thousands of particles, then reassembles before your eyes.",
+    },
+    component: lazy(() => import("./effects/big-bang/big-bang-effect")),
+  },
+];
