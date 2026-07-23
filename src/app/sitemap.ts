@@ -3,11 +3,19 @@ import { locales } from "@/i18n/locales";
 import { alternateLanguages, alternateLanguagesAmong, localeUrl, SITE_ORIGIN } from "@/i18n/urls";
 import { createClient, prismicLocale } from "@/prismicio";
 
-// The one-pager, the four section routes (SWBE-21) and the blog listing (SWBE-82),
-// each in both locales. Every entry advertises its counterpart through
-// `alternates.languages`, so a crawler that finds the French page also learns the
-// English one exists.
-const ROUTES = ["/", "/approach", "/cases", "/culture", "/blog", "/contact"] as const;
+// The one-pager, the four section routes (SWBE-21), the blog listing (SWBE-82) and
+// the playground gallery (SWBE-211), each in both locales. Every entry advertises its
+// counterpart through `alternates.languages`, so a crawler that finds the French page
+// also learns the English one exists.
+const ROUTES = [
+  "/",
+  "/approach",
+  "/cases",
+  "/culture",
+  "/blog",
+  "/playground",
+  "/contact",
+] as const;
 
 // Deliberately unpinned — no `dynamic`/`force-static`. Blog articles are Prismic
 // content (DEC-021/SWBE-80): a `force-static` sitemap would freeze their URLs until
