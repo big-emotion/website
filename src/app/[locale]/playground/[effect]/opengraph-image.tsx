@@ -74,6 +74,7 @@ export default async function OpengraphImage({ params }: Props) {
         <div
           style={{
             ...displayFamily,
+            display: "flex",
             fontWeight: 400,
             fontSize: 40,
             letterSpacing: "-0.02em",
