@@ -21,7 +21,7 @@ describe("/playground", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Playground" })).toBeInTheDocument();
   });
 
-  it("shows the lead and the empty state while the registry ships with zero effects", async () => {
+  it("shows the lead, and a card per registered effect now the registry is no longer empty", async () => {
     render(
       <NextIntlClientProvider locale="fr" messages={fr}>
         {await PlaygroundPage({ params: Promise.resolve({ locale: "fr" }) })}
@@ -29,7 +29,8 @@ describe("/playground", () => {
     );
 
     expect(screen.getByText(/espace vivant/)).toBeInTheDocument();
-    expect(screen.getByText("Aucune expérience pour le moment. Revenez bientôt.")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "lumiere" })).toBeInTheDocument();
+    expect(screen.queryByText("Aucune expérience pour le moment. Revenez bientôt.")).not.toBeInTheDocument();
   });
 });
 
