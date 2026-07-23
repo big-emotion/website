@@ -89,6 +89,18 @@ type LocaleContent = {
   playground: {
     lead: string;
     emptyState: string;
+    /** Back-to-gallery link on an effect's own page. */
+    back: string;
+    /** EffectStage's Suspense fallback while an effect's chunk is fetched (PG-18). */
+    loading: string;
+    /** The player share loop (REQ-038): native sheet + clipboard fallback. Sans-slot
+     *  chrome, not `font-display`, so it keeps its accents. */
+    share: {
+      button: string;
+      sharedToast: string;
+      copiedToast: string;
+      failedToast: string;
+    };
   };
   services: readonly { title: string; body: string }[];
   impactStats: readonly { value: string; label: string }[];
@@ -213,6 +225,14 @@ const fr: LocaleContent = {
   playground: {
     lead: "Un espace vivant où on teste les effets avant qu’ils passent en production. Les cartes arrivent projet par projet.",
     emptyState: "Aucune expérience pour le moment. Revenez bientôt.",
+    back: "Retour au Playground",
+    loading: "Chargement de l'expérience…",
+    share: {
+      button: "Partager",
+      sharedToast: "Merci du partage !",
+      copiedToast: "Lien copié dans le presse-papiers.",
+      failedToast: "Impossible de partager pour le moment.",
+    },
   },
   services: [
     {
@@ -321,6 +341,14 @@ const en: LocaleContent = {
   playground: {
     lead: "A living space where we test effects before they ship in production. Cards land project by project.",
     emptyState: "No experiments yet. Check back soon.",
+    back: "Back to Playground",
+    loading: "Loading the experiment…",
+    share: {
+      button: "Share",
+      sharedToast: "Thanks for sharing!",
+      copiedToast: "Link copied to your clipboard.",
+      failedToast: "Couldn't share this right now.",
+    },
   },
   services: [
     {

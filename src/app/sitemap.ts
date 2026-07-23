@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { playgroundEffects } from "@/components/playground/effects";
 import { locales } from "@/i18n/locales";
 import { alternateLanguages, alternateLanguagesAmong, localeUrl, SITE_ORIGIN } from "@/i18n/urls";
 import { createClient, prismicLocale } from "@/prismicio";
@@ -38,8 +39,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   );
 
   const articleEntries = await articleSitemapEntries(lastModified);
+  const effectEntries = playgroundEffectSitemapEntries(lastModified);
 
-  return [...routeEntries, ...articleEntries];
+  return [...routeEntries, ...articleEntries, ...effectEntries];
+}
+
+// Registry-driven, unlike the articles above: the registry is a build-time module
+// (REQ-038's "registry-driven growth"), not Prismic content, so there is nothing here
+// that needs the publish-webhook re-render contract either.
+function playgroundEffectSitemapEntries(lastModified: Date): MetadataRoute.Sitemap {
+  return playgroundEffects.flatMap((effect) => {
+    const href = `/playground/${effect.slug}`;
+
+    return locales.map((locale) => ({
+      url: localeUrl(locale, href),
+      lastModified,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+      alternates: { languages: absoluteAlternates(alternateLanguages(href)) },
+    }));
+  });
 }
 
 async function articleSitemapEntries(lastModified: Date): Promise<MetadataRoute.Sitemap> {
