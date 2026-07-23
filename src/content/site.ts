@@ -83,6 +83,13 @@ type LocaleContent = {
     /** Hero count chip. The number is interpolated; the noun is chosen by the count. */
     postCount: { one: string; other: string };
   };
+  /** The /playground surface (REQ-037): a gallery of living-space experiments. Cards
+   *  fill in as each effect story ships (SWBE-210); until then the gallery shows
+   *  `emptyState`, same contract as blog's own empty state. */
+  playground: {
+    lead: string;
+    emptyState: string;
+  };
   services: readonly { title: string; body: string }[];
   impactStats: readonly { value: string; label: string }[];
   team: readonly {
@@ -175,6 +182,7 @@ const fr: LocaleContent = {
     { label: "References & Impact", href: "/cases" },
     { label: "Culture", href: "/culture" },
     { label: "Blog", href: "/blog" },
+    { label: "Playground", href: "/playground" },
     { label: "Contact", href: "/contact" },
   ],
   espaceB2bLabel: "Espace B2B",
@@ -201,6 +209,10 @@ const fr: LocaleContent = {
     featuredLabel: "À la une",
     readMore: "Lire l’article",
     postCount: { one: "article", other: "articles" },
+  },
+  playground: {
+    lead: "Un espace vivant où on teste les effets avant qu’ils passent en production. Les cartes arrivent projet par projet.",
+    emptyState: "Aucune expérience pour le moment. Revenez bientôt.",
   },
   services: [
     {
@@ -278,6 +290,7 @@ const en: LocaleContent = {
     { label: "Cases & Impact", href: "/cases" },
     { label: "Culture", href: "/culture" },
     { label: "Blog", href: "/blog" },
+    { label: "Playground", href: "/playground" },
     { label: "Contact", href: "/contact" },
   ],
   espaceB2bLabel: "B2B Space",
@@ -304,6 +317,10 @@ const en: LocaleContent = {
     featuredLabel: "Featured",
     readMore: "Read the article",
     postCount: { one: "post", other: "posts" },
+  },
+  playground: {
+    lead: "A living space where we test effects before they ship in production. Cards land project by project.",
+    emptyState: "No experiments yet. Check back soon.",
   },
   services: [
     {
