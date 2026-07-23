@@ -101,6 +101,9 @@ type LocaleContent = {
       copiedToast: string;
       failedToast: string;
     };
+    /** The collective counter chip (SWBE-216/REQ-042) — same `{count} {noun}` pattern
+     *  as `blog.postCount`. Sans-slot chrome, not `font-display`, so it keeps its accents. */
+    counter: { one: string; other: string };
   };
   services: readonly { title: string; body: string }[];
   impactStats: readonly { value: string; label: string }[];
@@ -233,6 +236,7 @@ const fr: LocaleContent = {
       copiedToast: "Lien copié dans le presse-papiers.",
       failedToast: "Impossible de partager pour le moment.",
     },
+    counter: { one: "logo maltraité", other: "logos maltraités" },
   },
   services: [
     {
@@ -349,6 +353,7 @@ const en: LocaleContent = {
       copiedToast: "Link copied to your clipboard.",
       failedToast: "Couldn't share this right now.",
     },
+    counter: { one: "logo mistreated", other: "logos mistreated" },
   },
   services: [
     {

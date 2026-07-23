@@ -3,8 +3,8 @@
 // entry here — nothing else in the gallery route, nav, per-effect page frame or
 // studio rig changes shape (REQ-038's "registry-driven growth").
 //
-// v1 (SWBE-211) shipped the shell with zero effects, zero extra JS (DEC-030 budget).
-// Stories 3-5 each add one entry whose `component` is `lazy(() => import(...))`,
+// v1 (SWBE-211) shipped the shell only: zero effects, zero extra JS (DEC-030 budget).
+// Each following story adds one entry whose `component` is `lazy(() => import(...))`,
 // called once here at module scope (never inside a render function, which is why
 // `EffectStage` takes the already-built component rather than a loader to call
 // itself) — so the effect's chunk is only fetched once `EffectStage` mounts it.
@@ -40,5 +40,25 @@ export const playgroundEffects: readonly PlaygroundEffect[] = [
       en: "Spin the chrome under the studio light and zoom in to inspect every reflection.",
     },
     component: lazy(() => import("./effects/lumiere")),
+  },
+  {
+    id: "poids-lourd",
+    slug: "poids-lourd",
+    title: { fr: "Poids Lourd", en: "Heavyweight" },
+    description: {
+      fr: "Saisissez, glissez et lancez le logo chromé contre des murs élastiques.",
+      en: "Grab, drag and throw the chrome logo against elastic walls.",
+    },
+    component: lazy(() => import("./effects/poids-lourd")),
+  },
+  {
+    id: "big-bang",
+    slug: "big-bang",
+    title: { fr: "BIG BANG", en: "BIG BANG" },
+    description: {
+      fr: "Touchez le logo : il explose en milliers de particules, puis se reforme sous vos yeux.",
+      en: "Tap the logo: it shatters into thousands of particles, then reassembles before your eyes.",
+    },
+    component: lazy(() => import("./effects/big-bang/big-bang-effect")),
   },
 ];

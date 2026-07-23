@@ -1,4 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="B!G EMOTION">
   <rect width="32" height="32" rx="6" fill="#000000"/>
-  <text x="16" y="23.5" fill="#f2ff26" font-family="Arial, sans-serif" font-weight="900" font-size="22" letter-spacing="-1" text-anchor="middle">B!</text>
+  <!-- The "B!" fragment of the brand lockup, from the real logo vectors (not a font).
+       "B!G EMOTION" in full is illegible at 16px, so the tab icon carries the mark's
+       recognisable head. The B's counters are holes in the path — they show the black
+       tile through. Scaled/placed to sit centred with padding in the 32×32 tile. -->
+  <g transform="translate(6.2 9.5) scale(0.226)" fill="#f2ff26">
+    <path d="M1.34,54.88V1.23h40.54c5.62,0,9.85,1.23,12.68,3.68,2.84,2.45,4.25,5.67,4.25,9.66,0,1.99-.43,3.9-1.3,5.71-.87,1.81-2.31,3.33-4.33,4.56-2.02,1.23-4.76,1.97-8.24,2.22v1.53c5.42.31,9.36,1.6,11.84,3.87,2.48,2.27,3.72,5.15,3.72,8.62,0,4.04-1.44,7.35-4.33,9.93-2.89,2.58-6.83,3.87-11.84,3.87H1.34ZM22.5,22.15h11.11c.97,0,1.74-.28,2.3-.84.56-.56.84-1.3.84-2.22s-.28-1.66-.84-2.22c-.56-.56-1.33-.84-2.3-.84h-11.11v6.13ZM22.5,40.09h12.34c.97,0,1.74-.28,2.3-.84.56-.56.84-1.3.84-2.22s-.28-1.66-.84-2.22c-.56-.56-1.33-.84-2.3-.84h-12.34v6.13Z"/>
+    <rect x="63.98" y="1.23" width="19.93" height="29.06"/>
+    <circle cx="74" cy="44.71" r="11.39"/>
+  </g>
 </svg>

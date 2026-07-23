@@ -74,6 +74,8 @@ export default async function OpengraphImage({ params }: Props) {
         <div
           style={{
             ...displayFamily,
+            // satori requires an explicit display on any node with more than one
+            // child — `{site.name} — Playground` is two text children, not one.
             display: "flex",
             fontWeight: 400,
             fontSize: 40,
@@ -82,7 +84,7 @@ export default async function OpengraphImage({ params }: Props) {
             opacity: 0.7,
           }}
         >
-          {site.name} — Playground
+          {`${site.name} — Playground`}
         </div>
         <div
           style={{

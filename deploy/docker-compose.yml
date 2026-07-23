@@ -13,6 +13,11 @@ services:
     env_file: .env
     networks:
       - proxy
+    volumes:
+      # Playground collective counter (SWBE-216/REQ-042, DEC-033): a flat file, not a
+      # DB, so it only needs a durable mount — /app/data is pre-created and owned by
+      # the nextjs user in the Dockerfile so a fresh volume is writable on first run.
+      - playground-data:/app/data
     labels:
       - "traefik.enable=true"
       # HTTPS router — Traefik terminates TLS with the existing ACME resolver.
@@ -31,3 +36,6 @@ services:
 networks:
   proxy:
     external: true
+
+volumes:
+  playground-data:
