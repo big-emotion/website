@@ -74,11 +74,6 @@ body {
      a comparable px/s. A list of names is read, not glanced at. */
   animation-duration: 60s;
 }
-.loadscreen .marquee-track {
-  /* The intro is on screen for 1.4s total: at the manifesto's pace it would read as a
-     frozen image rather than a moving band. */
-  animation-duration: 22s;
-}
 @media (prefers-reduced-motion: reduce) {
   .marquee-track {
     animation: none;
@@ -106,38 +101,6 @@ body {
   }
   .client-wall-row .marquee-track > [aria-hidden="true"] {
     display: none;
-  }
-}
-
-/* Load screen — pure CSS so content reveals even if JS is slow, blocked, or fails
-   (the whole point of a static export). The overlay holds the brand intro, then
-   slides up on its own; pointer-events:none lets the page underneath stay usable. */
-@keyframes loadscreen-out {
-  0%,
-  55% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(-100%);
-  }
-}
-.loadscreen {
-  pointer-events: none;
-  animation: loadscreen-out 1.4s cubic-bezier(0.76, 0, 0.24, 1) forwards;
-}
-@media (prefers-reduced-motion: reduce) {
-  /* No large vertical slide for vestibular sensitivity: fade out fast instead. */
-  .loadscreen {
-    animation: loadscreen-fade 0.3s ease 0.3s forwards;
-  }
-  .loadscreen .marquee-track {
-    animation: none;
-  }
-}
-@keyframes loadscreen-fade {
-  to {
-    opacity: 0;
-    visibility: hidden;
   }
 }
 
