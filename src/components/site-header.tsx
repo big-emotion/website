@@ -6,8 +6,8 @@ import { content, espaceB2bHref } from "@/content/site";
 import type { Locale } from "@/i18n/locales";
 import { Link, usePathname } from "@/i18n/navigation";
 import { LocaleSwitcher } from "./locale-switcher";
+import { Logo } from "./logo";
 import { SUBPAGE_ACCENTS, subpageFromPathname } from "./subpage-accents";
-import { Wordmark } from "./wordmark";
 
 export function SiteHeader({ locale }: { locale: Locale }) {
   const t = useTranslations("header");
@@ -92,7 +92,7 @@ export function SiteHeader({ locale }: { locale: Locale }) {
     >
       <div className="relative z-50 flex items-center justify-between px-5 py-4 md:px-8 md:py-5">
         <Link href="/" aria-label={t("home")} onClick={close}>
-          <Wordmark className="text-[1.45rem] md:text-2xl" />
+          <Logo className="h-10 w-auto md:h-12" />
         </Link>
 
         <nav className="hidden md:flex md:items-center md:gap-8">

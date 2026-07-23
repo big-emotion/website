@@ -33,7 +33,13 @@ describe("/playground", () => {
       "href",
       "/playground/poids-lourd",
     );
-    expect(screen.queryByText("Aucune expérience pour le moment. Revenez bientôt.")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "big-bang" })).toHaveAttribute(
+      "href",
+      "/playground/big-bang",
+    );
+    expect(
+      screen.queryByText("Aucune expérience pour le moment. Revenez bientôt."),
+    ).not.toBeInTheDocument();
   });
 });
 

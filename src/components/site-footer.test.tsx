@@ -57,11 +57,12 @@ describe("SiteFooter", () => {
     expect(screen.queryByRole("link", { name: "hello@big-emotion.com" })).not.toBeInTheDocument();
   });
 
-  it("keeps the wordmark decorative, since the brand is already named in the sign-off", () => {
+  it("keeps the brand mark decorative, since the brand is already named in the sign-off", () => {
     const { container } = render(<SiteFooter locale="fr" />);
 
-    const wordmark = container.querySelector('[aria-label="BIG EMOTION"]');
-    expect(wordmark?.closest('[aria-hidden="true"]')).not.toBeNull();
+    // The mark is the logo lockup, hidden from AT; the social sprite (role=img) is the
+    // only announced graphic, so scope the query to the decorative subtree.
+    expect(container.querySelector('[aria-hidden="true"] svg')).not.toBeNull();
   });
 
   // The band adopts the accent of the hero it sits under, so /cases closes on tangerine,

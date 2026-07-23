@@ -3,9 +3,9 @@
 import { content, site } from "@/content/site";
 import type { Locale } from "@/i18n/locales";
 import { usePathname } from "@/i18n/navigation";
+import { Logo } from "./logo";
 import { SocialSprite } from "./social-sprite";
 import { SUBPAGE_ACCENTS, subpageFromPathname } from "./subpage-accents";
-import { Wordmark } from "./wordmark";
 
 // Off the accent routes (legal pages, 404) there is no hero to echo, so the band keeps
 // the lemon it shipped with rather than rendering unstyled.
@@ -30,7 +30,7 @@ export function SiteFooter({ locale }: { locale: Locale }) {
         {/* Decorative: the brand name is already spelled out in the sign-off, so hide the
             mark from assistive tech. */}
         <span aria-hidden="true" className="md:justify-self-start">
-          <Wordmark className="text-2xl leading-[0.82]" />
+          <Logo className="h-9 w-auto md:h-10" />
         </span>
 
         {/* Unlinked sprite, keyed to the surface ink — split into real anchors the day the
