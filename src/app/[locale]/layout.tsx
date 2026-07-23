@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { LoadScreen } from "@/components/load-screen";
 import { FooterSlot } from "@/components/footer-slot";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -87,7 +86,6 @@ export default async function LocaleLayout({
   return (
     <DocumentShell lang={locale} skipLabel={t("skipToContent")}>
       <NextIntlClientProvider>
-        <LoadScreen />
         <SiteHeader locale={locale as Locale} />
         <main id="main" className="flex-1">
           {children}
