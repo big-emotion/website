@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { describe, expect, it, vi } from "vitest";
 import en from "../../../../messages/en.json";
@@ -21,7 +21,8 @@ describe("/culture", () => {
       </NextIntlClientProvider>,
     );
 
-    expect(screen.getByText("Geek & philosopher")).toBeInTheDocument();
+    const roster = within(screen.getByRole("list", { name: en.culture.teamListLabel }));
+    expect(roster.getByText("Geek & philosopher")).toBeInTheDocument();
   });
 });
 
