@@ -1,3 +1,5 @@
+// @req REQ-039
+
 import { describe, expect, it } from "vitest";
 import { ZOOM_RATIO } from "@/components/playground/camera-framing";
 import {

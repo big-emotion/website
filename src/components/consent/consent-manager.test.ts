@@ -1,3 +1,5 @@
+// @req REQ-046
+
 import { describe, expect, it } from "vitest";
 import { legalContent } from "@/content/legal";
 import { locales } from "@/i18n/locales";

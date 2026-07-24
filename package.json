@@ -12,6 +12,7 @@
     "start": "next start",
     "prepare": "husky",
     "lint": "eslint --cache --cache-strategy content --cache-location node_modules/.cache/eslint/",
+    "lint:req": "node scripts/lint-req-annotations.mjs",
     "typecheck": "next typegen && tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check --cache --cache-strategy content .",

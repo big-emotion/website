@@ -1,3 +1,7 @@
+// @req REQ-006
+// @req REQ-015
+// @req REQ-045
+
 import { describe, expect, it } from "vitest";
 import nextConfig from "./next.config";
 

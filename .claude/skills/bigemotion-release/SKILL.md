@@ -237,7 +237,7 @@ Watch the deploy at:
 - Staging releases (no staging environment/branch defined for this repo).
 - Backfilling `CHANGELOG.md` for releases that predate this skill (history starts at the next tagged version).
 - The deploy workflow itself (`deploy-production.yml`) — that is a separate concern; this skill only pushes the tag that triggers it.
-- Prismic prod schema sync — revisit once a Prismic repo exists (design-revamp epic); this repo has no Prismic integration yet.
+- Prismic schema or content publication. Releases assume any required `pnpm prismic:check` evidence was handled by the implementation workflow.
 - A user-level copy of this skill in `~/.claude/skills/` (epic decision: skills live per-repo).
 - Audit/scoring of release readiness (preconditions in the Preconditions section are sufficient).
 - Pushing without explicit user confirmation in Step 6.

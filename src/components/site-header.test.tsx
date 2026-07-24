@@ -1,3 +1,6 @@
+// @req REQ-003
+// @req REQ-036
+
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { describe, expect, it, vi } from "vitest";

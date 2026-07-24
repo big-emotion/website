@@ -1,3 +1,5 @@
+// @req REQ-043
+
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   CHALLENGE_UNLOCKED_EVENT,

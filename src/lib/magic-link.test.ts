@@ -1,3 +1,5 @@
+// @req REQ-018
+
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { consumeMagicLinkToken, mintMagicLinkToken } from "./magic-link";
 

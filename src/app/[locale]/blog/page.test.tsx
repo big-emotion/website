@@ -1,3 +1,5 @@
+// @req REQ-028
+
 import type { Content } from "@prismicio/client";
 import { render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";

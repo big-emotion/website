@@ -1,3 +1,5 @@
+// @req REQ-038
+
 import { describe, expect, it, vi } from "vitest";
 import { resolveShareText, shareEffect } from "./share";
 

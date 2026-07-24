@@ -1,3 +1,5 @@
+// @req REQ-048
+
 import { describe, expect, it } from "vitest";
 import { hasPreviewSession } from "./preview-session";
 
