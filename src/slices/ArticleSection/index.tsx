@@ -11,13 +11,15 @@ export default function ArticleSection({ slice }: ArticleSectionProps) {
     <section
       data-slice-type={slice.slice_type}
       data-slice-variation={slice.variation}
-      className="mt-12 border-t-2 border-paper/40 pt-6 md:mt-16"
+      className="mt-12 border-t-2 border-current/40 pt-6 md:mt-16"
     >
       <PrismicRichText
         field={slice.primary.heading}
         components={{
+          // Display type at this size is "large text" under WCAG 1.4.3, so the accent's
+          // 3:1 floor is the right bar for it — see brand-pairings.ts.
           heading2: ({ children }) => (
-            <h2 className="font-display text-[clamp(1.6rem,7vw,3.5rem)] text-lemon [overflow-wrap:anywhere]">
+            <h2 className="font-display text-[clamp(1.6rem,7vw,3.5rem)] text-[var(--blog-accent)] [overflow-wrap:anywhere]">
               {children}
             </h2>
           ),

@@ -17,6 +17,19 @@
   --font-body: var(--font-bricolage);
 }
 
+/* The blog's colour association, one of the pairs on the guidelines' ASSOCIATIONS board
+   (src/components/blog/brand-pairings.ts). These defaults are `INDEX_PAIRING_ID` — kept
+   in step by brand-pairings.test.ts — so /blog is painted with no script at all; an
+   article overrides the three on <html> with a pairing drawn on each load.
+
+   Hero, index, article body, header ink and footer all read them, which is what makes a
+   page one association rather than a coloured band stapled onto a different one. */
+:root {
+  --blog-surface: var(--color-lemon);
+  --blog-ink: var(--color-lyon);
+  --blog-accent: var(--color-ink);
+}
+
 body {
   background: var(--color-paper);
   color: var(--color-ink);
@@ -124,7 +137,7 @@ body {
   font-family: var(--font-body);
   font-size: clamp(1rem, 0.97rem + 0.3vw, 1.125rem);
   line-height: 1.75;
-  color: var(--color-paper);
+  color: var(--blog-ink);
 }
 .article-prose > :first-child {
   margin-top: 0;
@@ -172,18 +185,24 @@ body {
   margin-top: 0.5em;
 }
 .article-prose blockquote {
-  border-left: 3px solid var(--color-paper);
+  border-left: 3px solid currentColor;
   padding-left: 1.25em;
   font-style: italic;
   opacity: 0.85;
 }
+/* The link keeps the ink and spends the accent on its underline. Colouring the text
+   itself would put body copy on the 3:1 furniture floor the accent is chosen against —
+   fine for a rule, unreadable for a sentence — and it matches how the heading links
+   already mark themselves (see heading-link.ts). */
 .article-prose a {
-  color: var(--color-lemon);
+  color: inherit;
   text-decoration: underline;
+  text-decoration-color: var(--blog-accent);
+  text-decoration-thickness: 0.12em;
   text-underline-offset: 0.15em;
 }
 .article-prose a:hover {
-  color: var(--color-tangerine);
+  text-decoration-thickness: 0.2em;
 }
 .article-prose strong {
   font-weight: 700;

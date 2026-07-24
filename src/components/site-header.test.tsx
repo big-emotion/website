@@ -220,8 +220,11 @@ describe("SiteHeader over a sub-page hero", () => {
     ["/cases/", "text-ink"],
     ["/culture/", "text-paper"],
     ["/contact/", "text-lemon"],
-    ["/blog/", "text-paper"],
-    ["/blog/some-article/", "text-paper"],
+    // The blog is the one section whose ink is not a fixed token: it wears a whole
+    // association, drawn per article, so the bar follows the custom property both
+    // surfaces set (src/components/blog/brand-pairings.ts).
+    ["/blog/", "text-[var(--blog-ink)]"],
+    ["/blog/some-article/", "text-[var(--blog-ink)]"],
   ])("takes the hero's ink on %s", (pathname, ink) => {
     const { container } = renderHeader("fr", pathname);
 
@@ -234,15 +237,16 @@ describe("SiteHeader over a sub-page hero", () => {
     expect(container.querySelector("header")).toHaveClass("text-ink");
   });
 
-  // REQ-036: blog articles render on bg-lyon, so the resting header must not fall back to
-  // the black default (2.12:1 on blue, below the 4.5:1 AA floor). text-paper on lyon
-  // measures ~9.9:1 — the same pair culture already relies on — so no solid bar is
-  // needed, only the ink swap `blog` was missing from SUBPAGE_ACCENTS.
+  // REQ-036: the resting header over the blog must not fall back to the black default,
+  // which measured 2.12:1 on the blue the section used to be. Taking the association's
+  // own ink settles it for every pair rather than for that one surface — that the ink
+  // clears 4.5:1 on its surface is what brand-pairings.test.ts asserts, against the real
+  // palette — so no solid bar is needed at rest.
   it("meets AA at rest over /blog/ without falling back to a solid bar", () => {
     const { container } = renderHeader("fr", "/blog/");
     const header = container.querySelector("header");
 
-    expect(header).toHaveClass("text-paper");
+    expect(header).not.toHaveClass("text-ink");
     expect(header).not.toHaveClass("bg-ink");
   });
 });

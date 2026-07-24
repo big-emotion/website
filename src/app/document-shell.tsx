@@ -45,7 +45,16 @@ export function DocumentShell({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang={lang} className={`${display.variable} ${body.variable} h-full antialiased`}>
+    // `suppressHydrationWarning` covers this element's own attributes and nothing below
+    // it. An article paints itself by setting three custom properties on <html> before
+    // the first paint (src/components/blog/article-pairing.tsx), so the document React
+    // hydrates legitimately carries a `style` the server never rendered — the same
+    // arrangement every no-flash theme switcher ends up with.
+    <html
+      lang={lang}
+      className={`${display.variable} ${body.variable} h-full antialiased`}
+      suppressHydrationWarning
+    >
       <body className="min-h-full flex flex-col overflow-x-hidden bg-paper text-ink">
         <a
           href="#main"
