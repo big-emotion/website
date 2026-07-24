@@ -12,7 +12,7 @@ export function Culture({ locale }: { locale: Locale }) {
     <section className="overflow-hidden bg-tangerine px-5 py-20 text-ink md:px-8 md:py-32">
       <TeamMarquee members={team} />
 
-      <PersonalitySlider />
+      <PersonalitySlider locale={locale} />
 
       <p className="font-display mt-16 text-xl md:mt-24 md:text-3xl">{values.join("  ·  ")}</p>
     </section>

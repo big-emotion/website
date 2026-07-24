@@ -10,14 +10,13 @@ const meta: Meta<typeof PersonalitySlider> = {
   title: "Culture/PersonalitySlider",
   component: PersonalitySlider,
   decorators: [
-    (Story, { parameters }) => {
-      const locale = (parameters.locale as "fr" | "en") ?? "fr";
-      return (
-        <NextIntlClientProvider locale={locale} messages={messagesByLocale[locale]}>
-          <Story />
-        </NextIntlClientProvider>
-      );
-    },
+    // The provider locale follows the story's own `locale` arg, so the UI messages and
+    // the pole wording can never disagree about which language is on screen.
+    (Story, { args }) => (
+      <NextIntlClientProvider locale={args.locale} messages={messagesByLocale[args.locale]}>
+        <Story />
+      </NextIntlClientProvider>
+    ),
   ],
 };
 
@@ -25,9 +24,9 @@ export default meta;
 type Story = StoryObj<typeof PersonalitySlider>;
 
 export const French: Story = {
-  parameters: { locale: "fr" },
+  args: { locale: "fr" },
 };
 
 export const English: Story = {
-  parameters: { locale: "en" },
+  args: { locale: "en" },
 };
