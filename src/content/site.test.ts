@@ -12,6 +12,7 @@ function displayCopy(locale: Locale) {
     copy.mission,
     copy.stat.label,
     copy.scrollCue,
+    copy.blog.back,
     ...copy.nav.map((item) => item.label),
     ...copy.sectionHeroes.flatMap((hero) => hero.title),
     ...copy.contact.title,
