@@ -318,6 +318,68 @@ body {
   height: auto;
 }
 
+/* Long-form legal copy (SWBE-34). A separate scope from `.article-prose` for two
+   reasons, both hard requirements rather than taste:
+   - Headings stay in the body face. `.article-prose` sets them in `--font-display`, and
+     all three BBH cuts share an ASCII-only cmap (DEC-023) — "Propriété intellectuelle"
+     would render half of itself in a fallback face. Legal subheadings keep their accents.
+   - Colour is inherited, not fixed. `.article-prose` pins `--color-paper` for the blog's
+     coloured surface; legal routes render on the default paper/ink body. */
+.legal-prose {
+  max-width: 68ch;
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 0.97rem + 0.3vw, 1.125rem);
+  line-height: 1.75;
+}
+/* The fallback groups each heading with its paragraphs in a <section>, so the opening
+   heading sits one level deeper than in the Prismic-rendered case. Both start flush
+   against the title above. */
+.legal-prose > :first-child,
+.legal-prose > section:first-child > :first-child {
+  margin-top: 0;
+}
+.legal-prose :where(h2, h3) {
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+.legal-prose h2 {
+  margin-top: 2.5em;
+  margin-bottom: 0.5em;
+  font-size: clamp(1.35rem, 1.2rem + 0.9vw, 1.6rem);
+}
+.legal-prose h3 {
+  margin-top: 2em;
+  margin-bottom: 0.4em;
+  font-size: clamp(1.15rem, 1.05rem + 0.5vw, 1.3rem);
+}
+.legal-prose p,
+.legal-prose ul,
+.legal-prose ol {
+  margin-top: 1.25em;
+}
+.legal-prose ul,
+.legal-prose ol {
+  padding-left: 1.25em;
+}
+.legal-prose ul {
+  list-style: disc;
+}
+.legal-prose ol {
+  list-style: decimal;
+}
+.legal-prose li + li {
+  margin-top: 0.4em;
+}
+.legal-prose a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+.legal-prose strong {
+  font-weight: 700;
+}
+
 /* Guarantee a visible keyboard focus indicator everywhere (WCAG 2.4.7 / 2.4.11).
    Components may override with their own focus-visible ring. */
 :focus-visible {

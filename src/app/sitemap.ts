@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { playgroundEffects } from "@/components/playground/effects";
+import { LEGAL_UIDS } from "@/content/legal";
 import { locales } from "@/i18n/locales";
 import { alternateLanguages, alternateLanguagesAmong, localeUrl, SITE_ORIGIN } from "@/i18n/urls";
 import { createClient, prismicLocale } from "@/prismicio";
@@ -40,8 +41,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const articleEntries = await articleSitemapEntries(lastModified);
   const effectEntries = playgroundEffectSitemapEntries(lastModified);
+  const legalEntries = legalSitemapEntries(lastModified);
 
-  return [...routeEntries, ...articleEntries, ...effectEntries];
+  return [...routeEntries, ...articleEntries, ...effectEntries, ...legalEntries];
+}
+
+// The legal routes (SWBE-34), at the lowest priority and the slowest change frequency on
+// the site: they must be discoverable, but they are not what anyone should land on from a
+// search. No availability probe, unlike the articles: an empty Prismic document still
+// renders the mandatory copy, so both locales always exist.
+function legalSitemapEntries(lastModified: Date): MetadataRoute.Sitemap {
+  return LEGAL_UIDS.flatMap((uid) => {
+    const href = `/${uid}`;
+
+    return locales.map((locale) => ({
+      url: localeUrl(locale, href),
+      lastModified,
+      changeFrequency: "yearly" as const,
+      priority: 0.3,
+      alternates: { languages: absoluteAlternates(alternateLanguages(href)) },
+    }));
+  });
 }
 
 // Registry-driven, unlike the articles above: the registry is a build-time module

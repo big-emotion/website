@@ -313,6 +313,75 @@ interface CaseStudyDocumentData {
  */
 export type CaseStudyDocument<Lang extends string = string> = prismic.PrismicDocumentWithUID<Simplify<CaseStudyDocumentData>, "case_study", Lang>;
 
+/**
+ * Content for Page légale documents
+ */
+interface LegalPageDocumentData {
+	/**
+	 * Titre field in *Page légale*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: Mentions legales
+	 * - **API ID Path**: legal_page.title
+	 * - **Tab**: Principal
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	title: prismic.KeyTextField;
+	
+	/**
+	 * Derniere mise a jour field in *Page légale*
+	 *
+	 * - **Field Type**: Date
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: legal_page.updated_at
+	 * - **Tab**: Principal
+	 * - **Documentation**: https://prismic.io/docs/fields/date
+	 */
+	updated_at: prismic.DateField;
+	
+	/**
+	 * Corps de texte field in *Page légale*
+	 *
+	 * - **Field Type**: Rich Text
+	 * - **Placeholder**: Le texte legal, en francais courant
+	 * - **API ID Path**: legal_page.body
+	 * - **Tab**: Principal
+	 * - **Documentation**: https://prismic.io/docs/fields/rich-text
+	 */
+	body: prismic.RichTextField;/**
+	 * Titre meta (optionnel, defaut : le titre) field in *Page légale*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: legal_page.meta_title
+	 * - **Tab**: SEO
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	meta_title: prismic.KeyTextField;
+	
+	/**
+	 * Description meta field in *Page légale*
+	 *
+	 * - **Field Type**: Text
+	 * - **Placeholder**: *None*
+	 * - **API ID Path**: legal_page.meta_description
+	 * - **Tab**: SEO
+	 * - **Documentation**: https://prismic.io/docs/fields/text
+	 */
+	meta_description: prismic.KeyTextField;
+}
+
+/**
+ * Page légale document from Prismic
+ *
+ * - **API ID**: `legal_page`
+ * - **Repeatable**: `true`
+ * - **Documentation**: https://prismic.io/docs/content-modeling
+ *
+ * @typeParam Lang - Language API ID of the document.
+ */
+export type LegalPageDocument<Lang extends string = string> = prismic.PrismicDocumentWithUID<Simplify<LegalPageDocumentData>, "legal_page", Lang>;
+
 type PageDocumentDataSlicesSlice = HomeSceneSlice
 
 /**
@@ -364,7 +433,7 @@ interface PageDocumentData {
  */
 export type PageDocument<Lang extends string = string> = prismic.PrismicDocumentWithUID<Simplify<PageDocumentData>, "page", Lang>;
 
-export type AllDocumentTypes = ArticleDocument | AuthorDocument | CaseStudyDocument | PageDocument;
+export type AllDocumentTypes = ArticleDocument | AuthorDocument | CaseStudyDocument | LegalPageDocument | PageDocument;
 
 /**
  * Primary content in *ArticleSection → Par défaut → Primary*
@@ -709,6 +778,8 @@ declare module "@prismicio/client" {
 			CaseStudyDocumentData,
 			CaseStudyDocumentDataTagsItem,
 			CaseStudyDocumentDataBodySlice,
+			LegalPageDocument,
+			LegalPageDocumentData,
 			PageDocument,
 			PageDocumentData,
 			PageDocumentDataSlicesSlice,
