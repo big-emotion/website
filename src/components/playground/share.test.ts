@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { shareEffect } from "./share";
+import { resolveShareText, shareEffect } from "./share";
 
 const payload = { url: "https://big-emotion.com/playground/mock/", title: "Mock effect" };
 
@@ -65,5 +65,21 @@ describe("shareEffect", () => {
 
     expect(result).toBe("failed");
     vi.unstubAllGlobals();
+  });
+});
+
+describe("resolveShareText", () => {
+  it("brags with the unlocked-badge text once the challenge is unlocked", () => {
+    expect(resolveShareText("I just unlocked PLEIN SOLEIL!", true)).toBe(
+      "I just unlocked PLEIN SOLEIL!",
+    );
+  });
+
+  it("stays plain (no text override) while the challenge is still locked", () => {
+    expect(resolveShareText("I just unlocked PLEIN SOLEIL!", false)).toBeUndefined();
+  });
+
+  it("stays plain when there is no unlocked-share text to switch to", () => {
+    expect(resolveShareText(undefined, true)).toBeUndefined();
   });
 });

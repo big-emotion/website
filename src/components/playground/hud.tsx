@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { shareEffect, type ShareOutcome } from "./share";
+import { isChallengeUnlocked } from "./challenges";
+import { resolveShareText, shareEffect, type ShareOutcome } from "./share";
 
 type ShareCopy = {
   button: string;
@@ -13,27 +14,37 @@ type ShareCopy = {
 /**
  * The chrome frame every effect page mounts (PG-18): the effect's own h1, a link back
  * to the gallery, the native-share/clipboard control with its toast, and two slots —
- * `children` — for the counter chip (story 6) and the challenge badge (story 7),
- * neither of which exists yet. A cancelled native share leaves the toast empty rather
- * than announcing anything, so dismissing the OS sheet doesn't read as an error.
+ * `children` — for the counter chip (story 6) and the challenge badge (story 7). A
+ * cancelled native share leaves the toast empty rather than announcing anything, so
+ * dismissing the OS sheet doesn't read as an error.
+ *
+ * Share-variant switching (SWBE-217/REQ-043): once this browser has unlocked
+ * `effectId`'s hidden challenge, sharing brags with `unlockedShareText` instead of
+ * just the title — see `resolveShareText` in `share.ts`.
  */
 export function EffectHud({
   title,
   backHref,
   shareUrl,
   copy,
+  effectId,
+  unlockedShareText,
   children,
 }: {
   title: string;
   backHref: string;
   shareUrl: string;
   copy: { back: string; share: ShareCopy };
+  effectId?: string;
+  unlockedShareText?: string;
   children?: ReactNode;
 }) {
   const [outcome, setOutcome] = useState<ShareOutcome | null>(null);
 
   async function handleShare() {
-    const result = await shareEffect({ url: shareUrl, title });
+    const unlocked = effectId !== undefined && isChallengeUnlocked(effectId);
+    const text = resolveShareText(unlockedShareText, unlocked);
+    const result = await shareEffect(text ? { url: shareUrl, title, text } : { url: shareUrl, title });
     setOutcome(result);
   }
 
