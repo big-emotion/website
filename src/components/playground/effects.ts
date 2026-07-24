@@ -52,7 +52,7 @@ export const playgroundEffects: readonly PlaygroundEffect[] = [
     slug: "poids-lourd",
     title: { fr: "Poids Lourd", en: "Heavyweight" },
     description: {
-      fr: "Saisissez, glissez et lancez le logo chromé contre des murs élastiques.",
+      fr: "Saisis, glisse et lance le logo chromé contre des murs élastiques.",
       en: "Grab, drag and throw the chrome logo against elastic walls.",
     },
     preview: "drop",

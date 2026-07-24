@@ -30,7 +30,7 @@ export const copy: Record<Locale, PoidsLourdCopy> = {
       "Cette expérience nécessite un navigateur compatible WebGL, animations activées.",
     tilt: {
       title: "Incliner pour jouer",
-      body: "Autorisez l'inclinaison pour ajouter un peu de gravité au geste.",
+      body: "Autorise l'inclinaison pour ajouter un peu de gravité au geste.",
       enable: "Activer",
       dismiss: "Non merci",
     },

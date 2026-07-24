@@ -1,10 +1,11 @@
 import { afterEach, describe, expect, it, vi, type Mock } from "vitest";
 import { PLAYGROUND_INTERACTION_EVENT } from "@/components/playground/report-interaction";
+import { CAMERA_BODY_FLOOR, CAMERA_DISTANCE_DEFAULT, CAMERA_DISTANCE_MIN } from "./physics";
 
 const { renderers, groups, cameras } = vi.hoisted(() => ({
   renderers: [] as Array<{ setPixelRatio: Mock; setAnimationLoop: Mock }>,
   groups: [] as Array<{ position: { set: Mock }; rotation: { set: Mock } }>,
-  cameras: [] as Array<{ position: { z: number } }>,
+  cameras: [] as Array<{ position: { z: number }; fov: number }>,
 }));
 
 // Same lightweight three.js stand-in used by scene-canvas.test.tsx / studio-rig.test.ts:
@@ -53,10 +54,14 @@ vi.mock("three", async () => {
   }
   class PerspectiveCamera extends Object3DMock {
     aspect = 1;
+    fov: number;
     updateProjectionMatrix = vi.fn();
-    constructor() {
+    constructor(fov = 0) {
       super();
-      cameras.push(this as unknown as { position: { z: number } });
+      // The framing is read back off `position.z` and `fov` together: past the body
+      // floor the camera stops moving and only the lens still answers the controls.
+      this.fov = fov;
+      cameras.push(this as unknown as { position: { z: number }; fov: number });
     }
   }
   class WebGLRenderer {
@@ -327,6 +332,56 @@ describe("createPoidsLourdEngine", () => {
 
     engine.zoom("out");
     expect(camera.position.z).toBeCloseTo(framing);
+
+    engine.dispose();
+  });
+
+  // What "zoom three times further in" actually buys: the presses that land past the
+  // body floor keep magnifying, they just do it with the lens instead of the dolly.
+  it("keeps magnifying once the camera has run out of room to move", () => {
+    const container = makeContainer();
+    const engine = createPoidsLourdEngine();
+    engine.mount(container);
+    const camera = cameras[cameras.length - 1];
+
+    const magnification = () => 1 / (camera.position.z * Math.tan((camera.fov * Math.PI) / 360));
+    const openedAt = magnification();
+    let previous = openedAt;
+
+    // Enough presses to bottom the range out, so the last few are pure lens.
+    for (let press = 0; press < 12; press += 1) {
+      engine.zoom("in");
+      const now = magnification();
+      expect(now).toBeGreaterThanOrEqual(previous);
+      previous = now;
+    }
+
+    expect(camera.position.z).toBe(CAMERA_BODY_FLOOR);
+    expect(previous / openedAt).toBeCloseTo(CAMERA_DISTANCE_DEFAULT / CAMERA_DISTANCE_MIN, 4);
+
+    engine.dispose();
+  });
+
+  // Zoomed right in the frame is narrower than the toy itself. The walls stop following
+  // it there, because walls that kept closing would pin the body — or, once their inset
+  // edges crossed, mirror it back and forth forever instead of letting it fall.
+  it("leaves the body room to fall even zoomed all the way in", () => {
+    const container = makeContainer();
+    const engine = createPoidsLourdEngine();
+    engine.mount(container);
+    const renderFrame = renderers[renderers.length - 1].setAnimationLoop.mock
+      .calls[0][0] as () => void;
+    const body = groups[groups.length - 1];
+
+    for (let press = 0; press < 12; press += 1) engine.zoom("in");
+    body.position.set.mockClear();
+    for (let frame = 0; frame < 90; frame += 1) renderFrame();
+
+    const [x, y] = body.position.set.mock.calls[body.position.set.mock.calls.length - 1];
+    expect(Number.isFinite(x)).toBe(true);
+    expect(Number.isFinite(y)).toBe(true);
+    // Gravity settles it on the floor instead of trapping it between crossed walls.
+    expect(y).toBeLessThan(0);
 
     engine.dispose();
   });

@@ -57,16 +57,25 @@ export default async function PlaygroundPage({ params }: RouteProps) {
         {playgroundEffects.length === 0 ? (
           <p className="max-w-prose text-lg leading-relaxed text-ink/70">{playground.emptyState}</p>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 md:gap-8 xl:grid-cols-3">
+          // Wrapping flex rather than a grid: the registry rarely fills the last row, and
+          // a grid would leave the leftover cards hanging off the left edge with a hole
+          // beside them. `justify-center` centres whatever the row ends up holding, while
+          // the widths below reproduce the same one/two/three columns a grid gave — a
+          // full row still lands flush edge to edge.
+          <div className="flex flex-wrap justify-center gap-6 md:gap-8">
             {playgroundEffects.map((effect) => (
-              <EffectCard
+              <div
                 key={effect.id}
-                href={`${ROUTE}/${effect.slug}`}
-                title={effect.title[locale]}
-                hook={effect.description[locale]}
-                playLabel={playground.play}
-                preview={effect.preview}
-              />
+                className="w-full md:w-[calc((100%_-_2rem)/2)] xl:w-[calc((100%_-_4rem)/3)]"
+              >
+                <EffectCard
+                  href={`${ROUTE}/${effect.slug}`}
+                  title={effect.title[locale]}
+                  hook={effect.description[locale]}
+                  playLabel={playground.play}
+                  preview={effect.preview}
+                />
+              </div>
             ))}
           </div>
         )}

@@ -231,7 +231,7 @@ const fr: LocaleContent = {
   },
   blog: {
     lead: "Ce qu’on apprend en construisant, écrit chez nous plutôt que sur LinkedIn ou Medium.",
-    emptyState: "Aucun article pour le moment. Revenez bientôt.",
+    emptyState: "Aucun article pour le moment. Reviens bientôt.",
     byline: "Par",
     featuredLabel: "À la une",
     readMore: "Lire l’article",
@@ -239,8 +239,8 @@ const fr: LocaleContent = {
     postCount: { one: "article", other: "articles" },
   },
   playground: {
-    lead: "Un espace vivant où on teste les effets avant qu’ils passent en production. Les cartes arrivent projet par projet.",
-    emptyState: "Aucune expérience pour le moment. Revenez bientôt.",
+    lead: "On sait que le logo de la page d’accueil t’a plu. Ici, il est à toi : attrape-le, lance-le, zoome dedans.",
+    emptyState: "Aucune expérience pour le moment. Reviens bientôt.",
     play: "Jouer",
     back: "Retour au Playground",
     loading: "Chargement de l'expérience…",
@@ -318,7 +318,7 @@ const fr: LocaleContent = {
   values: ["Audace", "Sincerite", "Energie", "Simplicite radicale", "Exigence creative"],
   contact: {
     title: ["Creons de la", "big emotion"],
-    lead: "Une marque qui mérite d’être plus forte ? Dites ce que vous construisez.",
+    lead: "Une marque qui mérite d’être plus forte ? Dis-nous ce que tu construis.",
     responseTime: "On te répond sous 24 h.",
     socialSuffix: "sur les réseaux",
   },
@@ -371,7 +371,7 @@ const en: LocaleContent = {
     postCount: { one: "post", other: "posts" },
   },
   playground: {
-    lead: "A living space where we test effects before they ship in production. Cards land project by project.",
+    lead: "We know the homepage logo got you. Here it is yours: grab it, throw it, zoom right in.",
     emptyState: "No experiments yet. Check back soon.",
     play: "Play",
     back: "Back to Playground",
