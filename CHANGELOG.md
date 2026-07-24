@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.2] - 2026-07-24
+
+### Fixed
+
+- The home page now keeps its lemon intro above the header and page copy until
+  the complete 3D logo reveal finishes. The scene then returns behind the
+  content, while reloads restart from the top and scrolling stays locked during
+  the intro instead of restoring a later scene beneath the spinning logo.
+
 ## [0.8.1] - 2026-07-24
 
 ### Fixed
@@ -415,7 +424,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   under the Node.js container and its `/api/contact` replacement is not shipped
   (SWBE-31).
 
-[Unreleased]: https://github.com/big-emotion/website/compare/v0.8.1...HEAD
+[Unreleased]: https://github.com/big-emotion/website/compare/v0.8.2...HEAD
+[0.8.2]: https://github.com/big-emotion/website/releases/tag/v0.8.2
 [0.8.1]: https://github.com/big-emotion/website/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/big-emotion/website/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/big-emotion/website/compare/v0.6.0...v0.7.0
