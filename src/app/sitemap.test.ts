@@ -18,8 +18,8 @@ vi.mock("@/components/playground/effects", () => ({
   },
 }));
 
-getAllByType.mockImplementation(async (_type: string, params: { lang: string }) =>
-  articlesByLang.value[params.lang] ?? [],
+getAllByType.mockImplementation(
+  async (_type: string, params: { lang: string }) => articlesByLang.value[params.lang] ?? [],
 );
 
 const { default: sitemap } = await import("./sitemap");
@@ -30,6 +30,7 @@ function effect(slug: string): PlaygroundEffect {
     slug,
     title: { fr: slug, en: slug },
     description: { fr: slug, en: slug },
+    preview: "orient",
     component: null as unknown as PlaygroundEffect["component"],
   };
 }
@@ -46,10 +47,7 @@ describe("sitemap", () => {
     const entries = await sitemap();
 
     expect(entries.map((entry) => entry.url)).toEqual(
-      expect.arrayContaining([
-        "https://big-emotion.com/blog/",
-        "https://big-emotion.com/en/blog/",
-      ]),
+      expect.arrayContaining(["https://big-emotion.com/blog/", "https://big-emotion.com/en/blog/"]),
     );
   });
 
@@ -66,7 +64,9 @@ describe("sitemap", () => {
     expect(urls).toContain("https://big-emotion.com/blog/notre-approche/");
     expect(urls).toContain("https://big-emotion.com/en/blog/notre-approche/");
 
-    const frEntry = entries.find((entry) => entry.url === "https://big-emotion.com/blog/notre-approche/");
+    const frEntry = entries.find(
+      (entry) => entry.url === "https://big-emotion.com/blog/notre-approche/",
+    );
     expect(frEntry?.alternates?.languages).toEqual({
       fr: "https://big-emotion.com/blog/notre-approche/",
       en: "https://big-emotion.com/en/blog/notre-approche/",
