@@ -35,6 +35,12 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static   ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/public         ./public
 
+# Playground counter's flat-file store (SWBE-216/DEC-033) writes here. Pre-creating it
+# with nextjs ownership matters because Docker seeds a fresh named volume from whatever
+# already exists at the mount path in the image, ownership included — without this the
+# compose volume mounts in as root-owned and the non-root process can't write to it.
+RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
+
 USER nextjs
 EXPOSE 3000
 ENV PORT=3000

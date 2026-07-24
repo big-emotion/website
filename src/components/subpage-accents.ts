@@ -1,10 +1,9 @@
-export type SubpageId = "approach" | "cases" | "culture" | "contact";
+export type SubpageId = "approach" | "cases" | "culture" | "contact" | "playground" | "blog";
 
-// Blog articles (`blog/page.tsx`, `blog/[uid]/page.tsx`) render straight on `bg-lyon`
-// rather than through `SubpageHero`, so they need a header-ink entry (REQ-036) without
-// joining `SubpageId` — that type also keys `SUBPAGE_PHOTOS` in subpage-hero.tsx, which
-// has no blog photo.
-export type HeaderAccentId = SubpageId | "blog";
+// Every accent route now opens on `SubpageHero`, so this is no longer a wider set than
+// `SubpageId` — blog was the one entry that had a header ink but no hero of its own.
+// The alias stays because the header and footer read accents by this name.
+export type HeaderAccentId = SubpageId;
 
 type Accent = {
   /** Background + ink for the hero band itself. */
@@ -24,9 +23,20 @@ export const SUBPAGE_ACCENTS: Record<HeaderAccentId, Accent> = {
   cases: { surface: "bg-tangerine text-ink", headerInk: "text-ink" },
   culture: { surface: "bg-lyon text-paper", headerInk: "text-paper" },
   contact: { surface: "bg-ink text-lemon", headerInk: "text-lemon" },
-  // Same lyon surface as culture, so the same text-paper ink applies (~9.9:1, clears the
-  // 4.5:1 AA floor) — text-ink here measured 2.12:1, the contrast this entry fixes.
-  blog: { surface: "bg-lyon text-paper", headerInk: "text-paper" },
+  // Grey is the studio backdrop the chrome logo is lit against (the rig bakes its
+  // environment on 0x565b64), so the Playground keeps brutal on the gallery *and* on
+  // every effect stage — the chrome reads as chrome instead of as a flat silhouette.
+  playground: { surface: "bg-brutal text-ink", headerInk: "text-ink" },
+  // The one accent that is not a fixed pair of tokens. The blog wears a whole
+  // association from the guidelines' board — its own on /blog, one drawn at random on
+  // each article (src/components/blog/brand-pairings.ts) — so it names the custom
+  // properties those two set instead. Reading them here is what carries the association
+  // out to the header ink and the footer band, which sit outside the page and would
+  // otherwise keep the index's colours over an article painted in another pair.
+  blog: {
+    surface: "bg-[var(--blog-surface)] text-[var(--blog-ink)]",
+    headerInk: "text-[var(--blog-ink)]",
+  },
 };
 
 /**

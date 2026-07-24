@@ -56,6 +56,7 @@ so that <business outcome>.
 1. <step one>
 2. <step two>
 3. <step three>
+
 <!-- /if -->
 
 ## Expected vs Actual behavior
@@ -76,7 +77,7 @@ so that <business outcome>.
 <!-- Required. One bullet per criterion, in the exact house form used across SWBE-1..4:
      "Given <context>, when <action>, then <observable outcome>." -->
 
-* Given <context>, when <action>, then <observable outcome>.
+- Given <context>, when <action>, then <observable outcome>.
 
 ## Confluence impact (load-bearing)
 

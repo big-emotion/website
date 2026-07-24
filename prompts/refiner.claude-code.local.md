@@ -3,7 +3,7 @@
 The base prompt tells you to move the parent into its "post-refine column
 (typically In Refinement → To Do / Ready for Dev)". On this Jira board that
 mapping is wrong: the **`À faire` / To Do** column sits **before** Refinement,
-so transitioning there (transition **id 11**) moves the ticket *backward* into
+so transitioning there (transition **id 11**) moves the ticket _backward_ into
 the backlog and no downstream agent ever picks it up.
 
 After creating the sub-tasks, transition the parent **forward into

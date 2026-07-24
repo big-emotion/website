@@ -32,9 +32,7 @@ const SATORI_FONT_SIGNATURES = new Set([
 ]);
 
 function loadDisplayFont(): Buffer | null {
-  const file = readFileSync(
-    join(process.cwd(), "src/app/fonts/bbh-hegarty-latin.woff"),
-  );
+  const file = readFileSync(join(process.cwd(), "src/app/fonts/bbh-hegarty-latin.woff"));
   const signature = file.subarray(0, 4).toString("latin1");
   return SATORI_FONT_SIGNATURES.has(signature) ? file : null;
 }
@@ -46,45 +44,43 @@ export default function OpengraphImage() {
   const displayFamily = bbhHegarty ? { fontFamily: "BBH Hegarty" } : {};
 
   return new ImageResponse(
-    (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        background: "#000",
+        padding: "0 90px",
+      }}
+    >
       <div
         style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          background: "#000",
-          padding: "0 90px",
+          ...displayFamily,
+          // BBH Hegarty ships a single static weight (400); satori only resolves
+          // a custom face when the requested weight matches a registered one.
+          fontWeight: 400,
+          fontSize: 168,
+          lineHeight: 1,
+          letterSpacing: "-0.04em",
+          color: LEMON,
         }}
       >
-        <div
-          style={{
-            ...displayFamily,
-            // BBH Hegarty ships a single static weight (400); satori only resolves
-            // a custom face when the requested weight matches a registered one.
-            fontWeight: 400,
-            fontSize: 168,
-            lineHeight: 1,
-            letterSpacing: "-0.04em",
-            color: LEMON,
-          }}
-        >
-          B!G EMOTION
-        </div>
-        <div
-          style={{
-            ...displayFamily,
-            fontWeight: 400,
-            fontSize: 52,
-            marginTop: 36,
-            color: "#fff",
-          }}
-        >
-          The B!G agency that gives a wow.
-        </div>
+        B!G EMOTION
       </div>
-    ),
+      <div
+        style={{
+          ...displayFamily,
+          fontWeight: 400,
+          fontSize: 52,
+          marginTop: 36,
+          color: "#fff",
+        }}
+      >
+        The B!G agency that gives a wow.
+      </div>
+    </div>,
     {
       ...size,
       ...(bbhHegarty

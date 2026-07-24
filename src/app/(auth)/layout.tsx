@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Wordmark } from "@/components/wordmark";
+import { Logo } from "@/components/logo";
 import { defaultLocale } from "@/i18n/locales";
 import { SITE_ORIGIN } from "@/i18n/urls";
 import { DocumentShell } from "../document-shell";
@@ -26,7 +26,7 @@ export default function AuthLayout({ children }: Readonly<{ children: React.Reac
     <DocumentShell lang={defaultLocale} skipLabel="Aller au contenu">
       <header className="px-5 py-4 md:px-8 md:py-5">
         <Link href="/" aria-label="BIG EMOTION — accueil">
-          <Wordmark className="text-[1.45rem] md:text-2xl" />
+          <Logo className="h-10 w-auto md:h-12" />
         </Link>
       </header>
       <main id="main" className="flex-1">

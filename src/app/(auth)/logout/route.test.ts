@@ -13,9 +13,7 @@ describe("POST /(auth)/logout", () => {
   it("destroys the session and redirects to /login", async () => {
     const { POST } = await import("./route");
 
-    const res = await POST(
-      new NextRequest("http://localhost:3000/logout", { method: "POST" }),
-    );
+    const res = await POST(new NextRequest("http://localhost:3000/logout", { method: "POST" }));
 
     expect(destroySession).toHaveBeenCalled();
     expect(res.status).toBe(307);

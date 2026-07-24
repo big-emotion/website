@@ -1,18 +1,23 @@
 import type { StaticImageData } from "next/image";
+import type { ReactNode } from "react";
 import approachPhoto from "@/photos/approach.jpg";
+import blogPhoto from "@/photos/blog.jpg";
 import casesPhoto from "@/photos/cases.jpg";
 import contactPhoto from "@/photos/contact.jpg";
 import culturePhoto from "@/photos/culture.jpg";
+import playgroundPhoto from "@/photos/playground.jpg";
 import { StackedHeadline } from "./stacked-headline";
 import { SUBPAGE_ACCENTS, type SubpageId } from "./subpage-accents";
 import { SubpagePhoto } from "./subpage-photo";
 
 /**
- * SWBE-91. Generated to the brand's iconography rules rather than taken from the
- * designer's prototype: two of those four JPEGs carried third-party trademarks (adidas,
- * AITO) and all were below the 1600px floor. The prompt behind each file is versioned in
- * `docs/redesign/2026-07-subpage-photo-prompts.md` — regenerate from there, not from
- * scratch, or the four heroes drift apart.
+ * SWBE-91 generated these to the brand's iconography rules; art direction has since
+ * replaced most of them with frames chosen from the designer's own mood board. That
+ * board is mixed: several of its shots carry a third-party trademark (Nike, adidas and
+ * Paris Basketball, AITO, Desperados), and those are the ones SWBE-91 had to replace in
+ * the first place — so a frame is only eligible once it carries no other brand's mark.
+ * `cases` is still the generated image; its prompt lives in
+ * `docs/redesign/2026-07-subpage-photo-prompts.md`.
  *
  * These are imported rather than referenced by a `public/` path so the emitted URL carries
  * a hash of the file's contents. Art direction replaces these images in place, keeping the
@@ -28,6 +33,13 @@ export const SUBPAGE_PHOTOS: Record<SubpageId, StaticImageData | null> = {
   cases: casesPhoto,
   culture: culturePhoto,
   contact: contactPhoto,
+  // The one frame kept from the designer's original set: no third-party trademark on it
+  // (unlike the adidas and AITO shots SWBE-91 had to replace) and its stickered grin is
+  // the Playground's own promise — the logo is a toy, break it. It ships at 1116×1400,
+  // under the 1600px floor the four above were regenerated to meet; art direction should
+  // reshoot it at full size, and the prompt file is the place to record that.
+  playground: playgroundPhoto,
+  blog: blogPhoto,
 };
 
 /**
@@ -46,10 +58,19 @@ export function SubpageHero({
   page,
   title,
   lead,
+  titleSizeClassName = "text-[clamp(2.75rem,9.4vw,8.9rem)]",
+  children,
 }: {
   page: SubpageId;
   title: readonly string[];
   lead: string;
+  /** The four original heroes stack short lines, which the default scale is tuned for.
+   *  A title that is one long unbreakable word ("PLAYGROUND") has nowhere to wrap and
+   *  would run under the photo, so it asks for its own. */
+  titleSizeClassName?: string;
+  /** Optional badge row under the lead — the Playground hangs its collective counter
+   *  here. Absent on the four original heroes, which render exactly as before. */
+  children?: ReactNode;
 }) {
   return (
     <section
@@ -60,11 +81,12 @@ export function SubpageHero({
           <StackedHeadline
             as="h1"
             lines={title}
-            className="font-display subpage-rise subpage-rise--title text-[clamp(2.75rem,9.4vw,8.9rem)]"
+            className={`font-display subpage-rise subpage-rise--title ${titleSizeClassName}`}
           />
           <p className="subpage-rise subpage-rise--lead mt-6 max-w-[46ch] text-[clamp(1.0625rem,1.6vw,1.625rem)] leading-[1.4] opacity-90 md:mt-8">
             {lead}
           </p>
+          {children && <div className="subpage-rise subpage-rise--lead mt-6">{children}</div>}
         </div>
 
         {/* Second in the document, first on screen below 768px (`order` in globals.css). */}

@@ -40,7 +40,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       // — it must never surface to the caller.
       void sendMail({
         to: email,
-        subject: "Votre lien de connexion BIG EMOTION",
+        subject: "Ton lien de connexion BIG EMOTION",
         text: `Clique sur ce lien pour te connecter : ${verifyUrl}`,
       }).catch((error: unknown) => {
         console.error("[auth:request-link] sendMail failed", error);

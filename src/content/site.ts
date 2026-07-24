@@ -80,8 +80,42 @@ type LocaleContent = {
     featuredLabel: string;
     /** CTA on the promoted lead article. */
     readMore: string;
+    /** Back-to-index link on an article's own page. `font-display` slot — ASCII only. */
+    back: string;
     /** Hero count chip. The number is interpolated; the noun is chosen by the count. */
     postCount: { one: string; other: string };
+  };
+  /** The /playground surface (REQ-037): a gallery of living-space experiments. Cards
+   *  fill in as each effect story ships (SWBE-210); until then the gallery shows
+   *  `emptyState`, same contract as blog's own empty state. */
+  playground: {
+    lead: string;
+    emptyState: string;
+    /** Call to action on a gallery card (PG-03). `font-display` slot — ASCII only. */
+    play: string;
+    /** Back-to-gallery link on an effect's own page. */
+    back: string;
+    /** EffectStage's Suspense fallback while an effect's chunk is fetched (PG-18). */
+    loading: string;
+    /** The player share loop (REQ-038): native sheet + clipboard fallback. Sans-slot
+     *  chrome, not `font-display`, so it keeps its accents. */
+    share: {
+      button: string;
+      sharedToast: string;
+      copiedToast: string;
+      failedToast: string;
+    };
+    /** The collective counter chip (SWBE-216/REQ-042) — same `{count} {noun}` pattern
+     *  as `blog.postCount`. Sans-slot chrome, not `font-display`, so it keeps its accents. */
+    counter: { one: string; other: string };
+    /** Celebration toast lead-in (SWBE-217/REQ-043), prefixed to the unlocked badge's
+     *  own label — sans-slot chrome, not `font-display`, so it keeps its accents. */
+    challengeUnlockedLead: string;
+    /** One hidden-challenge badge per effect id (from `effects.ts`), SWBE-217/REQ-043.
+     *  `label` lands in a `font-display` slot (`BadgeChip`) — keep unaccented (DEC-023).
+     *  `unlockedShare` is the brag text `resolveShareText` hands to `shareEffect` once
+     *  this browser has unlocked it. */
+    badges: Record<string, { label: string; unlockedShare: string }>;
   };
   services: readonly { title: string; body: string }[];
   impactStats: readonly { value: string; label: string }[];
@@ -175,6 +209,7 @@ const fr: LocaleContent = {
     { label: "References & Impact", href: "/cases" },
     { label: "Culture", href: "/culture" },
     { label: "Blog", href: "/blog" },
+    { label: "Playground", href: "/playground" },
     { label: "Contact", href: "/contact" },
   ],
   espaceB2bLabel: "Espace B2B",
@@ -184,11 +219,11 @@ const fr: LocaleContent = {
     { id: "cases", title: ["Derriere", "chaque clic,", "une emotion"] },
     { id: "culture", title: ["Digital first,", "emotion", "toujours"] },
   ],
-  mission: "Donner vie a tes projets et leur transmettre des emotions.",
+  mission: "On fait du sur-mesure et du conseil. On y ajoute ce qui fait dire wow.",
   stat: { value: "50+", label: "projets accompagnes" },
   leads: {
     approach:
-      "On part de la réaction, puis on remonte tout le fil pour l’obtenir. Stratégie, design et motion en un seul système, pour que chaque scroll, transition et frame soit un temps fort d’une histoire mémorable.",
+      "On part de la réaction qu’on veut provoquer, puis on remonte jusqu’au code. Conseil, développement, motion : une seule équipe, un seul fil — et le détail en plus qui fait dire wow.",
     cases:
       "Une sélection de projets où le craft rencontre les chiffres. Des pics de lancement aux courbes de rétention, c’est ici qu’on montre les projets et l’impact qu’ils ont généré.",
     culture:
@@ -196,24 +231,52 @@ const fr: LocaleContent = {
   },
   blog: {
     lead: "Ce qu’on apprend en construisant, écrit chez nous plutôt que sur LinkedIn ou Medium.",
-    emptyState: "Aucun article pour le moment. Revenez bientôt.",
+    emptyState: "Aucun article pour le moment. Reviens bientôt.",
     byline: "Par",
     featuredLabel: "À la une",
     readMore: "Lire l’article",
+    back: "Retour au blog",
     postCount: { one: "article", other: "articles" },
   },
+  playground: {
+    lead: "On sait que le logo de la page d’accueil t’a plu. Ici, il est à toi : attrape-le, lance-le, zoome dedans.",
+    emptyState: "Aucune expérience pour le moment. Reviens bientôt.",
+    play: "Jouer",
+    back: "Retour au Playground",
+    loading: "Chargement de l'expérience…",
+    share: {
+      button: "Partager",
+      sharedToast: "Merci du partage !",
+      copiedToast: "Lien copié dans le presse-papiers.",
+      failedToast: "Impossible de partager pour le moment.",
+    },
+    counter: { one: "partie jouée", other: "parties jouées" },
+    challengeUnlockedLead: "Défi secret débloqué :",
+    badges: {
+      lumiere: {
+        label: "PLEIN SOLEIL",
+        unlockedShare: "J'ai débloqué le badge PLEIN SOLEIL sur le Playground BIG EMOTION !",
+      },
+      "poids-lourd": {
+        label: "GROS BRAS",
+        unlockedShare: "J'ai débloqué le badge GROS BRAS sur le Playground BIG EMOTION !",
+      },
+    },
+  },
+  // Two trades, then what gets sold on top of them. The wow closes the list on purpose:
+  // conseil and sur-mesure are what any agency claims, the third card is the argument.
   services: [
     {
-      title: "Etude, conception & realisation",
-      body: "Une méthodo qui cadre ton besoin au millimètre, puis on t’épaule de A à Z sur toute la technique — et même au-delà.",
-    },
-    {
       title: "Conseil & plan marketing",
-      body: "Plus de cinquante projets au compteur. On met de l’émotion dans ta stratégie, pas du jargon.",
+      body: "On écoute, on cadre, on tranche. Une stratégie qui parle à tes clients, pas à ton comité. Zéro jargon, que des décisions.",
     },
     {
       title: "Developpement sur-mesure",
-      body: "Un cahier des charges précis, des modules conçus rien que pour toi. Ton projet, exactement comme tu le veux.",
+      body: "Rien qui sorte d’un template. Chaque module est écrit pour ton besoin, testé, rapide — mobile d’abord. Ton projet, exactement comme tu le veux.",
+    },
+    {
+      title: "La touche wow",
+      body: "Le détail qui reste en tête : une transition, une matière, un mouvement. C’est lui qui transforme une visite en souvenir.",
     },
   ],
   impactStats: [
@@ -255,7 +318,7 @@ const fr: LocaleContent = {
   values: ["Audace", "Sincerite", "Energie", "Simplicite radicale", "Exigence creative"],
   contact: {
     title: ["Creons de la", "big emotion"],
-    lead: "Une marque qui mérite d’être plus forte ? Dites ce que vous construisez.",
+    lead: "Une marque qui mérite d’être plus forte ? Dis-nous ce que tu construis.",
     responseTime: "On te répond sous 24 h.",
     socialSuffix: "sur les réseaux",
   },
@@ -278,6 +341,7 @@ const en: LocaleContent = {
     { label: "Cases & Impact", href: "/cases" },
     { label: "Culture", href: "/culture" },
     { label: "Blog", href: "/blog" },
+    { label: "Playground", href: "/playground" },
     { label: "Contact", href: "/contact" },
   ],
   espaceB2bLabel: "B2B Space",
@@ -287,11 +351,11 @@ const en: LocaleContent = {
     { id: "cases", title: ["Behind", "every click,", "a feeling"] },
     { id: "culture", title: ["Digital first", "emotion,", "always"] },
   ],
-  mission: "Bring your projects to life and make them felt.",
+  mission: "We build custom, we advise straight. Then we add the wow.",
   stat: { value: "50+", label: "projects delivered" },
   leads: {
     approach:
-      "We start with the reaction, then reverse engineer everything to get there. Strategy, design and motion working as one system, so every scroll, transition and frame is a deliberate beat in a story your audience actually remembers.",
+      "We start from the reaction we want, then work our way back down to the code. Strategy, development, motion: one team, one thread — and the extra detail that gives a wow.",
     cases:
       "Selected work where craft met numbers. From launch spikes to retention curves, this is where we show the projects and the impact they moved.",
     culture:
@@ -303,20 +367,46 @@ const en: LocaleContent = {
     byline: "By",
     featuredLabel: "Featured",
     readMore: "Read the article",
+    back: "Back to the blog",
     postCount: { one: "post", other: "posts" },
+  },
+  playground: {
+    lead: "We know the homepage logo got you. Here it is yours: grab it, throw it, zoom right in.",
+    emptyState: "No experiments yet. Check back soon.",
+    play: "Play",
+    back: "Back to Playground",
+    loading: "Loading the experiment…",
+    share: {
+      button: "Share",
+      sharedToast: "Thanks for sharing!",
+      copiedToast: "Link copied to your clipboard.",
+      failedToast: "Couldn't share this right now.",
+    },
+    counter: { one: "play", other: "plays" },
+    challengeUnlockedLead: "Secret challenge unlocked:",
+    badges: {
+      lumiere: {
+        label: "PLEIN SOLEIL",
+        unlockedShare: "I just unlocked the PLEIN SOLEIL badge on the BIG EMOTION Playground!",
+      },
+      "poids-lourd": {
+        label: "GROS BRAS",
+        unlockedShare: "I just unlocked the GROS BRAS badge on the BIG EMOTION Playground!",
+      },
+    },
   },
   services: [
     {
-      title: "Research, design & delivery",
-      body: "A method that frames what you need down to the millimetre, then we back you from A to Z on everything technical — and well past it.",
-    },
-    {
       title: "Strategy & marketing plan",
-      body: "More than fifty projects behind us. We put emotion into your strategy, not jargon.",
+      body: "We listen, we frame, we call it. A strategy that talks to your customers, not to your steering committee. No jargon, just decisions.",
     },
     {
       title: "Custom development",
-      body: "A precise brief, modules built for you and nobody else. Your project, exactly the way you want it.",
+      body: "Nothing off a template. Every module is written for your brief, tested, fast — mobile first. Your project, exactly the way you want it.",
+    },
+    {
+      title: "The wow touch",
+      body: "The detail that sticks: a transition, a texture, a move. That is what turns a visit into something people remember.",
     },
   ],
   impactStats: [

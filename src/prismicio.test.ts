@@ -1,9 +1,18 @@
-import type { PrismicDocument } from "@prismicio/client";
 import { describe, expect, it } from "vitest";
 import { linkResolver, prismicLocale, routeLocale } from "./prismicio";
 
-function document(fields: Partial<PrismicDocument>): PrismicDocument {
-  return { type: "case_study", uid: "industrie", lang: "fr-fr", ...fields } as PrismicDocument;
+// Prismic hands the resolver a content-relationship field, not a whole document —
+// deriving the type from the resolver keeps this helper honest if that ever changes.
+type ResolvableLink = Parameters<typeof linkResolver>[0];
+
+function document(fields: Record<string, unknown>): ResolvableLink {
+  return {
+    link_type: "Document",
+    type: "case_study",
+    uid: "industrie",
+    lang: "fr-fr",
+    ...fields,
+  } as ResolvableLink;
 }
 
 describe("locale mapping", () => {
@@ -52,8 +61,8 @@ describe("linkResolver", () => {
   });
 
   it("prefixes an English article with its locale segment", () => {
-    expect(
-      linkResolver(document({ type: "article", lang: "en-us", uid: "our-approach" })),
-    ).toBe("/en/blog/our-approach/");
+    expect(linkResolver(document({ type: "article", lang: "en-us", uid: "our-approach" }))).toBe(
+      "/en/blog/our-approach/",
+    );
   });
 });

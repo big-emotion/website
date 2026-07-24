@@ -139,7 +139,7 @@ jobs:
   its behalf) to fast-forward `main` directly, or promotion stays manual.
   This is a manual owner action, not something this ADR can enforce from
   workflow YAML.
-- Clearing the *current* 6-commit backlog (SWBE-21/22/23/24/80/82) is a
+- Clearing the _current_ 6-commit backlog (SWBE-21/22/23/24/80/82) is a
   one-time consequence of adopting this ADR, not a new capability of the
   workflow's steady-state behaviour — it happens via the bootstrap run above,
   and (like the workflow file itself) is a direct-push-to-`main` action this

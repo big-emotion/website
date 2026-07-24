@@ -84,6 +84,52 @@ describe("SiteHeader navigation", () => {
   });
 });
 
+// The maquette dims the link of the page you are already on ("you are here"). The dim is
+// keyed off aria-current="page", which is the real contract: it both announces the current
+// page to assistive tech and gives the CSS its styling hook.
+describe("SiteHeader current-page marker", () => {
+  const navItem = (href: string) => content.fr.nav.find((item) => item.href === href)!;
+
+  it("marks the nav link of the page you are on as current", () => {
+    renderHeader("fr", "/contact/");
+
+    expect(screen.getByRole("link", { name: navItem("/contact").label })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(screen.getByRole("link", { name: navItem("/approach").label })).not.toHaveAttribute(
+      "aria-current",
+    );
+  });
+
+  it("marks the section link even on a nested route below it", () => {
+    renderHeader("fr", "/cases/some-study/");
+
+    expect(screen.getByRole("link", { name: navItem("/cases").label })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+  });
+
+  it("marks nothing on the home page, which is not a nav destination", () => {
+    renderHeader("fr", "/");
+
+    for (const item of content.fr.nav) {
+      expect(screen.getByRole("link", { name: item.label })).not.toHaveAttribute("aria-current");
+    }
+  });
+
+  it("marks the current page inside the mobile drawer too", () => {
+    renderHeader("fr", "/culture/");
+    const drawer = openDrawer("fr");
+
+    expect(within(drawer).getByRole("link", { name: navItem("/culture").label })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+  });
+});
+
 describe("SiteHeader locale switcher", () => {
   it("offers the current page in the other locale, both ways", () => {
     const { unmount } = renderHeader("fr", "/cases/");
@@ -121,9 +167,7 @@ describe("SiteHeader mobile drawer", () => {
 
     const drawer = openDrawer("fr");
     expect(toggle).toHaveAttribute("aria-expanded", "true");
-    expect(
-      within(drawer).getByRole("link", { name: content.fr.nav[0].label }),
-    ).toBeInTheDocument();
+    expect(within(drawer).getByRole("link", { name: content.fr.nav[0].label })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: frMessages.header.closeMenu }));
     expect(
@@ -174,8 +218,11 @@ describe("SiteHeader over a sub-page hero", () => {
     ["/cases/", "text-ink"],
     ["/culture/", "text-paper"],
     ["/contact/", "text-lemon"],
-    ["/blog/", "text-paper"],
-    ["/blog/some-article/", "text-paper"],
+    // The blog is the one section whose ink is not a fixed token: it wears a whole
+    // association, drawn per article, so the bar follows the custom property both
+    // surfaces set (src/components/blog/brand-pairings.ts).
+    ["/blog/", "text-[var(--blog-ink)]"],
+    ["/blog/some-article/", "text-[var(--blog-ink)]"],
   ])("takes the hero's ink on %s", (pathname, ink) => {
     const { container } = renderHeader("fr", pathname);
 
@@ -188,15 +235,16 @@ describe("SiteHeader over a sub-page hero", () => {
     expect(container.querySelector("header")).toHaveClass("text-ink");
   });
 
-  // REQ-036: blog articles render on bg-lyon, so the resting header must not fall back to
-  // the black default (2.12:1 on blue, below the 4.5:1 AA floor). text-paper on lyon
-  // measures ~9.9:1 — the same pair culture already relies on — so no solid bar is
-  // needed, only the ink swap `blog` was missing from SUBPAGE_ACCENTS.
+  // REQ-036: the resting header over the blog must not fall back to the black default,
+  // which measured 2.12:1 on the blue the section used to be. Taking the association's
+  // own ink settles it for every pair rather than for that one surface — that the ink
+  // clears 4.5:1 on its surface is what brand-pairings.test.ts asserts, against the real
+  // palette — so no solid bar is needed at rest.
   it("meets AA at rest over /blog/ without falling back to a solid bar", () => {
     const { container } = renderHeader("fr", "/blog/");
     const header = container.querySelector("header");
 
-    expect(header).toHaveClass("text-paper");
+    expect(header).not.toHaveClass("text-ink");
     expect(header).not.toHaveClass("bg-ink");
   });
 });

@@ -41,13 +41,8 @@ describe("session lib", () => {
 
   describe("encodeSessionToken / decodeSessionToken", () => {
     it("round-trips a valid payload", async () => {
-      const { encodeSessionToken, decodeSessionToken } = await import(
-        "./session"
-      );
-      const token = encodeSessionToken(
-        { userId: "a@acme.com", clientId: "acme" },
-        AUTH_SECRET,
-      );
+      const { encodeSessionToken, decodeSessionToken } = await import("./session");
+      const token = encodeSessionToken({ userId: "a@acme.com", clientId: "acme" }, AUTH_SECRET);
       expect(decodeSessionToken(token, AUTH_SECRET)).toEqual({
         userId: "a@acme.com",
         clientId: "acme",
@@ -55,33 +50,21 @@ describe("session lib", () => {
     });
 
     it("returns null for a tampered token", async () => {
-      const { encodeSessionToken, decodeSessionToken } = await import(
-        "./session"
-      );
-      const token = encodeSessionToken(
-        { userId: "a@acme.com", clientId: "acme" },
-        AUTH_SECRET,
-      );
+      const { encodeSessionToken, decodeSessionToken } = await import("./session");
+      const token = encodeSessionToken({ userId: "a@acme.com", clientId: "acme" }, AUTH_SECRET);
       const [data] = token.split(".");
       const tampered = `${data}x.${token.split(".")[1]}`;
       expect(decodeSessionToken(tampered, AUTH_SECRET)).toBeNull();
     });
 
     it("returns null when verified with the wrong secret", async () => {
-      const { encodeSessionToken, decodeSessionToken } = await import(
-        "./session"
-      );
-      const token = encodeSessionToken(
-        { userId: "a@acme.com", clientId: "acme" },
-        AUTH_SECRET,
-      );
+      const { encodeSessionToken, decodeSessionToken } = await import("./session");
+      const token = encodeSessionToken({ userId: "a@acme.com", clientId: "acme" }, AUTH_SECRET);
       expect(decodeSessionToken(token, "a-different-secret")).toBeNull();
     });
 
     it("returns null for an expired token", async () => {
-      const { encodeSessionToken, decodeSessionToken } = await import(
-        "./session"
-      );
+      const { encodeSessionToken, decodeSessionToken } = await import("./session");
       const token = encodeSessionToken(
         { userId: "a@acme.com", clientId: "acme" },
         AUTH_SECRET,
@@ -135,8 +118,7 @@ describe("session lib", () => {
     });
 
     it("destroySession clears the cookie", async () => {
-      const { createSession, destroySession, getEditorSession } =
-        await import("./session");
+      const { createSession, destroySession, getEditorSession } = await import("./session");
       await createSession({ userId: "a@acme.com", clientId: "acme" });
       await destroySession();
       expect(await getEditorSession()).toBeNull();
@@ -145,9 +127,9 @@ describe("session lib", () => {
     it("createSession throws when AUTH_SECRET is not configured", async () => {
       delete process.env.AUTH_SECRET;
       const { createSession } = await import("./session");
-      await expect(
-        createSession({ userId: "a@acme.com", clientId: "acme" }),
-      ).rejects.toThrow(/AUTH_SECRET/);
+      await expect(createSession({ userId: "a@acme.com", clientId: "acme" })).rejects.toThrow(
+        /AUTH_SECRET/,
+      );
     });
   });
 });

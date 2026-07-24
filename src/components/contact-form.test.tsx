@@ -66,7 +66,9 @@ describe("ContactForm", () => {
     renderForm("fr");
     submitInFrench();
 
-    expect(await screen.findByRole("alert")).toHaveTextContent("Une erreur est survenue. Réessaie.");
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Une erreur est survenue. Réessaie.",
+    );
   });
 
   it("hands out the inbox address when the request never reaches the server", async () => {

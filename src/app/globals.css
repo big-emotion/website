@@ -14,7 +14,22 @@
 /* Fonts are injected on <html> by next/font; `inline` emits the var() reference. */
 @theme inline {
   --font-display: var(--font-bbh);
+  --font-display-condensed: var(--font-bbh-condensed);
+  --font-display-extended: var(--font-bbh-extended);
   --font-body: var(--font-bricolage);
+}
+
+/* The blog's colour association, one of the pairs on the guidelines' ASSOCIATIONS board
+   (src/components/blog/brand-pairings.ts). These defaults are `INDEX_PAIRING_ID` — kept
+   in step by brand-pairings.test.ts — so /blog is painted with no script at all; an
+   article overrides the three on <html> with a pairing drawn on each load.
+
+   Hero, index, article body, header ink and footer all read them, which is what makes a
+   page one association rather than a coloured band stapled onto a different one. */
+:root {
+  --blog-surface: var(--color-lemon);
+  --blog-ink: var(--color-lyon);
+  --blog-accent: var(--color-ink);
 }
 
 body {
@@ -30,6 +45,24 @@ body {
   letter-spacing: -0.02em;
   line-height: 0.92;
   text-transform: uppercase;
+}
+
+/* BBH's three width cuts. The charter makes the interplay the signature — one headline
+   sets some words condensed and others extended, which is why these are width modifiers
+   applied inside a `.font-display` block rather than three separate display faces:
+
+     <h2 class="font-display">
+       <span class="font-display-condensed">We</span> create
+       <span class="font-display-extended">impact</span>
+     </h2>
+
+   Declared after `.font-display` so the modifier wins on equal specificity. */
+.font-display-condensed {
+  font-family: var(--font-display-condensed);
+}
+
+.font-display-extended {
+  font-family: var(--font-display-extended);
 }
 
 /* CSS-only marquee so the manifesto band animates without shipping JS.
@@ -74,11 +107,6 @@ body {
      a comparable px/s. A list of names is read, not glanced at. */
   animation-duration: 60s;
 }
-.loadscreen .marquee-track {
-  /* The intro is on screen for 1.4s total: at the manifesto's pace it would read as a
-     frozen image rather than a moving band. */
-  animation-duration: 22s;
-}
 @media (prefers-reduced-motion: reduce) {
   .marquee-track {
     animation: none;
@@ -109,35 +137,89 @@ body {
   }
 }
 
-/* Load screen — pure CSS so content reveals even if JS is slow, blocked, or fails
-   (the whole point of a static export). The overlay holds the brand intro, then
-   slides up on its own; pointer-events:none lets the page underneath stay usable. */
-@keyframes loadscreen-out {
-  0%,
-  55% {
-    transform: translateY(0);
+/* ============================================================
+   /culture's founder band — the roster drifts past and the member under the
+   cursor swells. Same marquee machinery as the client wall, three rules of its
+   own: it is slower (a bio is read, a wordmark is glanced at), it swells with a
+   transform rather than a size — the -50% loop is measured off the track's
+   laid-out width, so a layout-changing hover would tear the halves apart — and
+   the members it is *not* showing you step back, because at this card size the
+   swell alone is too quiet to read as a pick.
+   ============================================================ */
+.team-marquee .marquee-track {
+  /* A half is ~104vw by construction (see TeamMarquee), so this reads as "one
+     screenful per 40s" at every breakpoint rather than a fixed px/s that would
+     crawl on a phone and race on a 4K panel. A founder's card takes about a
+     minute to cross, which is what it costs to actually read the bio. */
+  animation-duration: 40s;
+}
+/* Tabbing into the band moves the focused link out from under the cursor unless the
+   scroll stops too. The client wall carries no links, hence the narrower selector. */
+.team-marquee .marquee-track:focus-within {
+  animation-play-state: paused;
+}
+.team-marquee-member {
+  transition: opacity 0.4s ease;
+}
+.team-marquee-details {
+  transform-origin: left top;
+  transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+@media (hover: hover) {
+  /* Room for the swell to happen in. Scaling a full-width card by 1.12 pushes its bio
+     over the next founder's card; holding the measure back to 88% keeps the grown box
+     inside its own column. Scoped to hover devices so a phone, which never swells,
+     keeps the full width for its much narrower card. */
+  .team-marquee-details {
+    max-width: 88%;
   }
-  100% {
-    transform: translateY(-100%);
+  .team-marquee:hover .team-marquee-member {
+    opacity: 0.4;
+  }
+  .team-marquee .team-marquee-member:hover {
+    opacity: 1;
+  }
+  .team-marquee .team-marquee-member:hover .team-marquee-details {
+    transform: scale(1.12);
   }
 }
-.loadscreen {
-  pointer-events: none;
-  animation: loadscreen-out 1.4s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+/* Keyboard parity, outside the hover query so it also holds on touch. Ranks above the
+   dimming rule above on specificity, which is what restores the focused member. */
+.team-marquee .team-marquee-member:focus-within {
+  opacity: 1;
+}
+.team-marquee .team-marquee-member:focus-within .team-marquee-details {
+  transform: scale(1.12);
 }
 @media (prefers-reduced-motion: reduce) {
-  /* No large vertical slide for vestibular sensitivity: fade out fast instead. */
-  .loadscreen {
-    animation: loadscreen-fade 0.3s ease 0.3s forwards;
+  /* Frozen, the band would clip the roster at the viewport edge and the repeats
+     would print the same two people six times. Unwrap it back into the plain
+     grid the section carried before, and keep the swell off a static card. */
+  .team-marquee {
+    margin-inline: 0;
+    overflow: visible;
   }
-  .loadscreen .marquee-track {
-    animation: none;
+  .team-marquee .marquee-track,
+  .team-marquee .marquee-track > ul {
+    width: 100%;
+    flex-wrap: wrap;
   }
-}
-@keyframes loadscreen-fade {
-  to {
-    opacity: 0;
-    visibility: hidden;
+  .team-marquee .marquee-track > [aria-hidden="true"] {
+    display: none;
+  }
+  /* The card width is sized off `vw` to keep the loop seamless; with no loop left to
+     keep, that only pushes two founders onto two rows. Back to the plain two-column
+     read the section carried before the band. */
+  .team-marquee-member {
+    width: min(100%, 34rem);
+    padding-inline: 0;
+    padding-bottom: 3rem;
+  }
+  .team-marquee .marquee-track > ul {
+    gap: 3rem;
+  }
+  .team-marquee-details {
+    transform: none;
   }
 }
 
@@ -161,7 +243,7 @@ body {
   font-family: var(--font-body);
   font-size: clamp(1rem, 0.97rem + 0.3vw, 1.125rem);
   line-height: 1.75;
-  color: var(--color-paper);
+  color: var(--blog-ink);
 }
 .article-prose > :first-child {
   margin-top: 0;
@@ -209,18 +291,24 @@ body {
   margin-top: 0.5em;
 }
 .article-prose blockquote {
-  border-left: 3px solid var(--color-paper);
+  border-left: 3px solid currentColor;
   padding-left: 1.25em;
   font-style: italic;
   opacity: 0.85;
 }
+/* The link keeps the ink and spends the accent on its underline. Colouring the text
+   itself would put body copy on the 3:1 furniture floor the accent is chosen against —
+   fine for a rule, unreadable for a sentence — and it matches how the heading links
+   already mark themselves (see heading-link.ts). */
 .article-prose a {
-  color: var(--color-lemon);
+  color: inherit;
   text-decoration: underline;
+  text-decoration-color: var(--blog-accent);
+  text-decoration-thickness: 0.12em;
   text-underline-offset: 0.15em;
 }
 .article-prose a:hover {
-  color: var(--color-tangerine);
+  text-decoration-thickness: 0.2em;
 }
 .article-prose strong {
   font-weight: 700;
@@ -228,6 +316,68 @@ body {
 .article-prose img {
   width: 100%;
   height: auto;
+}
+
+/* Long-form legal copy (SWBE-34). A separate scope from `.article-prose` for two
+   reasons, both hard requirements rather than taste:
+   - Headings stay in the body face. `.article-prose` sets them in `--font-display`, and
+     all three BBH cuts share an ASCII-only cmap (DEC-023) — "Propriété intellectuelle"
+     would render half of itself in a fallback face. Legal subheadings keep their accents.
+   - Colour is inherited, not fixed. `.article-prose` pins `--color-paper` for the blog's
+     coloured surface; legal routes render on the default paper/ink body. */
+.legal-prose {
+  max-width: 68ch;
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 0.97rem + 0.3vw, 1.125rem);
+  line-height: 1.75;
+}
+/* The fallback groups each heading with its paragraphs in a <section>, so the opening
+   heading sits one level deeper than in the Prismic-rendered case. Both start flush
+   against the title above. */
+.legal-prose > :first-child,
+.legal-prose > section:first-child > :first-child {
+  margin-top: 0;
+}
+.legal-prose :where(h2, h3) {
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+.legal-prose h2 {
+  margin-top: 2.5em;
+  margin-bottom: 0.5em;
+  font-size: clamp(1.35rem, 1.2rem + 0.9vw, 1.6rem);
+}
+.legal-prose h3 {
+  margin-top: 2em;
+  margin-bottom: 0.4em;
+  font-size: clamp(1.15rem, 1.05rem + 0.5vw, 1.3rem);
+}
+.legal-prose p,
+.legal-prose ul,
+.legal-prose ol {
+  margin-top: 1.25em;
+}
+.legal-prose ul,
+.legal-prose ol {
+  padding-left: 1.25em;
+}
+.legal-prose ul {
+  list-style: disc;
+}
+.legal-prose ol {
+  list-style: decimal;
+}
+.legal-prose li + li {
+  margin-top: 0.4em;
+}
+.legal-prose a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+.legal-prose strong {
+  font-weight: 700;
 }
 
 /* Guarantee a visible keyboard focus indicator everywhere (WCAG 2.4.7 / 2.4.11).
@@ -557,5 +707,26 @@ body[data-active="5"] {
   .pipeline-board[data-visible="true"] .pipeline-board-chip {
     animation: none;
     opacity: 1;
+  }
+}
+
+/* Hidden-challenge celebration confetti (SWBE-217/REQ-043). `ChallengeCelebration`
+   only renders these spans when `prefers-reduced-motion` is off, so no CSS override
+   is needed here for that case. */
+.challenge-confetti {
+  position: absolute;
+  top: 0;
+  width: 8px;
+  height: 8px;
+  animation: challenge-confetti-fall 1.6s ease-in forwards;
+}
+@keyframes challenge-confetti-fall {
+  0% {
+    transform: translateY(-10vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) rotate(360deg);
+    opacity: 0;
   }
 }

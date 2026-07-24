@@ -4,7 +4,7 @@
  * `GLTFLoader` succeeds on an empty placeholder scene exactly as it does on a
  * real model, so "the model loaded" was never evidence that there is anything to
  * look at. This gate is that evidence. While it is `false`, the hero renders the
- * static `<Wordmark>` and the ~203 KB gzip Three.js/GSAP/Lenis runtime is never
+ * static `<Logo>` lockup and the ~203 KB gzip Three.js/GSAP/Lenis runtime is never
  * fetched.
  *
  * SWBE-78 delivered the production model (`public/models/scene.glb`, 45,592 B

@@ -1,6 +1,10 @@
 import type { Content } from "@prismicio/client";
 import { render, screen } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
 import { describe, expect, it, vi } from "vitest";
+import en from "../../../../../messages/en.json";
+import fr from "../../../../../messages/fr.json";
+import { content } from "@/content/site";
 
 vi.mock("next-intl/server", () => ({ setRequestLocale: vi.fn() }));
 
@@ -37,11 +41,7 @@ getByID.mockImplementation(async (id: string) => {
   return doc;
 });
 
-const {
-  default: ArticlePage,
-  generateStaticParams,
-  generateMetadata,
-} = await import("./page");
+const { default: ArticlePage, generateStaticParams, generateMetadata } = await import("./page");
 
 function article(
   uid: string,
@@ -71,7 +71,14 @@ function author(id: string, name: string): Content.AuthorDocument {
 }
 
 const renderPage = (locale: string, uid: string) =>
-  ArticlePage({ params: Promise.resolve({ locale, uid }) }).then(render);
+  ArticlePage({ params: Promise.resolve({ locale, uid }) }).then((page) =>
+    // The back link is the locale-aware `Link`, which reads the intl context.
+    render(
+      <NextIntlClientProvider locale={locale} messages={locale === "en" ? en : fr}>
+        {page}
+      </NextIntlClientProvider>,
+    ),
+  );
 
 describe("/blog/[uid]", () => {
   it("gives the article the page's only h1", async () => {
@@ -140,6 +147,17 @@ describe("/blog/[uid]", () => {
     const thesis = screen.getByText("Ce qu'on a appris.");
     expect(thesis.closest("blockquote")).toBeInTheDocument();
     expect(container.querySelectorAll("blockquote")).toHaveLength(1);
+  });
+
+  it("offers a way back to the index, in the locale of the route", async () => {
+    docsByLangUid.value = { "en-us:notre-approche": article("notre-approche") };
+
+    await renderPage("en", "notre-approche");
+
+    expect(screen.getByRole("link", { name: content.en.blog.back })).toHaveAttribute(
+      "href",
+      "/en/blog",
+    );
   });
 
   it("404s when the article has no document in this locale", async () => {

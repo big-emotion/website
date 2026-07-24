@@ -16,15 +16,17 @@ export interface ArticleCardProps {
  *
  * The title is Bricolage, not `font-display`: BBH Hegarty is uppercase-only with an
  * ASCII cmap (DEC-023), which mangles a sentence-case French headline like
- * "L'humain est le nouveau CI/CD de l'IA". Its permanent tangerine underline (never a
- * hover-only reveal) keeps the link legible as a link on touch — see `heading-link.ts`.
+ * "L'humain est le nouveau CI/CD de l'IA". Its permanent underline in the page's accent
+ * (never a hover-only reveal) keeps the link legible as a link on touch — see
+ * `heading-link.ts`. Rule and date inherit the association's ink rather than naming one,
+ * for the reason spelled out in `featured-article.tsx`.
  */
 export function ArticleCard({ href, title, date }: ArticleCardProps) {
   return (
-    <article className="border-t-2 border-paper pt-4 transition-transform duration-200 ease-out motion-reduce:transition-none hover:-translate-y-1.5 focus-within:-translate-y-1.5">
-      <p className="text-sm uppercase tracking-wide text-paper/70">{date}</p>
+    <article className="border-t-2 border-current pt-4 transition-transform duration-200 ease-out motion-reduce:transition-none hover:-translate-y-1.5 focus-within:-translate-y-1.5">
+      <p className="text-sm uppercase tracking-wide opacity-70">{date}</p>
       <h3 className="mt-3 text-[clamp(1.3rem,6vw,1.7rem)] leading-snug font-bold tracking-tight text-balance break-words">
-        <Link href={href} className={`${HEADING_LINK} decoration-tangerine`}>
+        <Link href={href} className={`${HEADING_LINK} decoration-[var(--blog-accent)]`}>
           {title}
         </Link>
       </h3>

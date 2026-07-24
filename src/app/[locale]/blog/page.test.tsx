@@ -21,8 +21,8 @@ vi.mock("@/prismicio", async (importOriginal) => ({
   createClient: () => ({ getAllByType }),
 }));
 
-getAllByType.mockImplementation(async (_type: string, params: { lang: string }) =>
-  articlesByLang.value[params.lang] ?? [],
+getAllByType.mockImplementation(
+  async (_type: string, params: { lang: string }) => articlesByLang.value[params.lang] ?? [],
 );
 
 const { default: BlogPage, generateMetadata } = await import("./page");
@@ -63,7 +63,10 @@ describe("/blog", () => {
     await renderPage("en");
 
     expect(screen.getByRole("heading", { name: /our approach/i, level: 2 })).toBeInTheDocument();
-    expect(getAllByType).toHaveBeenCalledWith("article", expect.objectContaining({ lang: "en-us" }));
+    expect(getAllByType).toHaveBeenCalledWith(
+      "article",
+      expect.objectContaining({ lang: "en-us" }),
+    );
   });
 
   it("asks Prismic for French content on the French route", async () => {
@@ -154,7 +157,7 @@ describe("/blog", () => {
 
     await renderPage("fr");
 
-    expect(screen.getByText("Aucun article pour le moment. Revenez bientôt.")).toBeInTheDocument();
+    expect(screen.getByText("Aucun article pour le moment. Reviens bientôt.")).toBeInTheDocument();
   });
 
   it("does not leak one locale's articles into the other", async () => {

@@ -28,6 +28,14 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
   return (
     <>
+      {/* Static lemon backdrop painted at build time. `SceneCanvas` is a client-only
+          (`ssr:false`) dynamic import, so its own lemon `.scene-stage` does not exist in
+          the server-rendered HTML — until it mounts, the transparent scroll panels sit
+          over the paper-white body. This underlay matches the scene's opening stage
+          colour so the hero opens on lemon (as the reference loader does) instead of
+          flashing white before the 3D reveal, then stays hidden behind the mounted scene
+          (`-z-20`, under the scene's `-z-10`). */}
+      <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-20 bg-lemon" />
       <SceneMount />
       <SliceZone slices={page.data.slices} components={components} />
     </>

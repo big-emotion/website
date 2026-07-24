@@ -25,6 +25,7 @@ Asset watchpoint: the official **vector logo (SVG/AI) does not exist yet** — r
 **Goal.** Titles, nav, wordmark contexts and display text must render in the brand’s BBH family instead of the Archivo stand-in, so the site matches Brand Guidelines p.5 and the designer’s prototype. Archivo was a placeholder chosen when BBH was believed unavailable as a libre font (`src/app/layout.tsx:14-15` comment) — BBH is now on Google Fonts (Studio DRAMA).
 
 **Locked decisions.**
+
 - Primary display face = **BBH Hegarty** (the designer’s prototype uses it exclusively: `BBHHegarty-Regular.ttf` on bigemotion.netlify.app).
 - Bogle (condensed) and Bartle (expanded) may be added later for graphic treatments; not required in this ticket.
 - Fonts stay **self-hosted woff2** under `src/app/fonts/` (repo rule: offline-reproducible builds, no visitor request to Google). Source from `@fontsource-variable/*` or `@fontsource/*` packages (`bbh-hegarty` / `bbh-sans-*` naming on Fontsource — take whichever package serves Hegarty; verify with `npm view`).
@@ -36,10 +37,11 @@ Asset watchpoint: the official **vector logo (SVG/AI) does not exist yet** — r
 **Out of scope.** The drawn logo (A2), Bogle/Bartle additional faces, any layout change.
 
 **Acceptance criteria.**
-* Given the home page, when inspecting the computed style of `h1` and nav links, then the resolved font family is BBH (Hegarty), not Archivo.
-* Given `pnpm lint && pnpm test && pnpm build`, when run, then all pass and the standalone build contains no request to fonts.googleapis.com.
-* Given the hero at 390 px, when compared to Brand Guidelines p.5/p.13 specimens, then letterforms match (flat-topped G, squared counters — visibly not Archivo).
-* Given the generated `opengraph-image` PNG, when rendered, then “B!G EMOTION” shows BBH letterforms (not the bundled fallback face).
+
+- Given the home page, when inspecting the computed style of `h1` and nav links, then the resolved font family is BBH (Hegarty), not Archivo.
+- Given `pnpm lint && pnpm test && pnpm build`, when run, then all pass and the standalone build contains no request to fonts.googleapis.com.
+- Given the hero at 390 px, when compared to Brand Guidelines p.5/p.13 specimens, then letterforms match (flat-topped G, squared counters — visibly not Archivo).
+- Given the generated `opengraph-image` PNG, when rendered, then “B!G EMOTION” shows BBH letterforms (not the bundled fallback face).
 
 **Affected files.** `src/app/fonts/`, `src/app/layout.tsx`, `src/app/globals.css`, `src/app/opengraph-image.tsx`, `package.json`.
 
@@ -54,8 +56,9 @@ Asset watchpoint: the official **vector logo (SVG/AI) does not exist yet** — r
 **Manual precondition (owner).** Obtain the vector logo (SVG or AI) from the designer — or approve extraction from the PDF (p.2 embeds vectors).
 
 **Locked decisions.**
+
 - Header: the logo follows the header’s **currentColor contract** — `site-header.tsx:68-69` flips `text-ink` → `text-paper` when scrolled or menu-open (the bar turns `bg-ink`), so the SVG must use `fill="currentColor"`; a hardcoded ink logo would be black-on-black there, violating the p.4 contrast rule. Links to `/`, height sized so the protection zone clears the nav, same slot as today (`site-header.tsx:77-83`).
-- Footer: keeps the current **typographic habillage** — the oversized `w-full text-[22vw]` stretch (`site-footer.tsx:44-49`) is legal for the *typo* per p.9–10 but would violate the no-distortion rule if it became the logo block. The footer’s `Wordmark stacked={false}` (“B!G”-only) treatment survives, restyled in BBH; the official logo block goes to header, favicon and OG only.
+- Footer: keeps the current **typographic habillage** — the oversized `w-full text-[22vw]` stretch (`site-footer.tsx:44-49`) is legal for the _typo_ per p.9–10 but would violate the no-distortion rule if it became the logo block. The footer’s `Wordmark stacked={false}` (“B!G”-only) treatment survives, restyled in BBH; the official logo block goes to header, favicon and OG only.
 - Favicon/app icons: replace `src/app/icon.svg` (currently Arial “B!”) and `src/app/apple-icon.tsx` with the official B! monogram.
 - Keep `aria-label="BIG EMOTION"` accessibility contract from `wordmark.tsx`.
 
@@ -63,10 +66,11 @@ Asset watchpoint: the official **vector logo (SVG/AI) does not exist yet** — r
 **Out of scope.** Load-screen animation (A4), 3D asset (A5), stationery exports (D5).
 
 **Acceptance criteria.**
-* Given any page, when viewing the header, then the official logo block renders (not styled text) and links to `/`.
-* Given the favicon in a browser tab, when compared to the PDF p.12 “FAVICON” frame, then it is the official B! monogram.
-* Given any logo instance, when measured, then no distortion is applied (uniform scale only) and the color pair belongs to the p.4 associations grid.
-* Given the rewritten `wordmark.test.tsx` (the `getByText("B!G")`/`EMOTION` text-node assertions at `wordmark.test.tsx:9-15` are replaced — an SVG has no such text nodes), when run, then it passes asserting the accessible name “BIG EMOTION” via `getByLabelText`/`getByRole`.
+
+- Given any page, when viewing the header, then the official logo block renders (not styled text) and links to `/`.
+- Given the favicon in a browser tab, when compared to the PDF p.12 “FAVICON” frame, then it is the official B! monogram.
+- Given any logo instance, when measured, then no distortion is applied (uniform scale only) and the color pair belongs to the p.4 associations grid.
+- Given the rewritten `wordmark.test.tsx` (the `getByText("B!G")`/`EMOTION` text-node assertions at `wordmark.test.tsx:9-15` are replaced — an SVG has no such text nodes), when run, then it passes asserting the accessible name “BIG EMOTION” via `getByLabelText`/`getByRole`.
 
 **Affected files.** `src/components/wordmark.tsx` (+test), `src/components/site-header.tsx`, `src/components/site-footer.tsx`, `src/components/scene/scene-canvas.tsx`, `src/app/icon.svg`, `src/app/apple-icon.tsx`, `src/app/opengraph-image.tsx`, new `public/brand/` or `src/assets/`.
 
@@ -79,6 +83,7 @@ Asset watchpoint: the official **vector logo (SVG/AI) does not exist yet** — r
 **Goal.** Match the hero mock (Brand Guidelines p.13): headline centered, SCROLL pill directly below it, intro paragraph bottom-right — and make the pill actually scroll (owner requirement; the prototype’s pill is decorative, we do better).
 
 **Locked decisions.**
+
 - `h1` centered horizontally (`text-center`), vertically centered block; SCROLL pill immediately below the `h1` (not pinned to the viewport bottom), centered.
 - The pill is a plain `<a href="#approach">` in `hero.tsx` (retarget once B1 lands), keyboard-focusable. Smooth-scroll mechanism (locked): enable Lenis’s built-in anchor handling — `new Lenis({ anchors: true, lerp: 0.09, smoothWheel: true })` at `scene-canvas.tsx:182` — so in-page anchors are smooth-scrolled with **no new seam** (the Lenis instance is a local inside `buildScroll()` and stays that way). Where Lenis never exists (no-WebGL fallback, reduced motion — `scene-canvas.tsx:227,282,295`), the anchor degrades to a native jump, which is the desired behavior.
 - Remove the duplicate dead cues: the “Scroll ↓” `<span>` in `hero.tsx` and the `pointer-events:none` `.scene-scrollcue` in `scene-canvas.tsx:318-320` / `globals.css:167` are replaced by this single pill. **No fade-out logic**: the pill sits in-flow inside the hero section (not fixed), so it scrolls out of the viewport naturally and `Hero` stays a server component.
@@ -88,10 +93,11 @@ Asset watchpoint: the official **vector logo (SVG/AI) does not exist yet** — r
 **Out of scope.** 3D asset (A5), section pages (B1).
 
 **Acceptance criteria.**
-* Given the home page at 390 px, when it loads, then the tagline is horizontally centered and the SCROLL pill sits directly under it, centered.
-* Given the SCROLL pill with WebGL active, when clicked or activated by keyboard, then the viewport smooth-scrolls (Lenis) to the Approach section.
-* Given no WebGL or `prefers-reduced-motion`, when the pill is activated, then a plain non-animated anchor jump to `#approach` occurs.
-* Given the page, when searching the DOM, then exactly one scroll cue exists.
+
+- Given the home page at 390 px, when it loads, then the tagline is horizontally centered and the SCROLL pill sits directly under it, centered.
+- Given the SCROLL pill with WebGL active, when clicked or activated by keyboard, then the viewport smooth-scrolls (Lenis) to the Approach section.
+- Given no WebGL or `prefers-reduced-motion`, when the pill is activated, then a plain non-animated anchor jump to `#approach` occurs.
+- Given the page, when searching the DOM, then exactly one scroll cue exists.
 
 **Affected files.** `src/components/hero.tsx`, `src/components/scene/scene-canvas.tsx`, `src/app/globals.css`.
 
@@ -104,6 +110,7 @@ Asset watchpoint: the official **vector logo (SVG/AI) does not exist yet** — r
 **Goal.** Make the pre-site load screen match Brand Guidelines p.12: the logo “B!G” repeated in a horizontal **loop with a wavy vertical rhythm, black on white**, introducing the content with a digital feel. Today: flat Archivo spans on lemon (`src/components/load-screen.tsx`).
 
 **Locked decisions.**
+
 - White (`--color-paper`) background, ink glyphs, using **`public/brand/logo-big.svg`** (the “B!G” line alone, delivered by A2 — never a cropped or deformed logo block) — not styled text.
 - Keep the pure-CSS, no-JS approach and the existing exit choreography (`loadscreen-out`, reduced-motion fade — `globals.css:54-81`); the wave is CSS transforms on repeated marks.
 - Keep `aria-hidden="true"` and the ≤1.5 s total hold.
@@ -112,8 +119,9 @@ Asset watchpoint: the official **vector logo (SVG/AI) does not exist yet** — r
 **Out of scope.** The scene’s own loading pulse (stays, but swap glyphs when A2 lands).
 
 **Acceptance criteria.**
-* Given a cold load, when the splash shows, then it is white with the official “B!G” mark repeating in a visible wave, and it slides away exactly as before.
-* Given `prefers-reduced-motion`, when loading, then the splash fades without the marquee sliding.
+
+- Given a cold load, when the splash shows, then it is white with the official “B!G” mark repeating in a visible wave, and it slides away exactly as before.
+- Given `prefers-reduced-motion`, when loading, then the splash fades without the marquee sliding.
 
 **Affected files.** `src/components/load-screen.tsx`, `src/app/globals.css`.
 
@@ -126,6 +134,7 @@ Asset watchpoint: the official **vector logo (SVG/AI) does not exist yet** — r
 **Goal.** The scroll-driven chrome 3D “B!G EMOTION” finally renders: replace the 92-byte placeholder `public/models/scene.glb` with the designer’s optimized asset. The whole pipeline (GSAP ScrollTrigger + Lenis + Draco + states + mouse parallax) already exists and mirrors the designer’s `main.js`.
 
 **Locked decisions.**
+
 - Use the **Draco-compressed** `BE-logo-3D.min.glb` (45,592 bytes) — fetch from https://bigemotion.netlify.app/BE-logo-3D.min.glb; the raw `~/Documents/BIG_EMOTION/BE-3d.glb` (7.1 MB, non-indexed, no Draco) is the master only. If regeneration is ever needed: `npx @gltf-transform/cli optimize BE-3d.glb scene.glb --compress draco`.
 - Keep the filename `public/models/scene.glb` (loader contract `scene-canvas.tsx:15`) and the self-hosted decoder `public/draco/`.
 - The GLB has a **baked 45° Y rotation**. The port does **not** cancel it today (verified: no `FACE_OFFSET` anywhere in `src/components/scene/`). Add `holder.rotation.y = -Math.PI / 4` on the normalization holder group (`scene-canvas.tsx:259-263`), mirroring the designer’s `main.js:15-16, 215`. Do **not** put it on the `spin` group — `applyLive()` (`scene-canvas.tsx:144`) resets `spin.rotation` every frame and would silently clobber it.
@@ -135,10 +144,11 @@ Asset watchpoint: the official **vector logo (SVG/AI) does not exist yet** — r
 **Out of scope.** Any state/choreography retune beyond face-on correctness.
 
 **Acceptance criteria.**
-* Given the home page with WebGL, when it loads, then the chrome 3D logo spins in face-on (not rotated 45°) and the loader pulse disappears.
-* Given a full scroll to the footer, when observing, then the model grows/turns through the six states and ends face-on above the closing content, matching the Netlify reference.
-* Given Lighthouse or devtools network, when loading, then the GLB transfer is ≤ 100 KB.
-* Given a browser without WebGL or reduced-motion, when loading, then the existing wordmark fallback still renders.
+
+- Given the home page with WebGL, when it loads, then the chrome 3D logo spins in face-on (not rotated 45°) and the loader pulse disappears.
+- Given a full scroll to the footer, when observing, then the model grows/turns through the six states and ends face-on above the closing content, matching the Netlify reference.
+- Given Lighthouse or devtools network, when loading, then the GLB transfer is ≤ 100 KB.
+- Given a browser without WebGL or reduced-motion, when loading, then the existing wordmark fallback still renders.
 
 **Affected files.** `public/models/scene.glb`, `public/models/README.md`, `src/components/scene/scene-canvas.tsx` (offset only if missing), `src/components/scene/states.ts` (verify only).
 
@@ -154,8 +164,9 @@ Asset watchpoint: the official **vector logo (SVG/AI) does not exist yet** — r
 
 **Scope.** `social` entry in `src/content/site.ts` becomes a typed list `{ network, href }`; the icon row **replaces the dead-text `<li>` at `site-footer.tsx:34`**. Icons (locked): simple-icons SVG paths pasted inline in `site-footer.tsx` — no runtime dependency added. Style: `fill="currentColor"` ink on lemon; hover/focus switches the fill to `--color-tangerine`.
 **Acceptance criteria.**
-* Given the footer, when rendered, then one link per confirmed network appears with `aria-label`, opens in a new tab with `rel="noopener"`.
-* Given no confirmed handle for a network, when building the list, then that network is omitted (no dead links).
+
+- Given the footer, when rendered, then one link per confirmed network appears with `aria-label`, opens in a new tab with `rel="noopener"`.
+- Given no confirmed handle for a network, when building the list, then that network is omitted (no dead links).
 
 **Affected files.** `src/content/site.ts`, `src/components/site-footer.tsx` (+tests).
 
@@ -170,6 +181,7 @@ Asset watchpoint: the official **vector logo (SVG/AI) does not exist yet** — r
 **Goal.** Move Approach / Cases & Impact / Culture / Contact from one-page anchors to dedicated routes, with the designer’s sub-page layout: big title + body text left, full-height photo right (desktop ≥1200); stacked title → text → photo on mobile (Netlify classes `subpage-text` / `subpage-photo`).
 
 **Locked decisions.**
+
 - Routes: `/approach/`, `/cases/`, `/culture/`, `/contact/` (trailingSlash stays true).
 - Home keeps the 3D scroll experience; section teasers on home may remain (decide in ADR).
 - Legacy WP 301s in `next.config.ts:16-51` retarget to the new pages (`/contactez-nous/` → `/contact/`, `/les-membres/` → `/culture/`, case-study URLs → `/cases/`); the current `/#anchor` targets must keep working (either sections stay on home or anchors redirect).
@@ -181,13 +193,14 @@ Asset watchpoint: the official **vector logo (SVG/AI) does not exist yet** — r
 **Out of scope.** i18n (B2), CMS (B3), photo generation (B6).
 
 **Acceptance criteria.**
-* Given `/approach/` at 390 px, when loaded, then title, body, then photo render stacked, SSG-prerendered.
-* Given `/approach/` at ≥1200 px, when loaded, then text occupies the left column and the photo the right, per the Netlify reference.
-* Given `/contactez-nous/`, when requested, then a 301 lands on `/contact/`.
-* Given `/contact/`, when loaded, then the working contact form is present and posts to `/api/contact`.
-* Given a direct visit to `/#approach` (and `/#cases`, `/#culture`, `/#contact`), when loaded, then the visitor lands on the corresponding content (home section or redirect to the new page).
-* Given the header nav, when clicking Culture, then `/culture/` loads (no `/#culture` anchor).
-* Given `pnpm build`, when run, then all four pages appear in the SSG output.
+
+- Given `/approach/` at 390 px, when loaded, then title, body, then photo render stacked, SSG-prerendered.
+- Given `/approach/` at ≥1200 px, when loaded, then text occupies the left column and the photo the right, per the Netlify reference.
+- Given `/contactez-nous/`, when requested, then a 301 lands on `/contact/`.
+- Given `/contact/`, when loaded, then the working contact form is present and posts to `/api/contact`.
+- Given a direct visit to `/#approach` (and `/#cases`, `/#culture`, `/#contact`), when loaded, then the visitor lands on the corresponding content (home section or redirect to the new page).
+- Given the header nav, when clicking Culture, then `/culture/` loads (no `/#culture` anchor).
+- Given `pnpm build`, when run, then all four pages appear in the SSG output.
 
 **Affected files.** `docs/adr/`, `src/app/` (new routes), `src/components/` (SubpageLayout), `src/content/site.ts`, `next.config.ts`, tests.
 
@@ -200,15 +213,17 @@ Asset watchpoint: the official **vector logo (SVG/AI) does not exist yet** — r
 **Goal.** The site serves French and English like the designer’s prototype (client-side dictionary with FR/EN toggle; nav FR: APPROCHE / RÉFÉRENCES & IMPACT / CULTURE / CONTACT).
 
 **Locked decisions.**
+
 - FR is the default locale at `/`; EN under `/en/` (SEO-correct, unlike the prototype’s client-side swap). `hreflang` alternates on every page.
 - Locale-switch control in the header (FR / EN), preserving the current path.
 - Translations live with the content source of the moment: `site.ts` dictionaries pre-Prismic, Prismic locales after (fr-fr / en-us).
 
 **Scope.** ADR (routing strategy, library choice — e.g. `[locale]` segment vs next-intl — argue KISS for a two-locale site); `lang` attribute per locale; translated metadata; translation of the **marketing surface only**: `site.ts` strings, nav, 404 (`src/app/not-found.tsx:3` “Page introuvable”), and component-level UI strings (contact-form labels/feedback — `contact-form.tsx:51,85-89,109`). **Excluded**: the `/login` + `/espace/:clientId` surface stays FR-only, outside `/en/` routing and the locale switcher (`src/proxy.ts:9-14` path guard unchanged). Translation sources: the prototype’s `i18n.js` covers the sub-page copy and the manifesto lines are already EN (`site.ts:41-49`); **EN copy for repo-specific strings (services, cases, team, contact micro-copy) does not exist anywhere** — the implementer drafts it in the brand voice (PDF p.8) and flags it for owner review in the PR.
 **Acceptance criteria.**
-* Given `/en/approach/`, when loaded, then the page renders in English with `<html lang="en">` and hreflang alternates.
-* Given the header on any **marketing** page, when switching FR→EN, then the same page loads in the other locale.
-* Given `/`, when crawled, then FR content is served (default locale, no redirect to `/fr/`).
+
+- Given `/en/approach/`, when loaded, then the page renders in English with `<html lang="en">` and hreflang alternates.
+- Given the header on any **marketing** page, when switching FR→EN, then the same page loads in the other locale.
+- Given `/`, when crawled, then FR content is served (default locale, no redirect to `/fr/`).
 
 **Affected files.** ADR, `src/app/` routing, `src/content/`, `src/components/site-header.tsx`, metadata files.
 
@@ -219,24 +234,27 @@ Asset watchpoint: the official **vector logo (SVG/AI) does not exist yet** — r
 **Type**: Story (Epic seed) · **Gaps**: G10/G11 enabler · **Depends on**: B1 for the `/cases/` route (pre-B1, acceptance applies to the home cases section) · owner decision “content editable via Prismic” is locked; the integration design is not
 
 **Manual preconditions (owner).**
+
 1. Create the Prismic account + repository (pick the repository name, e.g. `big-emotion`) and choose the plan.
 2. Generate the content API access token and a webhook secret; hand them over for `deploy/env.template` + VPS `.env` wiring.
 
 **Goal.** Marketing copy becomes editable without a deploy. Record the integration architecture in an ADR, stand up the Prismic repository, and migrate one content type end-to-end (recommended: **cases**) as the template for the rest.
 
 **Locked decisions.**
+
 - CMS = Prismic (owner decision — do not re-open).
 - Rendering stays SSG/ISR on the standalone server: content changes trigger revalidation (Prismic webhook → `revalidatePath`/tag), no client-side fetching.
 - `src/content/site.ts` remains the typed fallback until each type is migrated; migration is progressive, never big-bang.
 - Locales fr-fr + en-us from day one (feeds B2).
 
-**Scope.** ADR (custom types & slices mapping: page hero/sections, case, team_member, settings; preview strategy; webhook; env/secrets on the VPS; failure mode = build-time fallback to committed content); repository + custom types (the Prismic MCP tooling can create/update *documents*; custom types and slices are defined via Slice Machine or the Custom Types API — the MCP only reads them); `@prismicio/client` integration behind a small `src/lib/cms.ts` seam; cases migrated + rendered.
+**Scope.** ADR (custom types & slices mapping: page hero/sections, case, team_member, settings; preview strategy; webhook; env/secrets on the VPS; failure mode = build-time fallback to committed content); repository + custom types (the Prismic MCP tooling can create/update _documents_; custom types and slices are defined via Slice Machine or the Custom Types API — the MCP only reads them); `@prismicio/client` integration behind a small `src/lib/cms.ts` seam; cases migrated + rendered.
 **Out of scope.** Migrating every type (follow-up tickets per type), i18n routing (B2).
 
 **Acceptance criteria.**
-* Given a case edited in Prismic, when published, then the live cases content (home section pre-B1, `/cases/` page post-B1) reflects it within the revalidation window without a redeploy.
-* Given Prismic unreachable at build time, when `pnpm build` runs, then the build still succeeds using the committed fallback content.
-* Given the ADR, when read, then it records slice/type model, preview, webhook, secrets path, and the progressive-migration rule.
+
+- Given a case edited in Prismic, when published, then the live cases content (home section pre-B1, `/cases/` page post-B1) reflects it within the revalidation window without a redeploy.
+- Given Prismic unreachable at build time, when `pnpm build` runs, then the build still succeeds using the committed fallback content.
+- Given the ADR, when read, then it records slice/type model, preview, webhook, secrets path, and the progressive-migration rule.
 
 **Affected files.** ADR, `src/lib/cms.ts` (new), `src/content/site.ts`, case components, `deploy/env.template`, VPS env.
 
@@ -249,12 +267,14 @@ Asset watchpoint: the official **vector logo (SVG/AI) does not exist yet** — r
 **Goal.** Render the Brand Guidelines p.9 personality slider (six axes, dot on a line) as a brand-flavored UI module on the Culture page.
 
 **Locked decisions.**
+
 - Axes and positions (0–100 from left): Formal↔Casual 55 · Cold↔Warm 35 · Serious↔Playful 45 · Detailed↔Minimal 65 · Corporate↔Friendly 42 · Complex↔Simple 55 — **to visually confirm with the designer before merge** (read off the PDF; the PDF’s “Coold”/“Detalied” typos are not reproduced).
 - Static presentation (not an input); CSS-only; renders **after the values line** in the Culture section/page (`culture.tsx:28` area); axis labels translated when B2 lands.
 
 **Acceptance criteria.**
-* Given the Culture page (or, pre-B1, the Culture section on `/`) at 390 px, when rendered, then six axes display with dots at the locked positions, readable without horizontal scroll.
-* Given a screen reader, when traversing, then each axis exposes a text alternative (“Formal–Casual: 55 % toward Casual”).
+
+- Given the Culture page (or, pre-B1, the Culture section on `/`) at 390 px, when rendered, then six axes display with dots at the locked positions, readable without horizontal scroll.
+- Given a screen reader, when traversing, then each axis exposes a text alternative (“Formal–Casual: 55 % toward Casual”).
 
 **Affected files.** `src/components/sections/culture.tsx` (or Culture page), `src/content/site.ts` (axis data), styles.
 
@@ -267,13 +287,15 @@ Asset watchpoint: the official **vector logo (SVG/AI) does not exist yet** — r
 **Goal.** Produce/collect the per-page photos (approach, cases, culture, contact) following the iconography rules, so sub-pages match the “photo right” layout.
 
 **Locked decisions.**
+
 - **v1 = the designer’s own prototype photos** — they are the designer’s art direction and count as Done. Build the file→page mapping by reading each sub-page’s `<img src>` on bigemotion.netlify.app (e.g. `/approach` → `Photos/approach.jpg`) and fetch those files.
 - Replacements/extensions are generated with the canonical prompt from the audit §2 verbatim (generation is allowed: “Génération ou augmentation IA acceptée si le rendu reste photographique”), substituting the bracketed subject to match the photo being replaced; the owner validates any generated replacement.
 - Output: **one high-quality JPEG source per photo**, ≥1600 px on the long edge, under `public/photos/` — AVIF/WebP delivery comes from the `next/image` optimizer at request time (active on the standalone server, `next.config.ts:11`), so no pre-generated format variants.
 
 **Acceptance criteria.**
-* Given `public/photos/`, when reviewed, then one source photo per page (approach, cases, culture, contact) exists, ≥1600 px, respecting the iconography rules (no white background, no flat light, no pastel).
-* Given B1 has landed, when each sub-page loads, then its mapped photo renders through `next/image`.
+
+- Given `public/photos/`, when reviewed, then one source photo per page (approach, cases, culture, contact) exists, ≥1600 px, respecting the iconography rules (no white background, no flat light, no pastel).
+- Given B1 has landed, when each sub-page loads, then its mapped photo renders through `next/image`.
 
 **Affected files.** `public/photos/`; page components (with/after B1).
 
@@ -286,6 +308,7 @@ Asset watchpoint: the official **vector logo (SVG/AI) does not exist yet** — r
 **Type**: Story · **Gaps**: G8
 
 **Manual preconditions (owner).**
+
 1. Create `hello@big-emotion.com` in the M365 tenant (mailbox or alias on the existing account — alias is enough since `lib/mail.ts` sends via Graph from `MAIL_SENDER`).
 2. Keep `contact@` alive as receiving alias during transition (≥6 months).
 
@@ -295,9 +318,10 @@ Asset watchpoint: the official **vector logo (SVG/AI) does not exist yet** — r
 **Open question.** `src/config/clients.ts:56` allowlists `contact@big-emotion.com` as an espace-client login — decide whether that login email migrates (owner call; separate change since it logs a client in).
 
 **Acceptance criteria.**
-* Given the footer, when rendered, then `hello@big-emotion.com` is the visible mailto.
-* Given a contact-form submission in production, when delivered, then the notification goes to `hello@` and the From is `hello@`.
-* Given an email sent to `contact@`, when received, then it still lands in the same mailbox (alias kept).
+
+- Given the footer, when rendered, then `hello@big-emotion.com` is the visible mailto.
+- Given a contact-form submission in production, when delivered, then the notification goes to `hello@` and the From is `hello@`.
+- Given an email sent to `contact@`, when received, then it still lands in the same mailbox (alias kept).
 
 **Affected files.** listed above + tests.
 
@@ -308,6 +332,7 @@ Asset watchpoint: the official **vector logo (SVG/AI) does not exist yet** — r
 **Type**: Story · **Gaps**: G9 · cross-repo (site + support portal + VPS + DNS + M365)
 
 **Manual preconditions (owner).**
+
 1. M365: rename/alias `support@big-emotion.com` → `b2b@big-emotion.com` (keep `support@` as receiving alias during transition).
 2. DNS: create `b2b.big-emotion.com` A/CNAME → the OVH VPS (same target as `support.`); keep `support.` during transition.
 3. Provide the support-portal repository URL/path — it is a **separate repo** deployed on the same VPS; its Traefik labels/compose and public-URL config are **not discoverable from this repo** (nothing in `deploy/` or `next.config.ts` references `support.big-emotion.com`).
@@ -316,10 +341,11 @@ Asset watchpoint: the official **vector logo (SVG/AI) does not exist yet** — r
 
 **Scope.** Support-portal repo/VPS: Traefik router rule + redirect middleware, portal branding/config referencing its own URL, portal mail sender if it uses `support@`. This repo: `src/content/site.ts:36` CTA href; `src/components/site-header.test.tsx:28,41`; word-level `support` references beyond the two href sites are comments/naming only (`src/content/site.ts:31` comment, `src/lib/rate-limit.ts:4-5` comment, `src/lib/mail.ts:5` comment, `src/app/api/support/` route path) — keep the API route path as-is (renaming would break the portal caller) and update the comments opportunistically.
 **Acceptance criteria.**
-* Given https://b2b.big-emotion.com, when opened, then the client portal loads with a valid certificate.
-* Given https://support.big-emotion.com, when opened, then a 301 lands on the b2b host.
-* Given the site header, when rendering “Espace client”, then it links to the b2b host (tests updated).
-* Given mail sent to `support@`, when received, then it reaches the `b2b@` mailbox.
+
+- Given https://b2b.big-emotion.com, when opened, then the client portal loads with a valid certificate.
+- Given https://support.big-emotion.com, when opened, then a 301 lands on the b2b host.
+- Given the site header, when rendering “Espace client”, then it links to the b2b host (tests updated).
+- Given mail sent to `support@`, when received, then it reaches the `b2b@` mailbox.
 
 **Affected files.** this repo: `src/content/site.ts`, `src/components/site-header.test.tsx`; support-portal repo: Traefik labels/compose, app config; VPS DNS/M365 (owner).
 
@@ -328,18 +354,23 @@ Asset watchpoint: the official **vector logo (SVG/AI) does not exist yet** — r
 ## Local DA track (no site deploy)
 
 ### D1 — Word document template
+
 Build `BIG_EMOTION_document.dotx` (Word template) per Brand Guidelines p.14 “EN TETE DOCUMENT”: logo block top-left on the cover header, BBH (Hegarty) headings, Bricolage body, footer with B! monogram + contact block. **Blocked on the vector logo.** Contact-block address rule: `hello@big-emotion.com` once C1’s mailbox exists; if built before C1, use `contact@` and re-export as part of C1’s rollout. Deliver to `~/Documents/BIG_EMOTION/templates/`. Fonts must be embedded or installed locally (BBH + Bricolage TTFs from Google Fonts). Acceptance: opening the template in Word shows branded styles (Title/Heading1-3/Normal) and prints correctly in B&W.
 
 ### D2 — Email signature (HTML) + installation
+
 **Blocked on the vector logo.** Reproduce the p.14 “MAIL SIGN” block as robust email HTML (tables, inline styles, **embedded base64 PNG logo — locked default**, keeping this track deploy-free; a hosted `https://big-emotion.com/brand/…` PNG only after A2 ships `public/brand/`; system-font fallback since most clients won’t load BBH): logo + `hello@big-emotion.com · big-emotion.com · @big-emotion on socials · +33 7 03 676 43 22`. **Graph caveat**: Outlook signatures (roaming signatures) have **no supported public Graph API** — plan manual installation (Outlook settings paste) or document the OWA path; verify what the connected ms365 MCP actually permits before promising automation. Depends on C1 for the address.
 
 ### D3 — PowerPoint template (cover + closing page)
+
 `BIG_EMOTION_deck.potx` per p.14 “COUV PPT” (lemon cover, centered logo, text placeholders) and “DER PPT” (full-bleed lemon logo on white) + a basic content layout. **Blocked on the vector logo.** Same font-embedding note as D1. Acceptance: opening the `.potx` in PowerPoint and creating a new deck shows cover, content and closing layouts with branded placeholders and embedded/registered fonts.
 
 ### D4 — Business card (deferred — owner said it can wait)
+
 Print-ready PDF per p.14 (front lemon: logo + INFOS block; back black: vertical lemon logo), 85×55 mm + 3 mm bleed, CMYK. Blocked on the vector logo.
 
 ### D5 — Brand asset cleanup & exports
+
 Archive the obsolete identity (`Logos_ByTailorBrands/`, 2023 `logo_*.png/jpg`, Nov-2025 `favicon*.ico`) into `~/Documents/BIG_EMOTION/_archive-old-identity/`; export the new logo (from the designer’s vector) as the standard kit: SVG + PNG (6 cm Word, 10 cm PPT, favicon .ico/.png sizes) in the allowed color variants; store under `~/Documents/BIG_EMOTION/Logo_2026/`. Blocked on the vector logo.
 
 ---
@@ -347,7 +378,9 @@ Archive the obsolete identity (`Logos_ByTailorBrands/`, 2023 `logo_*.png/jpg`, N
 ## Enablement
 
 ### E1 — Keep agent docs true while the redesign lands
+
 After each Phase-1/2 ticket merges: update `AGENTS.md` (fonts paragraph, wordmark/logo paragraph, hero/scroll behavior, pages/nav architecture, mail addresses) and prune stale comments (e.g. `layout.tsx:14-15` BBH note). Standing rule for every ticket above: its Definition of Done includes the AGENTS.md touch when it changes something AGENTS.md states.
 
 ### E2 — Confluence spec sync
+
 Once the owner validates this backlog: run `/bigemotion-spec` to append the Pending REQ/DEC/ARCH entries mirroring the “Locked decisions” of each ticket (notably: BBH adoption, logo asset contract, real-pages IA, Prismic integration, i18n strategy, hello@/b2b@ renames) and create the SWBE tickets from these drafts via the template.

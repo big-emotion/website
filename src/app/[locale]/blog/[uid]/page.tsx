@@ -6,7 +6,9 @@ import type { Metadata } from "next";
 import { hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { BackLink } from "@/components/back-link";
 import { ArticleHeader } from "@/components/blog/article-header";
+import { ArticlePairing } from "@/components/blog/article-pairing";
 import { content, site } from "@/content/site";
 import { locales, type Locale } from "@/i18n/locales";
 import { routing } from "@/i18n/routing";
@@ -85,7 +87,18 @@ export default async function ArticlePage({ params }: RouteProps) {
   const authorDoc = await fetchAuthor(locale, author);
 
   return (
-    <article className="bg-lyon px-5 py-20 text-paper md:px-8 md:py-32">
+    <article className="bg-[var(--blog-surface)] px-5 py-20 text-[var(--blog-ink)] md:px-8 md:py-32">
+      {/* First child so the draw lands while the document is still parsing — see
+          ArticlePairing. Everything below, plus the header ink and the footer band,
+          reads the three properties it sets. */}
+      <ArticlePairing uid={uid} />
+
+      {/* Same way out as a Playground effect page: an article is a leaf, reached from the
+          index, and the site header carries no "back" of its own. */}
+      <div className="mb-8">
+        <BackLink href="/blog" label={content[locale].blog.back} />
+      </div>
+
       <ArticleHeader
         locale={locale}
         title={title ?? ""}

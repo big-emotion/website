@@ -35,7 +35,14 @@ function internalLinkField(lang: string) {
           type: "hyperlink",
           start: 17,
           end: 29,
-          data: { link_type: "Document", id: "case-study-id", type: "case_study", uid: "industrie", lang, tags: [] },
+          data: {
+            link_type: "Document",
+            id: "case-study-id",
+            type: "case_study",
+            uid: "industrie",
+            lang,
+            tags: [],
+          },
         },
       ],
     },
@@ -50,7 +57,14 @@ const MIXED_FIELD = [
   {
     type: "paragraph",
     text: "Un lien externe.",
-    spans: [{ type: "hyperlink", start: 3, end: 7, data: { link_type: "Web", url: "https://example.com" } }],
+    spans: [
+      {
+        type: "hyperlink",
+        start: 3,
+        end: 7,
+        data: { link_type: "Web", url: "https://example.com" },
+      },
+    ],
   },
   {
     type: "image",
@@ -67,7 +81,9 @@ describe("ArticleRichText", () => {
   it("renders headings, paragraphs and lists as branded semantic elements", () => {
     renderField(MIXED_FIELD);
 
-    expect(screen.getByRole("heading", { level: 2, name: "Un titre de section" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Un titre de section" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Un paragraphe de corps.")).toBeInTheDocument();
     expect(screen.getByRole("list")).toBeInTheDocument();
     expect(screen.getAllByRole("listitem")).toHaveLength(2);
@@ -84,9 +100,15 @@ describe("ArticleRichText", () => {
   it("opens external hyperlinks in a new tab with a safe rel", () => {
     renderField(MIXED_FIELD);
 
-    expect(screen.getByRole("link", { name: "lien" })).toHaveAttribute("href", "https://example.com");
+    expect(screen.getByRole("link", { name: "lien" })).toHaveAttribute(
+      "href",
+      "https://example.com",
+    );
     expect(screen.getByRole("link", { name: "lien" })).toHaveAttribute("target", "_blank");
-    expect(screen.getByRole("link", { name: "lien" })).toHaveAttribute("rel", "noopener noreferrer");
+    expect(screen.getByRole("link", { name: "lien" })).toHaveAttribute(
+      "rel",
+      "noopener noreferrer",
+    );
   });
 
   it("routes a same-locale internal hyperlink through the locale-aware Link without a doubled prefix", () => {
@@ -101,6 +123,9 @@ describe("ArticleRichText", () => {
   it("keeps the French route unprefixed for the same internal link", () => {
     renderField(internalLinkField("fr-fr"), "fr");
 
-    expect(screen.getByRole("link", { name: "etude de cas" })).toHaveAttribute("href", "/cases/industrie/");
+    expect(screen.getByRole("link", { name: "etude de cas" })).toHaveAttribute(
+      "href",
+      "/cases/industrie/",
+    );
   });
 });

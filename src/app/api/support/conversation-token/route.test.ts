@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { NextRequest } from "next/server";
 
 const getEditorSession = vi.fn();
 const checkRateLimit = vi.fn();
@@ -7,13 +6,8 @@ const checkRateLimit = vi.fn();
 vi.mock("@/lib/session", () => ({ getEditorSession }));
 vi.mock("@/lib/rate-limit", () => ({ checkRateLimit }));
 
-function postRequest() {
-  return new NextRequest(
-    "http://localhost:3000/api/support/conversation-token",
-    { method: "POST" },
-  );
-}
-
+// The handler reads nothing off the request — it derives everything from the
+// session cookie — so it takes no parameter and the tests call it bare.
 describe("POST /api/support/conversation-token", () => {
   beforeEach(() => {
     getEditorSession.mockReset();
@@ -24,7 +18,7 @@ describe("POST /api/support/conversation-token", () => {
     getEditorSession.mockResolvedValue(null);
     const { POST } = await import("./route");
 
-    const res = await POST(postRequest());
+    const res = await POST();
 
     expect(res.status).toBe(401);
     expect(checkRateLimit).not.toHaveBeenCalled();
@@ -38,7 +32,7 @@ describe("POST /api/support/conversation-token", () => {
     checkRateLimit.mockReturnValue({ allowed: false, remaining: 0 });
     const { POST } = await import("./route");
 
-    const res = await POST(postRequest());
+    const res = await POST();
 
     expect(res.status).toBe(429);
   });
@@ -50,7 +44,7 @@ describe("POST /api/support/conversation-token", () => {
     });
     const { POST } = await import("./route");
 
-    const res = await POST(postRequest());
+    const res = await POST();
     const body = await res.json();
 
     expect(res.status).toBe(200);
@@ -66,11 +60,8 @@ describe("POST /api/support/conversation-token", () => {
     });
     const { POST } = await import("./route");
 
-    await POST(postRequest());
+    await POST();
 
-    expect(checkRateLimit).toHaveBeenCalledWith(
-      "a@acme.com",
-      expect.any(Object),
-    );
+    expect(checkRateLimit).toHaveBeenCalledWith("a@acme.com", expect.any(Object));
   });
 });

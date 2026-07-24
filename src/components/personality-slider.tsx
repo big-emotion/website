@@ -14,9 +14,7 @@ export function PersonalitySlider() {
 
   return (
     <div className="mt-16 md:mt-24">
-      <h2 className="font-display text-sm tracking-[0.2em] opacity-80">
-        {t("personalityTitle")}
-      </h2>
+      <h2 className="font-display text-sm tracking-[0.2em] opacity-80">{t("personalityTitle")}</h2>
       <ul className="mt-6 flex flex-col gap-6">
         {personalityAxes.map((axis) => (
           <li

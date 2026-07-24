@@ -12,6 +12,7 @@ function displayCopy(locale: Locale) {
     copy.mission,
     copy.stat.label,
     copy.scrollCue,
+    copy.blog.back,
     ...copy.nav.map((item) => item.label),
     ...copy.sectionHeroes.flatMap((hero) => hero.title),
     ...copy.contact.title,
@@ -19,6 +20,7 @@ function displayCopy(locale: Locale) {
     ...copy.impactStats.map((stat) => stat.label),
     ...copy.team.flatMap((member) => [member.name, member.role]),
     ...copy.values,
+    ...Object.values(copy.playground.badges).map((badge) => badge.label),
   ];
 }
 
@@ -43,6 +45,12 @@ describe("locale parity", () => {
       ...content[locale].team.flatMap((member) => member.links.map((link) => link.href)),
     ];
     expect(hrefs("en")).toEqual(hrefs("fr"));
+  });
+
+  it("registers the same hidden-challenge badges (by effect id) in both locales", () => {
+    expect(Object.keys(content.en.playground.badges).sort()).toEqual(
+      Object.keys(content.fr.playground.badges).sort(),
+    );
   });
 });
 

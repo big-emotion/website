@@ -81,9 +81,14 @@ vi.mock("three", async () => {
       return this;
     }
   }
-  class Clock {
+  class Timer {
+    delta = 0;
+    update() {
+      this.delta = 0.016;
+      return this;
+    }
     getDelta() {
-      return 0.016;
+      return this.delta;
     }
   }
   class PMREMGenerator {
@@ -114,7 +119,7 @@ vi.mock("three", async () => {
     WebGLRenderer,
     Box3,
     Color,
-    Clock,
+    Timer,
     PMREMGenerator,
     Mesh,
     PlaneGeometry,

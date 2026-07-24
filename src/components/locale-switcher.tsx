@@ -47,7 +47,12 @@ export function LocaleSwitcher({ locale, className = "", onNavigate }: LocaleSwi
           hrefLang={option}
           aria-current={option === locale ? "true" : undefined}
           onClick={onNavigate}
-          className="font-display inline-flex min-h-11 min-w-11 items-center justify-center px-3 text-sm uppercase tracking-wide hover:opacity-60 aria-[current=true]:underline aria-[current=true]:underline-offset-4"
+          // "You are here" is what gets dimmed — the locale you are already reading is
+          // the inert option, the other one is the actionable link. Same grammar as the
+          // nav links next to it (`aria-[current=page]:opacity-40`), and keyed off the
+          // same aria-current that announces the choice, so the dim never disagrees with
+          // what assistive tech reports.
+          className="font-display inline-flex min-h-11 min-w-11 items-center justify-center px-3 text-sm uppercase tracking-wide hover:opacity-60 aria-[current=true]:opacity-40"
         >
           {option.toUpperCase()}
           {/* Keeping the visible "FR" inside the accessible name — instead of replacing
