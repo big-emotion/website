@@ -64,7 +64,11 @@ describe("createInMemoryRateLimiter", () => {
 
   it("blocks once the hourly cap is reached", () => {
     let clock = 0;
-    const limiter = createInMemoryRateLimiter({ maxPerHour: 3, minIntervalMs: 0, now: () => clock });
+    const limiter = createInMemoryRateLimiter({
+      maxPerHour: 3,
+      minIntervalMs: 0,
+      now: () => clock,
+    });
 
     expect(limiter.check("ip")).toBe(false);
     clock += 1;
@@ -77,7 +81,11 @@ describe("createInMemoryRateLimiter", () => {
 
   it("frees the hourly window after an hour", () => {
     let clock = 0;
-    const limiter = createInMemoryRateLimiter({ maxPerHour: 2, minIntervalMs: 0, now: () => clock });
+    const limiter = createInMemoryRateLimiter({
+      maxPerHour: 2,
+      minIntervalMs: 0,
+      now: () => clock,
+    });
 
     limiter.check("ip");
     limiter.check("ip");

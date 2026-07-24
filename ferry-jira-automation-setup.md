@@ -27,19 +27,22 @@ touching Jira again.
 (no filter: every transition fires; the router ignores unmapped statuses)
 
 **Action:** Send web request
+
 - URL: `https://api.github.com/repos/big-emotion/website/dispatches`
 - Method: `POST`
 - Web request body: Custom data
 
 Headers:
-| Name | Value | Secret? |
-|------|-------|---------|
-| `Accept` | `application/vnd.github+json` | No |
-| `Authorization` | `Bearer YOUR_GITHUB_PAT_WITH_REPO_SCOPE` | **Yes** |
-| `X-GitHub-Api-Version` | `2022-11-28` | No |
-| `Content-Type` | `application/json` | No |
+
+| Name                   | Value                                    | Secret? |
+| ---------------------- | ---------------------------------------- | ------- |
+| `Accept`               | `application/vnd.github+json`            | No      |
+| `Authorization`        | `Bearer YOUR_GITHUB_PAT_WITH_REPO_SCOPE` | **Yes** |
+| `X-GitHub-Api-Version` | `2022-11-28`                             | No      |
+| `Content-Type`         | `application/json`                       | No      |
 
 Custom body:
+
 ```json
 {
   "event_type": "ferry-transition",
@@ -74,6 +77,7 @@ Merger like any other agent (ADR-0005 rev. 2). The Reviewer-emitted
 ## Verifying the rule works
 
 After enabling the rule, move a Jira issue to any Ferry column and check:
+
 1. The Jira Automation audit log (Project settings → Automation → rule → Audit log)
 2. The GitHub Actions tab on `big-emotion/website` — a "Ferry — Router" run should appear within seconds.
 
@@ -107,7 +111,7 @@ generic ferry-transition webhook (the router ignores statuses it does not own,
 so this is harmless).
 
 **Locale gotcha (bitten once):** the first draft of this rule matched
-`status = "IN REVIEW"` — a board *column label*; the status behind that column
+`status = "IN REVIEW"` — a board _column label_; the status behind that column
 is named `Revue en cours`, so it could never fire. Note also that the canonical
 export stores statuses by internal name (`"Done"`) while the UI displays the
 localized `Terminé(e)` — never hand-edit status strings in JQL or exports; pick

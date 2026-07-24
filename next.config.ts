@@ -61,8 +61,7 @@ const nextConfig: NextConfig = {
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           {
             key: "Permissions-Policy",
-            value:
-              "geolocation=(), camera=(), microphone=(), browsing-topics=()",
+            value: "geolocation=(), camera=(), microphone=(), browsing-topics=()",
           },
           {
             key: "Strict-Transport-Security",

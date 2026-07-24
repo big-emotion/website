@@ -11,7 +11,11 @@ import { reportInteraction } from "@/components/playground/report-interaction";
 import { ZoomControls, type ZoomDirection } from "@/components/playground/zoom-controls";
 import { applyDamping } from "./damping";
 import { clampDolly, DOLLY_DEFAULT, stepDolly } from "./zoom-clamp";
-import { INITIAL_ALIGNMENT_STATE, updateAlignment, type AlignmentState } from "./alignment-detector";
+import {
+  INITIAL_ALIGNMENT_STATE,
+  updateAlignment,
+  type AlignmentState,
+} from "./alignment-detector";
 
 // Trackball drag: pixels-to-radians and the momentum released on pointer-up
 // (DEC-035 — hand-rolled, OrbitControls rejected). `applyDamping` (pure, unit
@@ -228,7 +232,11 @@ export default function Lumiere() {
       {status === "error" ? (
         // The mark is the whole content on this path, so unlike the header and footer
         // lockups it has to carry a name of its own rather than stay decorative.
-        <div role="img" aria-label="BIG EMOTION" className="flex h-full items-center justify-center">
+        <div
+          role="img"
+          aria-label="BIG EMOTION"
+          className="flex h-full items-center justify-center"
+        >
           <Logo className="w-[60%] opacity-90" />
         </div>
       ) : (

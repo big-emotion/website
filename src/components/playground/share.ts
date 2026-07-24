@@ -42,6 +42,9 @@ export async function shareEffect(payload: ShareEffectPayload): Promise<ShareOut
  * `undefined` (no `text` override, `shareEffect` falls back to the title alone)
  * whenever the challenge isn't unlocked or has no badge text to switch to.
  */
-export function resolveShareText(unlockedShareText: string | undefined, unlocked: boolean): string | undefined {
+export function resolveShareText(
+  unlockedShareText: string | undefined,
+  unlocked: boolean,
+): string | undefined {
   return unlocked ? unlockedShareText : undefined;
 }

@@ -23,11 +23,7 @@ export default function HomeScene({ slice, index }: HomeSceneProps) {
   const isClosingBeat = slice.variation === "default" && slice.primary.social_handle;
 
   return (
-    <ScenePanel
-      index={index}
-      dataSliceType={slice.slice_type}
-      dataSliceVariation={slice.variation}
-    >
+    <ScenePanel index={index} dataSliceType={slice.slice_type} dataSliceVariation={slice.variation}>
       {isClosingBeat && (
         // Handle only, no link: the owner has not supplied the social profile URLs yet
         // (SWBE-18 precondition 4), and a placeholder href would ship a link that goes

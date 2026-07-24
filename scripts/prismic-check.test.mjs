@@ -10,7 +10,10 @@ describe("deepDiff", () => {
   });
 
   it("reports a changed field type with its path", () => {
-    const diffs = deepDiff({ json: { title: { type: "Text" } } }, { json: { title: { type: "StructuredText" } } });
+    const diffs = deepDiff(
+      { json: { title: { type: "Text" } } },
+      { json: { title: { type: "StructuredText" } } },
+    );
 
     expect(diffs).toEqual([
       { kind: "value-changed", path: "json.title.type", local: "Text", remote: "StructuredText" },
@@ -18,7 +21,10 @@ describe("deepDiff", () => {
   });
 
   it("distinguishes a field added locally from one only present remotely", () => {
-    const diffs = deepDiff({ json: { title: {}, client: {} } }, { json: { title: {}, legacy: {} } });
+    const diffs = deepDiff(
+      { json: { title: {}, client: {} } },
+      { json: { title: {}, legacy: {} } },
+    );
 
     expect(diffs).toContainEqual({ kind: "added-local", path: "json.client", local: {} });
     expect(diffs).toContainEqual({ kind: "added-remote", path: "json.legacy", remote: {} });

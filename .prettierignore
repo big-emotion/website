@@ -13,6 +13,11 @@ prismicio-types.d.ts
 # Vendored third-party decoder binaries.
 public/draco/
 
+# Captured design references, not maintained source. Reformatting HTML moves
+# whitespace between inline elements, which is rendered whitespace — it would
+# shift the very layout these files exist to be compared against.
+docs/redesign/**/*.html
+
 # A git worktree parked here is a second checkout of this same repo. Formatting
 # it would rewrite another branch's tree — same rationale as the .claude ignore
 # in eslint.config.mjs.

@@ -43,7 +43,7 @@ by this story's shell rather than by convention alone:
   dependency at all.
 - The **shared studio rig** (`src/components/scene/studio-rig.ts`) — the branded
   chrome wordmark + lighting, moved out of `scene-canvas.tsx` unchanged — is the one
-  exception meant to be *reused*, not gated: it's already inside the GSAP/Lenis
+  exception meant to be _reused_, not gated: it's already inside the GSAP/Lenis
   envelope via the home page, and every effect that wants "the" logo reuses this
   module instead of shipping a second copy (the "one logo, one core" rule).
 

@@ -17,8 +17,14 @@ function stubMatchMedia(reducedMotion: boolean) {
 }
 
 const { renderers, groups } = vi.hoisted(() => ({
-  renderers: [] as Array<{ setAnimationLoop: (fn: unknown) => void; setPixelRatio: (r: number) => void }>,
-  groups: [] as Array<{ position: { set: (...args: number[]) => void }; rotation: { set: (...args: number[]) => void } }>,
+  renderers: [] as Array<{
+    setAnimationLoop: (fn: unknown) => void;
+    setPixelRatio: (r: number) => void;
+  }>,
+  groups: [] as Array<{
+    position: { set: (...args: number[]) => void };
+    rotation: { set: (...args: number[]) => void };
+  }>,
 }));
 
 // Same lightweight three.js stand-in as engine.test.ts / scene-canvas.test.tsx.

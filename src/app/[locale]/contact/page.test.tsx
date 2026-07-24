@@ -65,7 +65,9 @@ describe("/contact hero", () => {
       </NextIntlClientProvider>,
     );
 
-    expect(screen.getByRole("heading", { level: 1 })).toHaveAccessibleName("Creons de la big emotion");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveAccessibleName(
+      "Creons de la big emotion",
+    );
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
     expect(container.querySelector("section")).toHaveClass("bg-ink");
   });
@@ -88,6 +90,8 @@ describe("/contact hero", () => {
       </NextIntlClientProvider>,
     );
 
-    expect(screen.getByRole("heading", { level: 1 })).toHaveAccessibleName("Let's make big emotion");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveAccessibleName(
+      "Let's make big emotion",
+    );
   });
 });

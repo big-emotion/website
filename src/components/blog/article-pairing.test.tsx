@@ -11,7 +11,9 @@ import {
 /** What `<html>` is currently painted in, read back the way a stylesheet would see it. */
 function paintedPairing(): Partial<BrandPairing> {
   const token = (property: string) =>
-    document.documentElement.style.getPropertyValue(property).replace(/^var\(--color-(.+)\)$/, "$1");
+    document.documentElement.style
+      .getPropertyValue(property)
+      .replace(/^var\(--color-(.+)\)$/, "$1");
 
   return {
     surface: token("--blog-surface") as BrandPairing["surface"],

@@ -79,7 +79,8 @@ export default function PoidsLourdEffect() {
       };
     }
     window.addEventListener("deviceorientation", onOrientation);
-    orientationCleanupRef.current = () => window.removeEventListener("deviceorientation", onOrientation);
+    orientationCleanupRef.current = () =>
+      window.removeEventListener("deviceorientation", onOrientation);
   }
 
   if (!supportsToy) {
@@ -116,7 +117,11 @@ export default function PoidsLourdEffect() {
       >
         {strings.reset}
       </button>
-      <TiltPermissionCard copy={strings.tilt} onGranted={handleTiltGranted} onUnavailable={() => {}} />
+      <TiltPermissionCard
+        copy={strings.tilt}
+        onGranted={handleTiltGranted}
+        onUnavailable={() => {}}
+      />
     </div>
   );
 }

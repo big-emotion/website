@@ -105,7 +105,9 @@ describe("createCounterBatcher", () => {
   });
 
   it("dispatches a counter-updated event with the fresh total after a successful flush", async () => {
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({ total: 42 }) });
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue({ ok: true, json: () => Promise.resolve({ total: 42 }) });
     const dispatchEvent = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
     vi.stubGlobal("navigator", {});

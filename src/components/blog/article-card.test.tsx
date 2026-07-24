@@ -43,9 +43,10 @@ describe("ArticleCard", () => {
   it("links the title to the article via the locale-aware Link", () => {
     renderCard();
 
-    expect(
-      screen.getByRole("link", { name: /le jugement ne se reproduit pas/i }),
-    ).toHaveAttribute("href", "/blog/le-jugement-ne-se-reproduit-pas");
+    expect(screen.getByRole("link", { name: /le jugement ne se reproduit pas/i })).toHaveAttribute(
+      "href",
+      "/blog/le-jugement-ne-se-reproduit-pas",
+    );
   });
 
   it("renders the publish date", () => {
@@ -57,8 +58,9 @@ describe("ArticleCard", () => {
   it("prefixes the link on the English route", () => {
     renderCard({}, "en");
 
-    expect(
-      screen.getByRole("link", { name: /le jugement ne se reproduit pas/i }),
-    ).toHaveAttribute("href", "/en/blog/le-jugement-ne-se-reproduit-pas");
+    expect(screen.getByRole("link", { name: /le jugement ne se reproduit pas/i })).toHaveAttribute(
+      "href",
+      "/en/blog/le-jugement-ne-se-reproduit-pas",
+    );
   });
 });

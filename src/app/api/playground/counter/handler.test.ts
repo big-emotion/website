@@ -27,7 +27,7 @@ describe("handlePostCounter", () => {
   it("increments and returns the new total", async () => {
     const incrementCounter = vi
       .fn()
-      .mockResolvedValue({ total: 5, byEffect: { "lumiere": 5 } } satisfies CounterState);
+      .mockResolvedValue({ total: 5, byEffect: { lumiere: 5 } } satisfies CounterState);
 
     const res = await handlePostCounter(
       jsonRequest({ increments: [{ effectId: "lumiere", amount: 5 }] }),
@@ -42,7 +42,7 @@ describe("handlePostCounter", () => {
   it("forwards an over-cap amount to the lib rather than rejecting it (clamp lives there)", async () => {
     const incrementCounter = vi
       .fn()
-      .mockResolvedValue({ total: 50, byEffect: { "lumiere": 50 } } satisfies CounterState);
+      .mockResolvedValue({ total: 50, byEffect: { lumiere: 50 } } satisfies CounterState);
 
     const res = await handlePostCounter(
       jsonRequest({ increments: [{ effectId: "lumiere", amount: 5_000 }] }),

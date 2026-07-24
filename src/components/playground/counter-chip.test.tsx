@@ -24,7 +24,10 @@ describe("CounterChip", () => {
   });
 
   it("renders nothing while the total hasn't loaded yet", () => {
-    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => {})));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() => new Promise(() => {})),
+    );
 
     const { container } = render(<CounterChip locale="fr" copy={copy} />);
 
@@ -42,7 +45,10 @@ describe("CounterChip", () => {
   });
 
   it("uses the singular noun for a total of exactly one", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({ total: 1 }) }));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({ total: 1 }) }),
+    );
 
     render(<CounterChip locale="fr" copy={copy} />);
 

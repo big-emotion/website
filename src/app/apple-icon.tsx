@@ -19,25 +19,23 @@ const MARK =
 
 export default function AppleIcon() {
   return new ImageResponse(
-    (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#000",
-        }}
-      >
-        <img
-          width={120}
-          height={79}
-          src={`data:image/svg+xml;utf8,${encodeURIComponent(MARK)}`}
-          alt="B!G EMOTION"
-        />
-      </div>
-    ),
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#000",
+      }}
+    >
+      <img
+        width={120}
+        height={79}
+        src={`data:image/svg+xml;utf8,${encodeURIComponent(MARK)}`}
+        alt="B!G EMOTION"
+      />
+    </div>,
     { ...size },
   );
 }

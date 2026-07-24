@@ -74,7 +74,9 @@ async function articleSitemapEntries(lastModified: Date): Promise<MetadataRoute.
   );
 
   const uids = new Set(
-    locales.flatMap((locale) => (articlesByLocale.get(locale) ?? []).map((article) => article.uid!)),
+    locales.flatMap((locale) =>
+      (articlesByLocale.get(locale) ?? []).map((article) => article.uid!),
+    ),
   );
 
   return [...uids].flatMap((uid) => {

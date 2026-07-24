@@ -1,4 +1,5 @@
 <!-- BEGIN:nextjs-agent-rules -->
+
 # This is NOT the Next.js you know
 
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
@@ -60,7 +61,7 @@ With pnpm ≥ 10, a fresh clone must approve the `sharp` and `unrs-resolver` pos
 
 **Server behavior (redirects, headers) lives in `next.config.ts`**, not in `.htaccess` (removed). The HTTP→HTTPS redirect is a Traefik middleware (`deploy/docker-compose.yml`). Do not add `.htaccess` — there is no Apache.
 
-**The contact form works (SWBE-31 shipped).** `src/components/contact-form.tsx` posts to `/api/contact`; `api/contact/handler.ts` validates (zod) and rate-limits, then sends via the shared `lib/mail.ts` Graph seam. `public/contact.php` is the *retired* PHP original, kept only as a behavioural reference (rate-limit parity, field names) — it is NOT executed by the Node.js container and can go once nothing references it.
+**The contact form works (SWBE-31 shipped).** `src/components/contact-form.tsx` posts to `/api/contact`; `api/contact/handler.ts` validates (zod) and rate-limits, then sends via the shared `lib/mail.ts` Graph seam. `public/contact.php` is the _retired_ PHP original, kept only as a behavioural reference (rate-limit parity, field names) — it is NOT executed by the Node.js container and can go once nothing references it.
 
 **Auth & espace client (in progress).** Passwordless magic-link sign-in for provisioned client editors: `POST /api/auth/request-link` mints a single-use token (`lib/magic-link.ts`, 15-min TTL, in-memory) for an allowlisted email and mails it via `lib/mail.ts`; the `(auth)/verify` route exchanges the token for an HttpOnly, HMAC-signed session cookie (`lib/session.ts`, `AUTH_SECRET`, 30-day TTL); `(auth)/logout` clears it. `src/proxy.ts` (Next.js 16 renamed `middleware` → `proxy`) guards `/espace/:clientId` — no session → redirect to `/login`; wrong client → **404**, never 403, so it can't confirm another client's space exists. Next allows only one proxy file, so it also hosts locale routing: `/espace`, `/login`, `/logout`, `/verify` and `/api` branch out **before** next-intl runs and stay French-only, outside the `[locale]` segment (REQ-030); everything else is locale-routed. The allowlist is code-defined in `src/config/clients.ts` (one email ↔ one `clientId`, validated at module load) — a new client is a code change + deploy, no DB. Anti-enumeration is a hard requirement: request-link always returns the same neutral response whether or not the email is provisioned.
 

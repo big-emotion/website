@@ -109,10 +109,7 @@ describe("POST /api/auth/request-link", () => {
       ),
     );
 
-    expect(checkRateLimit).toHaveBeenCalledWith(
-      "203.0.113.9",
-      expect.any(Object),
-    );
+    expect(checkRateLimit).toHaveBeenCalledWith("203.0.113.9", expect.any(Object));
   });
 
   it("does not block the response on mail delivery (timing-neutral)", async () => {
@@ -148,10 +145,7 @@ describe("POST /api/auth/request-link", () => {
   });
 
   it("documents every auth env var in deploy/env.template", () => {
-    const template = readFileSync(
-      join(process.cwd(), "deploy/env.template"),
-      "utf8",
-    );
+    const template = readFileSync(join(process.cwd(), "deploy/env.template"), "utf8");
 
     for (const name of [
       "AUTH_SECRET",

@@ -48,7 +48,12 @@ const components: JSXMapSerializer = {
   // for PrismicNextImage instead of a bare <img>. Real dimensions and alt text always
   // come from Prismic, so next/image never has to guess them.
   image: ({ node }) => (
-    <Image src={node.url} alt={node.alt ?? ""} width={node.dimensions.width} height={node.dimensions.height} />
+    <Image
+      src={node.url}
+      alt={node.alt ?? ""}
+      width={node.dimensions.width}
+      height={node.dimensions.height}
+    />
   ),
 };
 

@@ -32,7 +32,11 @@ describe("updateAlignment", () => {
   });
 
   it("accepts the angle threshold itself as aligned", () => {
-    const state = updateAlignment(INITIAL_ALIGNMENT_STATE, ALIGNMENT_THRESHOLD_DEG, ALIGNMENT_HOLD_MS);
+    const state = updateAlignment(
+      INITIAL_ALIGNMENT_STATE,
+      ALIGNMENT_THRESHOLD_DEG,
+      ALIGNMENT_HOLD_MS,
+    );
     expect(state.aligned).toBe(true);
   });
 

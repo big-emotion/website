@@ -59,9 +59,7 @@ describe("next.config.ts", () => {
 
   it("does not set X-Robots-Tag unconditionally", async () => {
     const rules = await nextConfig.headers!();
-    const headers = rules
-      .filter((r) => r.source === "/(.*)")
-      .flatMap((r) => r.headers);
+    const headers = rules.filter((r) => r.source === "/(.*)").flatMap((r) => r.headers);
     expect(headers.map((h) => h.key)).not.toContain("X-Robots-Tag");
   });
 });

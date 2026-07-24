@@ -202,7 +202,8 @@ describe("createPoidsLourdEngine", () => {
     const container = makeContainer();
     const engine = createPoidsLourdEngine();
     engine.mount(container);
-    const renderFrame = renderers[renderers.length - 1].setAnimationLoop.mock.calls[0][0] as () => void;
+    const renderFrame = renderers[renderers.length - 1].setAnimationLoop.mock
+      .calls[0][0] as () => void;
     // loadStudioRig resolves synchronously in this mock, so the holder group it
     // creates (the last one pushed) is the body the engine is animating.
     const body = groups[groups.length - 1];

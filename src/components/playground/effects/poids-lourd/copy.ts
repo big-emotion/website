@@ -26,8 +26,7 @@ export const copy: Record<Locale, PoidsLourdCopy> = {
     reset: "Relancer",
     ariaLabel: "Logo chromé à saisir, glisser et lancer contre les bords élastiques",
     gestures: "Clic droit maintenu : ralenti",
-    fallback:
-      "Cette expérience nécessite un navigateur compatible WebGL, animations activées.",
+    fallback: "Cette expérience nécessite un navigateur compatible WebGL, animations activées.",
     tilt: {
       title: "Incliner pour jouer",
       body: "Autorisez l'inclinaison pour ajouter un peu de gravité au geste.",

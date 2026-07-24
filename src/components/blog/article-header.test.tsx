@@ -4,7 +4,14 @@ import { ArticleHeader } from "./article-header";
 
 describe("ArticleHeader", () => {
   it("renders the title as the page's single h1", () => {
-    render(<ArticleHeader locale="fr" title="Le brief qui change tout" kind="Strategie de marque" date="2026-07-21" />);
+    render(
+      <ArticleHeader
+        locale="fr"
+        title="Le brief qui change tout"
+        kind="Strategie de marque"
+        date="2026-07-21"
+      />,
+    );
 
     const headings = screen.getAllByRole("heading", { level: 1 });
     expect(headings).toHaveLength(1);
@@ -12,7 +19,14 @@ describe("ArticleHeader", () => {
   });
 
   it("credits the kind as an eyebrow above the title", () => {
-    render(<ArticleHeader locale="fr" title="Le brief qui change tout" kind="Strategie de marque" date="2026-07-21" />);
+    render(
+      <ArticleHeader
+        locale="fr"
+        title="Le brief qui change tout"
+        kind="Strategie de marque"
+        date="2026-07-21"
+      />,
+    );
 
     expect(screen.getByText("Strategie de marque")).toBeInTheDocument();
   });
@@ -32,7 +46,9 @@ describe("ArticleHeader", () => {
   });
 
   it("omits author and reading time when not provided", () => {
-    const { container } = render(<ArticleHeader locale="fr" title="Titre" kind="Kind" date="2026-07-21" />);
+    const { container } = render(
+      <ArticleHeader locale="fr" title="Titre" kind="Kind" date="2026-07-21" />,
+    );
 
     expect(container.querySelector("time")?.parentElement?.textContent).toBe("21 juillet 2026");
   });
@@ -76,7 +92,9 @@ describe("ArticleHeader", () => {
   });
 
   it("renders no pull-quote when no thesis is given", () => {
-    const { container } = render(<ArticleHeader locale="fr" title="Titre" kind="Kind" date="2026-07-21" />);
+    const { container } = render(
+      <ArticleHeader locale="fr" title="Titre" kind="Kind" date="2026-07-21" />,
+    );
 
     expect(container.querySelector("blockquote")).not.toBeInTheDocument();
   });

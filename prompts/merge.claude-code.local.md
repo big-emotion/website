@@ -17,9 +17,9 @@ may be a manual branch): `gh pr list --state open --head "$(git branch --show-cu
 1. **Gate on approval — before anything else.** The PR must carry the `approved`
    label (applied by the Reviewer) **or** an approving review. If neither is present,
    do **not** merge: post one `[ferry:merger:RUN_ID]` blocker comment (`blocked (not
-   approved)`) and stop. You never approve your own work.
+approved)`) and stop. You never approve your own work.
 2. **Idempotency.** If the PR is already merged (`gh pr view <PR_NUMBER> --json
-   state,mergedAt`), skip to the Done transition (if still pending) and the audit
+state,mergedAt`), skip to the Done transition (if still pending) and the audit
    comment. Never re-open or re-merge.
 3. **Sync `main` in and resolve conflicts.** `git fetch origin main`, then on the PR
    branch `git merge origin/main` — **always merge, never rebase or force-push** (the
@@ -32,7 +32,7 @@ may be a manual branch): `gh pr list --state open --head "$(git branch --show-cu
    - `sleep 30 && gh pr checks <PR_NUMBER> --watch=false` to snapshot.
    - As soon as any required check reports `fail` / `cancelled` / `timed_out`, stop
      watching the rest. Pull logs: resolve the run id via `gh run list --branch
-     "$(git branch --show-current)" --limit 5 --json databaseId,name,status,conclusion`,
+"$(git branch --show-current)" --limit 5 --json databaseId,name,status,conclusion`,
      then `gh run view <id> --log-failed`.
    - Make a **minimal, root-cause** fix scoped strictly to the failing check (no
      refactors, no drive-by changes). Commit `fix(ci): <what>` (imperative, ≤72 chars,

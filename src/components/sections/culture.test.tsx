@@ -43,9 +43,10 @@ describe("Culture", () => {
       "href",
       "https://www.linkedin.com/in/jnkollo/",
     );
-    expect(
-      screen.getByRole("link", { name: "Sylvain Seng Bandith sur LinkedIn" }),
-    ).toHaveAttribute("href", "https://fr.linkedin.com/in/sylvain-sengbandith-83515b28");
+    expect(screen.getByRole("link", { name: "Sylvain Seng Bandith sur LinkedIn" })).toHaveAttribute(
+      "href",
+      "https://fr.linkedin.com/in/sylvain-sengbandith-83515b28",
+    );
   });
 
   it("opens every founder profile in a new tab without leaking the opener", () => {
