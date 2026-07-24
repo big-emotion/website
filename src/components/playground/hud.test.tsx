@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { unlockChallenge } from "./challenges";
 import { EffectHud } from "./hud";
 
 const copy = {
@@ -14,15 +15,23 @@ const copy = {
 };
 
 const shareEffect = vi.fn();
-vi.mock("./share", () => ({ shareEffect: (...args: unknown[]) => shareEffect(...args) }));
+vi.mock("./share", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("./share")>()),
+  shareEffect: (...args: unknown[]) => shareEffect(...args),
+}));
 
-function renderHud(children?: ReactNode) {
+function renderHud(
+  children?: ReactNode,
+  overrides: { effectId?: string; unlockedShareText?: string } = {},
+) {
   return render(
     <EffectHud
       title="Mock effect"
       backHref="/playground"
       shareUrl="https://big-emotion.com/playground/mock/"
       copy={copy}
+      effectId={overrides.effectId ?? "mock-effect"}
+      unlockedShareText={overrides.unlockedShareText}
     >
       {children}
     </EffectHud>,
@@ -30,6 +39,14 @@ function renderHud(children?: ReactNode) {
 }
 
 describe("EffectHud", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
+  afterEach(() => {
+    window.localStorage.clear();
+  });
+
   it("gives the effect the page's only h1", () => {
     renderHud();
 
@@ -108,6 +125,22 @@ describe("EffectHud", () => {
     expect(shareEffect).toHaveBeenCalledWith({
       url: "https://big-emotion.com/playground/mock/",
       title: "Mock effect",
+    });
+  });
+
+  it("brags with the unlocked-badge text once this effect's challenge is unlocked", async () => {
+    shareEffect.mockResolvedValue("shared");
+    unlockChallenge("mock-effect");
+
+    renderHud(undefined, { effectId: "mock-effect", unlockedShareText: "I just unlocked PLEIN SOLEIL!" });
+    fireEvent.click(screen.getByRole("button", { name: copy.share.button }));
+
+    await waitFor(() => {
+      expect(shareEffect).toHaveBeenCalledWith({
+        url: "https://big-emotion.com/playground/mock/",
+        title: "Mock effect",
+        text: "I just unlocked PLEIN SOLEIL!",
+      });
     });
   });
 });
