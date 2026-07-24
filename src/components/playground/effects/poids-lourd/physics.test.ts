@@ -3,7 +3,9 @@ import {
   CAMERA_DISTANCE_DEFAULT,
   CAMERA_DISTANCE_MAX,
   CAMERA_DISTANCE_MIN,
+  CAMERA_DISTANCE_STEP,
   clampCameraDistance,
+  stepCameraDistance,
   frameDelta,
   SLOW_MOTION_SCALE,
   isAtRest,
@@ -188,6 +190,30 @@ describe("clampCameraDistance", () => {
     expect(visibleHalfHeight(CAMERA_DISTANCE_DEFAULT, 42)).toBeLessThan(
       visibleHalfHeight(4, 50),
     );
+  });
+});
+
+describe("stepCameraDistance", () => {
+  it("brings the camera closer on the way in, further on the way out", () => {
+    expect(stepCameraDistance(CAMERA_DISTANCE_DEFAULT, "in")).toBeLessThan(
+      CAMERA_DISTANCE_DEFAULT,
+    );
+    expect(stepCameraDistance(CAMERA_DISTANCE_DEFAULT, "out")).toBeGreaterThan(
+      CAMERA_DISTANCE_DEFAULT,
+    );
+  });
+
+  it("honours the same bounds the wheel does", () => {
+    expect(stepCameraDistance(CAMERA_DISTANCE_MIN, "in")).toBe(CAMERA_DISTANCE_MIN);
+    expect(stepCameraDistance(CAMERA_DISTANCE_MAX, "out")).toBe(CAMERA_DISTANCE_MAX);
+  });
+
+  // A control that needs twenty presses to reach the detail reads as broken, so the step
+  // is sized against the whole travel rather than picked in the abstract.
+  it("crosses the full range in a handful of presses", () => {
+    expect(
+      Math.ceil((CAMERA_DISTANCE_MAX - CAMERA_DISTANCE_MIN) / CAMERA_DISTANCE_STEP),
+    ).toBeLessThanOrEqual(10);
   });
 });
 

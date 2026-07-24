@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { BackLink } from "@/components/back-link";
 import { ArticleHeader } from "@/components/blog/article-header";
 import { ArticlePairing } from "@/components/blog/article-pairing";
 import { content, site } from "@/content/site";
@@ -91,6 +92,12 @@ export default async function ArticlePage({ params }: RouteProps) {
           ArticlePairing. Everything below, plus the header ink and the footer band,
           reads the three properties it sets. */}
       <ArticlePairing uid={uid} />
+
+      {/* Same way out as a Playground effect page: an article is a leaf, reached from the
+          index, and the site header carries no "back" of its own. */}
+      <div className="mb-8">
+        <BackLink href="/blog" label={content[locale].blog.back} />
+      </div>
 
       <ArticleHeader
         locale={locale}

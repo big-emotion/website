@@ -59,12 +59,12 @@ describe("unlockChallenge", () => {
   });
 
   it("persists across a simulated reload — a fresh read still sees the unlock", () => {
-    unlockChallenge("big-bang");
+    unlockChallenge("lumiere");
 
     // Nothing here holds in-memory state; every call re-reads localStorage, so this
     // stands in for "a fresh page load after the unlock" without needing to reset modules.
-    expect(isChallengeUnlocked("big-bang")).toBe(true);
-    expect(getUnlockedChallenges()).toEqual(["big-bang"]);
+    expect(isChallengeUnlocked("lumiere")).toBe(true);
+    expect(getUnlockedChallenges()).toEqual(["lumiere"]);
   });
 
   it("treats corrupted storage as no unlocks rather than throwing", () => {

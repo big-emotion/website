@@ -27,8 +27,19 @@ export const SLOW_MOTION_SCALE = 0.25;
  *  seconds; without the cap the body would tunnel straight through a wall on return. */
 const MAX_FRAME_SECONDS = 0.05;
 
+/** How far one press of the on-screen zoom control travels. Five presses cross the whole
+ *  MIN..MAX range, which is the point: the buttons are the only zoom a trackpad or a
+ *  touchscreen has, so they cannot be the slow path. */
+export const CAMERA_DISTANCE_STEP = 0.75;
+
 export function clampCameraDistance(distance: number): number {
   return Math.min(CAMERA_DISTANCE_MAX, Math.max(CAMERA_DISTANCE_MIN, distance));
+}
+
+export function stepCameraDistance(distance: number, direction: "in" | "out"): number {
+  return clampCameraDistance(
+    distance + (direction === "in" ? -CAMERA_DISTANCE_STEP : CAMERA_DISTANCE_STEP),
+  );
 }
 
 export function frameDelta(elapsedSeconds: number, slowMotion: boolean): number {

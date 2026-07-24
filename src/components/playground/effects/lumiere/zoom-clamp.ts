@@ -18,6 +18,15 @@ export const DOLLY_DEFAULT = CAMERA.distance;
 export const DOLLY_MIN = 0.9;
 export const DOLLY_MAX = 4.5;
 
+/** How far one press of the on-screen zoom control travels. Eight presses cross the whole
+ *  DOLLY_MIN..DOLLY_MAX range, which is the point: the buttons are the only zoom a
+ *  trackpad or a touchscreen has, so they cannot be the slow path. */
+export const DOLLY_STEP = 0.45;
+
 export function clampDolly(distance: number): number {
   return Math.min(DOLLY_MAX, Math.max(DOLLY_MIN, distance));
+}
+
+export function stepDolly(distance: number, direction: "in" | "out"): number {
+  return clampDolly(distance + (direction === "in" ? -DOLLY_STEP : DOLLY_STEP));
 }

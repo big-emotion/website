@@ -1,9 +1,10 @@
 import { afterEach, describe, expect, it, vi, type Mock } from "vitest";
 import { PLAYGROUND_INTERACTION_EVENT } from "@/components/playground/report-interaction";
 
-const { renderers, groups } = vi.hoisted(() => ({
+const { renderers, groups, cameras } = vi.hoisted(() => ({
   renderers: [] as Array<{ setPixelRatio: Mock; setAnimationLoop: Mock }>,
   groups: [] as Array<{ position: { set: Mock }; rotation: { set: Mock } }>,
+  cameras: [] as Array<{ position: { z: number } }>,
 }));
 
 // Same lightweight three.js stand-in used by scene-canvas.test.tsx / studio-rig.test.ts:
@@ -23,7 +24,15 @@ vi.mock("three", async () => {
   }
   class Object3DMock {
     children: unknown[] = [];
-    position = { set: vi.fn(), sub: vi.fn() };
+    // `set` records z as well as spying: the camera's framing is read back straight off
+    // `position.z`, exactly as three.js would leave it.
+    position = {
+      z: 0,
+      set: vi.fn((_x: number, _y: number, z: number) => {
+        this.position.z = z;
+      }),
+      sub: vi.fn(),
+    };
     rotation = { set: vi.fn(), y: 0 };
     scale = { setScalar: vi.fn() };
     isMesh = false;
@@ -45,6 +54,10 @@ vi.mock("three", async () => {
   class PerspectiveCamera extends Object3DMock {
     aspect = 1;
     updateProjectionMatrix = vi.fn();
+    constructor() {
+      super();
+      cameras.push(this as unknown as { position: { z: number } });
+    }
   }
   class WebGLRenderer {
     domElement = document.createElement("canvas");
@@ -296,6 +309,57 @@ describe("createPoidsLourdEngine", () => {
     expect(body.position.set).toHaveBeenCalledWith(0, 0, 0);
     expect(body.rotation.set).toHaveBeenCalledWith(0, 0, 0);
 
+    engine.dispose();
+  });
+
+  // The zoom a trackpad can reach. It shipped behind "hold a mouse button and turn the
+  // wheel", which a Mac laptop cannot perform at all — the wheel went to the page and
+  // scrolled the stage away instead.
+  it("dollies the camera when the on-screen zoom control is pressed", () => {
+    const container = makeContainer();
+    const engine = createPoidsLourdEngine();
+    engine.mount(container);
+    const camera = cameras[cameras.length - 1];
+    const framing = camera.position.z;
+
+    engine.zoom("in");
+    expect(camera.position.z).toBeLessThan(framing);
+
+    engine.zoom("out");
+    expect(camera.position.z).toBeCloseTo(framing);
+
+    engine.dispose();
+  });
+
+  it("dollies on a pinch, which arrives as a wheel event with no button held", () => {
+    const container = makeContainer();
+    const engine = createPoidsLourdEngine();
+    engine.mount(container);
+    const camera = cameras[cameras.length - 1];
+    const framing = camera.position.z;
+
+    container.dispatchEvent(
+      new WheelEvent("wheel", { deltaY: -40, ctrlKey: true, cancelable: true }),
+    );
+
+    expect(camera.position.z).toBeLessThan(framing);
+    engine.dispose();
+  });
+
+  // The stage fills most of the viewport: if it swallowed every wheel event there would
+  // be no way left to scroll back up to the header.
+  it("leaves a plain wheel to the page", () => {
+    const container = makeContainer();
+    const engine = createPoidsLourdEngine();
+    engine.mount(container);
+    const camera = cameras[cameras.length - 1];
+    const framing = camera.position.z;
+
+    const wheel = new WheelEvent("wheel", { deltaY: -40, cancelable: true });
+    container.dispatchEvent(wheel);
+
+    expect(camera.position.z).toBe(framing);
+    expect(wheel.defaultPrevented).toBe(false);
     engine.dispose();
   });
 

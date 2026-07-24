@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useLocale } from "next-intl";
 import * as THREE from "three";
 import { Logo } from "@/components/logo";
+import { defaultLocale, isLocale } from "@/i18n/locales";
 import { CAMERA } from "@/components/scene/states";
 import { buildStudioEnvironment, loadStudioRig } from "@/components/scene/studio-rig";
 import { reportInteraction } from "@/components/playground/report-interaction";
+import { ZoomControls, type ZoomDirection } from "@/components/playground/zoom-controls";
 import { applyDamping } from "./damping";
-import { clampDolly, DOLLY_DEFAULT } from "./zoom-clamp";
+import { clampDolly, DOLLY_DEFAULT, stepDolly } from "./zoom-clamp";
 import { INITIAL_ALIGNMENT_STATE, updateAlignment, type AlignmentState } from "./alignment-detector";
 
 // Trackball drag: pixels-to-radians and the momentum released on pointer-up
@@ -17,6 +20,10 @@ const DRAG_SENSITIVITY = 0.006;
 const DAMPING_HALF_LIFE = 0.35;
 const VELOCITY_EPSILON = 0.0005;
 const ZOOM_SENSITIVITY = 0.0025;
+// A trackpad pinch reaches the page as a wheel event too, but with deltas an order of
+// magnitude smaller than a wheel notch — at the wheel's own sensitivity a full pinch
+// would barely shift the framing.
+const PINCH_SENSITIVITY = 0.02;
 const EFFECT_ID = "lumiere";
 
 // Matches the key light rigged in studio-rig.ts / scene-canvas.tsx, so the alignment
@@ -35,6 +42,13 @@ type Status = "loading" | "ready" | "error";
 export default function Lumiere() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<Status>("loading");
+  // The camera is owned by the imperative scene below, so the on-screen controls reach it
+  // through this handle rather than through React state — nothing here re-renders per frame.
+  const dollyRef = useRef<(direction: ZoomDirection) => void>(() => {});
+  const zoom = useCallback((direction: ZoomDirection) => dollyRef.current(direction), []);
+
+  const activeLocale = useLocale();
+  const locale = isLocale(activeLocale) ? activeLocale : defaultLocale;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -136,16 +150,28 @@ export default function Lumiere() {
       window.removeEventListener("pointerup", onPointerUp);
     });
 
-    // The wheel only dollies while the visitor is actually holding the mark. Taking it
-    // unconditionally is what trapped the page: the stage fills the viewport, so a
-    // preventDefault here left no way to scroll back up to the header.
+    // A bare wheel is left to the page on purpose: the stage fills the viewport, so
+    // swallowing every wheel event is what trapped visitors with no way back to the
+    // header. It dollies while the mark is held (mouse) or under a pinch, which every
+    // browser delivers as a wheel event with `ctrlKey` set — the gesture a trackpad can
+    // actually make. Ctrl/Cmd + wheel rides the same branch for mouse users, and page
+    // zoom stays available from the keyboard.
     const onWheel = (e: WheelEvent) => {
-      if (!drag.active) return;
+      const pinching = e.ctrlKey || e.metaKey;
+      if (!drag.active && !pinching) return;
       e.preventDefault();
-      camera.position.z = clampDolly(camera.position.z + e.deltaY * ZOOM_SENSITIVITY);
+      const sensitivity = pinching ? PINCH_SENSITIVITY : ZOOM_SENSITIVITY;
+      camera.position.z = clampDolly(camera.position.z + e.deltaY * sensitivity);
     };
     renderer.domElement.addEventListener("wheel", onWheel, { passive: false });
     cleanupFns.push(() => renderer.domElement.removeEventListener("wheel", onWheel));
+
+    dollyRef.current = (direction) => {
+      camera.position.z = stepDolly(camera.position.z, direction);
+    };
+    cleanupFns.push(() => {
+      dollyRef.current = () => {};
+    });
 
     const onResize = () => {
       camera.aspect = container.clientWidth / container.clientHeight || 1;
@@ -206,7 +232,10 @@ export default function Lumiere() {
           <Logo className="w-[60%] opacity-90" />
         </div>
       ) : (
-        <div ref={containerRef} data-testid="lumiere-canvas" className="h-full w-full" />
+        <>
+          <div ref={containerRef} data-testid="lumiere-canvas" className="h-full w-full" />
+          <ZoomControls locale={locale} onZoom={zoom} />
+        </>
       )}
     </div>
   );

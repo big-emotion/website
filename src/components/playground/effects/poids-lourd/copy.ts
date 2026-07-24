@@ -14,7 +14,8 @@ export type PoidsLourdCopy = {
   /** `font-display` slot — ASCII only. */
   reset: string;
   ariaLabel: string;
-  /** The two mouse-only camera gestures, spelled out because neither is discoverable. */
+  /** The mouse-only slow-motion hold, spelled out because it is not discoverable. Zoom
+   *  used to be listed here too; it now lives with the on-screen controls that own it. */
   gestures: string;
   fallback: string;
   tilt: TiltPermissionCardCopy;
@@ -24,7 +25,7 @@ export const copy: Record<Locale, PoidsLourdCopy> = {
   fr: {
     reset: "Relancer",
     ariaLabel: "Logo chromé à saisir, glisser et lancer contre les bords élastiques",
-    gestures: "Clic maintenu + molette : zoom · Clic droit maintenu : ralenti",
+    gestures: "Clic droit maintenu : ralenti",
     fallback:
       "Cette expérience nécessite un navigateur compatible WebGL, animations activées.",
     tilt: {
@@ -37,7 +38,7 @@ export const copy: Record<Locale, PoidsLourdCopy> = {
   en: {
     reset: "Reset",
     ariaLabel: "Chrome logo to grab, drag and throw against the elastic walls",
-    gestures: "Hold click + wheel: zoom · Hold right-click: slow motion",
+    gestures: "Hold right-click: slow motion",
     fallback: "This experience needs a WebGL-capable browser with animations enabled.",
     tilt: {
       title: "Tilt to play",

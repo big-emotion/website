@@ -3,6 +3,7 @@
 import { useEffect, useRef, useSyncExternalStore } from "react";
 import { useLocale } from "next-intl";
 import { defaultLocale, isLocale } from "@/i18n/locales";
+import { ZoomControls, type ZoomDirection } from "@/components/playground/zoom-controls";
 import { copy } from "./copy";
 import { createPoidsLourdEngine, type PoidsLourdEngine } from "./engine";
 import type { Vec2 } from "./physics";
@@ -45,7 +46,8 @@ export default function PoidsLourdEffect() {
   );
 
   const activeLocale = useLocale();
-  const strings = copy[isLocale(activeLocale) ? activeLocale : defaultLocale];
+  const locale = isLocale(activeLocale) ? activeLocale : defaultLocale;
+  const strings = copy[locale];
 
   useEffect(() => {
     if (!supportsToy) return;
@@ -103,6 +105,10 @@ export default function PoidsLourdEffect() {
       <p className="absolute top-4 left-5 hidden text-xs uppercase tracking-wide text-ink/70 md:left-8 md:block">
         {strings.gestures}
       </p>
+      <ZoomControls
+        locale={locale}
+        onZoom={(direction: ZoomDirection) => engineRef.current?.zoom(direction)}
+      />
       <button
         type="button"
         onClick={() => engineRef.current?.reset()}

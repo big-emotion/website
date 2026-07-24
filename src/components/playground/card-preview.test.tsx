@@ -68,14 +68,14 @@ describe("CardPreview", () => {
 
   it("returns the mark to its rest pose when the pointer leaves", async () => {
     const { rerender } = render(
-      <CardPreview motion="burst" active>
+      <CardPreview motion="drop" active>
         <span>vignette</span>
       </CardPreview>,
     );
     await waitFor(() => expect(preview.activate).toHaveBeenCalled());
 
     rerender(
-      <CardPreview motion="burst" active={false}>
+      <CardPreview motion="drop" active={false}>
         <span>vignette</span>
       </CardPreview>,
     );

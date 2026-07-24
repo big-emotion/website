@@ -118,6 +118,92 @@ body {
 }
 
 /* ============================================================
+   /culture's founder band — the roster drifts past and the member under the
+   cursor swells. Same marquee machinery as the client wall, three rules of its
+   own: it is slower (a bio is read, a wordmark is glanced at), it swells with a
+   transform rather than a size — the -50% loop is measured off the track's
+   laid-out width, so a layout-changing hover would tear the halves apart — and
+   the members it is *not* showing you step back, because at this card size the
+   swell alone is too quiet to read as a pick.
+   ============================================================ */
+.team-marquee .marquee-track {
+  /* A half is ~104vw by construction (see TeamMarquee), so this reads as "one
+     screenful per 40s" at every breakpoint rather than a fixed px/s that would
+     crawl on a phone and race on a 4K panel. A founder's card takes about a
+     minute to cross, which is what it costs to actually read the bio. */
+  animation-duration: 40s;
+}
+/* Tabbing into the band moves the focused link out from under the cursor unless the
+   scroll stops too. The client wall carries no links, hence the narrower selector. */
+.team-marquee .marquee-track:focus-within {
+  animation-play-state: paused;
+}
+.team-marquee-member {
+  transition: opacity 0.4s ease;
+}
+.team-marquee-details {
+  transform-origin: left top;
+  transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+@media (hover: hover) {
+  /* Room for the swell to happen in. Scaling a full-width card by 1.12 pushes its bio
+     over the next founder's card; holding the measure back to 88% keeps the grown box
+     inside its own column. Scoped to hover devices so a phone, which never swells,
+     keeps the full width for its much narrower card. */
+  .team-marquee-details {
+    max-width: 88%;
+  }
+  .team-marquee:hover .team-marquee-member {
+    opacity: 0.4;
+  }
+  .team-marquee .team-marquee-member:hover {
+    opacity: 1;
+  }
+  .team-marquee .team-marquee-member:hover .team-marquee-details {
+    transform: scale(1.12);
+  }
+}
+/* Keyboard parity, outside the hover query so it also holds on touch. Ranks above the
+   dimming rule above on specificity, which is what restores the focused member. */
+.team-marquee .team-marquee-member:focus-within {
+  opacity: 1;
+}
+.team-marquee .team-marquee-member:focus-within .team-marquee-details {
+  transform: scale(1.12);
+}
+@media (prefers-reduced-motion: reduce) {
+  /* Frozen, the band would clip the roster at the viewport edge and the repeats
+     would print the same two people six times. Unwrap it back into the plain
+     grid the section carried before, and keep the swell off a static card. */
+  .team-marquee {
+    margin-inline: 0;
+    overflow: visible;
+  }
+  .team-marquee .marquee-track,
+  .team-marquee .marquee-track > ul {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .team-marquee .marquee-track > [aria-hidden="true"] {
+    display: none;
+  }
+  /* The card width is sized off `vw` to keep the loop seamless; with no loop left to
+     keep, that only pushes two founders onto two rows. Back to the plain two-column
+     read the section carried before the band. */
+  .team-marquee-member {
+    width: min(100%, 34rem);
+    padding-inline: 0;
+    padding-bottom: 3rem;
+  }
+  .team-marquee .marquee-track > ul {
+    gap: 3rem;
+  }
+  .team-marquee-details {
+    transform: none;
+  }
+}
+
+/* ============================================================
    Long-form reading type scale (SWBE-118) — the article body's comfortable
    reading experience. Consumed by the rich-text serializer
    (src/components/blog/rich-text.tsx), which renders plain semantic

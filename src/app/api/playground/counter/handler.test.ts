@@ -27,31 +27,31 @@ describe("handlePostCounter", () => {
   it("increments and returns the new total", async () => {
     const incrementCounter = vi
       .fn()
-      .mockResolvedValue({ total: 5, byEffect: { "big-bang": 5 } } satisfies CounterState);
+      .mockResolvedValue({ total: 5, byEffect: { "lumiere": 5 } } satisfies CounterState);
 
     const res = await handlePostCounter(
-      jsonRequest({ increments: [{ effectId: "big-bang", amount: 5 }] }),
+      jsonRequest({ increments: [{ effectId: "lumiere", amount: 5 }] }),
       { rateLimiter: allow, incrementCounter },
     );
 
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ total: 5 });
-    expect(incrementCounter).toHaveBeenCalledWith([{ effectId: "big-bang", amount: 5 }]);
+    expect(incrementCounter).toHaveBeenCalledWith([{ effectId: "lumiere", amount: 5 }]);
   });
 
   it("forwards an over-cap amount to the lib rather than rejecting it (clamp lives there)", async () => {
     const incrementCounter = vi
       .fn()
-      .mockResolvedValue({ total: 50, byEffect: { "big-bang": 50 } } satisfies CounterState);
+      .mockResolvedValue({ total: 50, byEffect: { "lumiere": 50 } } satisfies CounterState);
 
     const res = await handlePostCounter(
-      jsonRequest({ increments: [{ effectId: "big-bang", amount: 5_000 }] }),
+      jsonRequest({ increments: [{ effectId: "lumiere", amount: 5_000 }] }),
       { rateLimiter: allow, incrementCounter },
     );
 
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ total: 50 });
-    expect(incrementCounter).toHaveBeenCalledWith([{ effectId: "big-bang", amount: 5_000 }]);
+    expect(incrementCounter).toHaveBeenCalledWith([{ effectId: "lumiere", amount: 5_000 }]);
   });
 
   it("returns 400 for a malformed JSON body", async () => {
@@ -68,7 +68,7 @@ describe("handlePostCounter", () => {
   });
 
   it("returns 400 when a required field is missing", async () => {
-    const res = await handlePostCounter(jsonRequest({ increments: [{ effectId: "big-bang" }] }), {
+    const res = await handlePostCounter(jsonRequest({ increments: [{ effectId: "lumiere" }] }), {
       rateLimiter: allow,
       incrementCounter: vi.fn(),
     });
@@ -89,7 +89,7 @@ describe("handlePostCounter", () => {
 
   it("returns 400 for a negative amount", async () => {
     const res = await handlePostCounter(
-      jsonRequest({ increments: [{ effectId: "big-bang", amount: -1 }] }),
+      jsonRequest({ increments: [{ effectId: "lumiere", amount: -1 }] }),
       { rateLimiter: allow, incrementCounter: vi.fn() },
     );
 
@@ -100,7 +100,7 @@ describe("handlePostCounter", () => {
     const incrementCounter = vi.fn();
 
     const res = await handlePostCounter(
-      jsonRequest({ increments: [{ effectId: "big-bang", amount: 1 }] }),
+      jsonRequest({ increments: [{ effectId: "lumiere", amount: 1 }] }),
       { rateLimiter: { check: () => true }, incrementCounter },
     );
 
@@ -112,7 +112,7 @@ describe("handlePostCounter", () => {
     const incrementCounter = vi.fn().mockRejectedValue(new Error("disk full"));
 
     const res = await handlePostCounter(
-      jsonRequest({ increments: [{ effectId: "big-bang", amount: 1 }] }),
+      jsonRequest({ increments: [{ effectId: "lumiere", amount: 1 }] }),
       { rateLimiter: allow, incrementCounter },
     );
 

@@ -1,11 +1,14 @@
-import { cleanup, render } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 // Same lightweight three.js stand-in as scene-canvas.test.tsx / studio-rig.test.ts:
 // enough surface for the mount/dispose wiring, no real WebGL context or GPU.
-const { disposeSpy, setAnimationLoopSpy } = vi.hoisted(() => ({
+const { disposeSpy, setAnimationLoopSpy, cameras, canvases } = vi.hoisted(() => ({
   disposeSpy: vi.fn(),
   setAnimationLoopSpy: vi.fn(),
+  cameras: [] as Array<{ position: { z: number } }>,
+  canvases: [] as HTMLCanvasElement[],
 }));
 
 vi.mock("three", async () => {
@@ -30,7 +33,14 @@ vi.mock("three", async () => {
   }
   class Object3DMock {
     children: unknown[] = [];
-    position = { set: vi.fn(), z: 0 };
+    // `set` records z as well as spying: the camera's framing is read back straight off
+    // `position.z`, exactly as three.js would leave it.
+    position = {
+      z: 0,
+      set: vi.fn((_x: number, _y: number, z: number) => {
+        this.position.z = z;
+      }),
+    };
     rotation = { x: 0, y: 0, set: vi.fn() };
     quaternion = {};
     scale = { setScalar: vi.fn() };
@@ -46,9 +56,13 @@ vi.mock("three", async () => {
   class PerspectiveCamera extends Object3DMock {
     aspect = 1;
     updateProjectionMatrix = vi.fn();
+    constructor() {
+      super();
+      cameras.push(this as unknown as { position: { z: number } });
+    }
   }
   class WebGLRenderer {
-    domElement = document.createElement("canvas");
+    domElement = canvases[canvases.push(document.createElement("canvas")) - 1];
     setSize = vi.fn();
     setPixelRatio = vi.fn();
     setAnimationLoop = setAnimationLoopSpy;
@@ -111,16 +125,26 @@ vi.mock("@/components/scene/studio-rig", () => ({
 
 const { default: Lumiere } = await import("./index");
 
+function renderLumiere() {
+  return render(
+    <NextIntlClientProvider locale="fr">
+      <Lumiere />
+    </NextIntlClientProvider>,
+  );
+}
+
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+  cameras.length = 0;
+  canvases.length = 0;
 });
 
 describe("Lumiere mount/dispose", () => {
   it("starts the animation loop once the studio rig resolves", () => {
     loadStudioRigMock.mockImplementation((onReady: (holder: unknown) => void) => onReady({}));
 
-    render(<Lumiere />);
+    renderLumiere();
 
     expect(setAnimationLoopSpy).toHaveBeenCalledWith(expect.any(Function));
   });
@@ -130,7 +154,7 @@ describe("Lumiere mount/dispose", () => {
     const addSpy = vi.spyOn(window, "addEventListener");
     const removeSpy = vi.spyOn(window, "removeEventListener");
 
-    const { unmount } = render(<Lumiere />);
+    const { unmount } = renderLumiere();
     const addedTypes = addSpy.mock.calls.map(([type]) => type).sort();
     expect(addedTypes.length).toBeGreaterThan(0);
 
@@ -145,8 +169,62 @@ describe("Lumiere mount/dispose", () => {
   it("never starts the animation loop if the rig fails to load", () => {
     loadStudioRigMock.mockImplementation((_onReady: unknown, onError: () => void) => onError());
 
-    render(<Lumiere />);
+    renderLumiere();
 
     expect(setAnimationLoopSpy).not.toHaveBeenCalled();
+  });
+});
+
+// The zoom a trackpad can reach. It shipped behind "hold the mark down and turn the
+// wheel", which a Mac laptop cannot perform at all — the wheel went to the page and
+// scrolled the stage away instead.
+describe("Lumiere zoom", () => {
+  it("dollies the camera when the on-screen zoom control is pressed", () => {
+    loadStudioRigMock.mockImplementation((onReady: (holder: unknown) => void) => onReady({}));
+    renderLumiere();
+    const camera = cameras[cameras.length - 1];
+    const framing = camera.position.z;
+
+    fireEvent.click(screen.getByRole("button", { name: /zoomer sur le logo/i }));
+    expect(camera.position.z).toBeLessThan(framing);
+
+    fireEvent.click(screen.getByRole("button", { name: /dézoomer/i }));
+    expect(camera.position.z).toBeCloseTo(framing);
+  });
+
+  it("dollies on a pinch, which arrives as a wheel event with nothing held", () => {
+    loadStudioRigMock.mockImplementation((onReady: (holder: unknown) => void) => onReady({}));
+    renderLumiere();
+    const camera = cameras[cameras.length - 1];
+    const framing = camera.position.z;
+
+    canvases[canvases.length - 1].dispatchEvent(
+      new WheelEvent("wheel", { deltaY: -40, ctrlKey: true, cancelable: true }),
+    );
+
+    expect(camera.position.z).toBeLessThan(framing);
+  });
+
+  // The stage fills the viewport: if it swallowed every wheel event there would be no
+  // way left to scroll back up to the header.
+  it("leaves a plain wheel to the page", () => {
+    loadStudioRigMock.mockImplementation((onReady: (holder: unknown) => void) => onReady({}));
+    renderLumiere();
+    const camera = cameras[cameras.length - 1];
+    const framing = camera.position.z;
+
+    const wheel = new WheelEvent("wheel", { deltaY: -40, cancelable: true });
+    canvases[canvases.length - 1].dispatchEvent(wheel);
+
+    expect(camera.position.z).toBe(framing);
+    expect(wheel.defaultPrevented).toBe(false);
+  });
+
+  it("keeps the controls out of the way when the rig never loads", () => {
+    loadStudioRigMock.mockImplementation((_onReady: unknown, onError: () => void) => onError());
+
+    renderLumiere();
+
+    expect(screen.queryByRole("button", { name: /zoomer sur le logo/i })).not.toBeInTheDocument();
   });
 });

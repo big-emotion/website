@@ -1,7 +1,6 @@
 // The gallery previews' cinematics (PG-03's teaser, hover-driven). Each card samples its
 // effect rather than embedding it: LUMIERE turns the mark towards the pointer, POIDS
-// LOURD drops it, BIG BANG blows it apart — the third reuses big-bang's own
-// `burstEnvelope`, so the teaser and the effect it advertises share one curve.
+// LOURD drops it.
 //
 // Pure and renderer-free, like every other motion module here: `runtime.ts` is the only
 // caller and it just reads these each frame.

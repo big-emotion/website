@@ -80,6 +80,8 @@ type LocaleContent = {
     featuredLabel: string;
     /** CTA on the promoted lead article. */
     readMore: string;
+    /** Back-to-index link on an article's own page. `font-display` slot — ASCII only. */
+    back: string;
     /** Hero count chip. The number is interpolated; the noun is chosen by the count. */
     postCount: { one: string; other: string };
   };
@@ -217,11 +219,11 @@ const fr: LocaleContent = {
     { id: "cases", title: ["Derriere", "chaque clic,", "une emotion"] },
     { id: "culture", title: ["Digital first,", "emotion", "toujours"] },
   ],
-  mission: "Donner vie a tes projets et leur transmettre des emotions.",
+  mission: "On fait du sur-mesure et du conseil. On y ajoute ce qui fait dire wow.",
   stat: { value: "50+", label: "projets accompagnes" },
   leads: {
     approach:
-      "On part de la réaction, puis on remonte tout le fil pour l’obtenir. Stratégie, design et motion en un seul système, pour que chaque scroll, transition et frame soit un temps fort d’une histoire mémorable.",
+      "On part de la réaction qu’on veut provoquer, puis on remonte jusqu’au code. Conseil, développement, motion : une seule équipe, un seul fil — et le détail en plus qui fait dire wow.",
     cases:
       "Une sélection de projets où le craft rencontre les chiffres. Des pics de lancement aux courbes de rétention, c’est ici qu’on montre les projets et l’impact qu’ils ont généré.",
     culture:
@@ -233,6 +235,7 @@ const fr: LocaleContent = {
     byline: "Par",
     featuredLabel: "À la une",
     readMore: "Lire l’article",
+    back: "Retour au blog",
     postCount: { one: "article", other: "articles" },
   },
   playground: {
@@ -258,24 +261,22 @@ const fr: LocaleContent = {
         label: "GROS BRAS",
         unlockedShare: "J'ai débloqué le badge GROS BRAS sur le Playground BIG EMOTION !",
       },
-      "big-bang": {
-        label: "TIMING PARFAIT",
-        unlockedShare: "J'ai débloqué le badge TIMING PARFAIT sur le Playground BIG EMOTION !",
-      },
     },
   },
+  // Two trades, then what gets sold on top of them. The wow closes the list on purpose:
+  // conseil and sur-mesure are what any agency claims, the third card is the argument.
   services: [
     {
-      title: "Etude, conception & realisation",
-      body: "Une méthodo qui cadre ton besoin au millimètre, puis on t’épaule de A à Z sur toute la technique — et même au-delà.",
-    },
-    {
       title: "Conseil & plan marketing",
-      body: "Plus de cinquante projets au compteur. On met de l’émotion dans ta stratégie, pas du jargon.",
+      body: "On écoute, on cadre, on tranche. Une stratégie qui parle à tes clients, pas à ton comité. Zéro jargon, que des décisions.",
     },
     {
       title: "Developpement sur-mesure",
-      body: "Un cahier des charges précis, des modules conçus rien que pour toi. Ton projet, exactement comme tu le veux.",
+      body: "Rien qui sorte d’un template. Chaque module est écrit pour ton besoin, testé, rapide — mobile d’abord. Ton projet, exactement comme tu le veux.",
+    },
+    {
+      title: "La touche wow",
+      body: "Le détail qui reste en tête : une transition, une matière, un mouvement. C’est lui qui transforme une visite en souvenir.",
     },
   ],
   impactStats: [
@@ -350,11 +351,11 @@ const en: LocaleContent = {
     { id: "cases", title: ["Behind", "every click,", "a feeling"] },
     { id: "culture", title: ["Digital first", "emotion,", "always"] },
   ],
-  mission: "Bring your projects to life and make them felt.",
+  mission: "We build custom, we advise straight. Then we add the wow.",
   stat: { value: "50+", label: "projects delivered" },
   leads: {
     approach:
-      "We start with the reaction, then reverse engineer everything to get there. Strategy, design and motion working as one system, so every scroll, transition and frame is a deliberate beat in a story your audience actually remembers.",
+      "We start from the reaction we want, then work our way back down to the code. Strategy, development, motion: one team, one thread — and the extra detail that gives a wow.",
     cases:
       "Selected work where craft met numbers. From launch spikes to retention curves, this is where we show the projects and the impact they moved.",
     culture:
@@ -366,6 +367,7 @@ const en: LocaleContent = {
     byline: "By",
     featuredLabel: "Featured",
     readMore: "Read the article",
+    back: "Back to the blog",
     postCount: { one: "post", other: "posts" },
   },
   playground: {
@@ -391,24 +393,20 @@ const en: LocaleContent = {
         label: "GROS BRAS",
         unlockedShare: "I just unlocked the GROS BRAS badge on the BIG EMOTION Playground!",
       },
-      "big-bang": {
-        label: "TIMING PARFAIT",
-        unlockedShare: "I just unlocked the TIMING PARFAIT badge on the BIG EMOTION Playground!",
-      },
     },
   },
   services: [
     {
-      title: "Research, design & delivery",
-      body: "A method that frames what you need down to the millimetre, then we back you from A to Z on everything technical — and well past it.",
-    },
-    {
       title: "Strategy & marketing plan",
-      body: "More than fifty projects behind us. We put emotion into your strategy, not jargon.",
+      body: "We listen, we frame, we call it. A strategy that talks to your customers, not to your steering committee. No jargon, just decisions.",
     },
     {
       title: "Custom development",
-      body: "A precise brief, modules built for you and nobody else. Your project, exactly the way you want it.",
+      body: "Nothing off a template. Every module is written for your brief, tested, fast — mobile first. Your project, exactly the way you want it.",
+    },
+    {
+      title: "The wow touch",
+      body: "The detail that sticks: a transition, a texture, a move. That is what turns a visit into something people remember.",
     },
   ],
   impactStats: [
