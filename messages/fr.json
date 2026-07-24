@@ -26,6 +26,7 @@
     "clientWallTitle": "Ils nous ont fait confiance"
   },
   "culture": {
+    "teamListLabel": "L'equipe",
     "personalityTitle": "Brand personality",
     "axisBalanced": "{start} a {end} : equilibre",
     "axisLeans": "{start} a {end} : penche vers {pole}"

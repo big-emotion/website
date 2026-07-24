@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { describe, expect, it } from "vitest";
 import en from "../../../messages/en.json";
@@ -21,6 +21,14 @@ describe("Culture", () => {
     renderCulture("fr");
 
     expect(screen.queryByRole("heading", { level: 1 })).toBeNull();
+  });
+
+  // The founders now scroll past in a band that prints the roster several times over,
+  // so the section has to keep the duplicates out of the reading order.
+  it("introduces each founder exactly once despite the band's repeats", () => {
+    renderCulture("fr");
+
+    expect(screen.getAllByRole("heading", { name: /Kollo|Bandith/ })).toHaveLength(2);
   });
 
   it("links Sylvain's own site under his name", () => {
@@ -50,8 +58,9 @@ describe("Culture", () => {
 
   it("answers in English on the English route, founder roles and values included", () => {
     renderCulture("en");
+    const roster = within(screen.getByRole("list", { name: en.culture.teamListLabel }));
 
-    expect(screen.getByText("Geek & philosopher")).toBeInTheDocument();
+    expect(roster.getByText("Geek & philosopher")).toBeInTheDocument();
     expect(screen.getByText(/Boldness/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Jean-Noe Kollo on LinkedIn" })).toBeInTheDocument();
   });

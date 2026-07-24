@@ -8,29 +8,36 @@ describe("Approach", () => {
   it("opens on the agency's mission rather than repeating the page title", () => {
     render(<Approach locale="fr" />);
 
-    expect(screen.getByRole("heading", { name: /Donner vie a tes projets/ })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /On fait du sur-mesure/ })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { level: 1 })).toBeNull();
   });
 
   it("answers in English on the English route", () => {
     render(<Approach locale="en" />);
 
-    expect(
-      screen.getByRole("heading", { name: /Bring your projects to life/ }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /We build custom/ })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Custom development" })).toBeInTheDocument();
   });
 
-  it("ranks the three service offers after the mission", () => {
+  // The offer is two trades plus what the agency sells on top of them, and the order
+  // is the argument: the wow lands last because the first two are table stakes.
+  it("ranks the two trades before the wow they are sold with", () => {
     render(<Approach locale="fr" />);
 
     const headings = screen.getAllByRole("heading", { level: 2 });
     expect(headings.map((heading) => heading.textContent)).toEqual([
-      "Donner vie a tes projets et leur transmettre des emotions.",
-      "Etude, conception & realisation",
+      "On fait du sur-mesure et du conseil. On y ajoute ce qui fait dire wow.",
       "Conseil & plan marketing",
       "Developpement sur-mesure",
+      "La touche wow",
     ]);
+  });
+
+  it("closes the English offer on the same wow", () => {
+    render(<Approach locale="en" />);
+
+    const headings = screen.getAllByRole("heading", { level: 2 });
+    expect(headings.at(-1)).toHaveTextContent("The wow touch");
   });
 
   it("pairs the project count with what it counts", () => {

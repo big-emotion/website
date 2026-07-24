@@ -15,7 +15,7 @@ describe("/approach", () => {
     render(await ApproachPage({ params: Promise.resolve({ locale: "en" }) }));
 
     expect(
-      screen.getByRole("heading", { name: /Bring your projects to life/ }),
+      screen.getByRole("heading", { name: /We build custom, we advise straight/ }),
     ).toBeInTheDocument();
   });
 });

@@ -26,6 +26,7 @@
     "clientWallTitle": "They trusted us"
   },
   "culture": {
+    "teamListLabel": "The team",
     "personalityTitle": "Brand personality",
     "axisBalanced": "{start} to {end}: balanced",
     "axisLeans": "{start} to {end}: leans {pole}"
