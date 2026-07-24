@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-07-24
+
+### Fixed
+
+- The four `/cases` sector cards no longer link their titles to `/cases/[uid]`,
+  where the write-up is still a placeholder — the titles are plain headings
+  until real client stories are published (restoring the link is a one-line
+  change; the route and its Prismic documents are untouched).
+- The brand personality slider on `/culture` now renders its six axis poles in
+  French on the French page. The pole wording moved out of the locale-invariant
+  `personalityAxes` export into `content[locale].personalityPoles`; on mobile
+  the poles stack above a full-width line so the longer French labels
+  ("Institutionnel") no longer clip at 320px.
+
 ## [0.8.0] - 2026-07-24
 
 ### Added
@@ -401,7 +415,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   under the Node.js container and its `/api/contact` replacement is not shipped
   (SWBE-31).
 
-[Unreleased]: https://github.com/big-emotion/website/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/big-emotion/website/compare/v0.8.1...HEAD
+[0.8.1]: https://github.com/big-emotion/website/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/big-emotion/website/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/big-emotion/website/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/big-emotion/website/compare/v0.5.1...v0.6.0
