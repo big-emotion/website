@@ -17,9 +17,9 @@ describe("countPlays", () => {
 
     reportInteraction("poids-lourd", "throw");
     reportInteraction("poids-lourd", "bounce");
-    reportInteraction("big-bang", "explode");
+    reportInteraction("lumiere", "spin");
 
-    expect(recordPlay.mock.calls).toEqual([["poids-lourd"], ["poids-lourd"], ["big-bang"]]);
+    expect(recordPlay.mock.calls).toEqual([["poids-lourd"], ["poids-lourd"], ["lumiere"]]);
     stop();
   });
 

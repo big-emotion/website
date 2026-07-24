@@ -258,10 +258,6 @@ const fr: LocaleContent = {
         label: "GROS BRAS",
         unlockedShare: "J'ai débloqué le badge GROS BRAS sur le Playground BIG EMOTION !",
       },
-      "big-bang": {
-        label: "TIMING PARFAIT",
-        unlockedShare: "J'ai débloqué le badge TIMING PARFAIT sur le Playground BIG EMOTION !",
-      },
     },
   },
   services: [
@@ -390,10 +386,6 @@ const en: LocaleContent = {
       "poids-lourd": {
         label: "GROS BRAS",
         unlockedShare: "I just unlocked the GROS BRAS badge on the BIG EMOTION Playground!",
-      },
-      "big-bang": {
-        label: "TIMING PARFAIT",
-        unlockedShare: "I just unlocked the TIMING PARFAIT badge on the BIG EMOTION Playground!",
       },
     },
   },

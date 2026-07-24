@@ -6,9 +6,9 @@
 // so the chip was structurally stuck at zero no matter how hard a visitor played.
 //
 // One notable gesture is one play: POIDS LOURD counts a grab, a throw and each wall
-// bounce, BIG BANG counts each blast, LUMIERE counts a full turn of the mark. The
-// batcher coalesces them into one request every few seconds, so the number moves a beat
-// after the gesture rather than on it.
+// bounce, LUMIERE counts a full turn of the mark. The batcher coalesces them into one
+// request every few seconds, so the number moves a beat after the gesture rather than
+// on it.
 
 import {
   PLAYGROUND_INTERACTION_EVENT,

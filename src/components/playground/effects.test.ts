@@ -5,12 +5,8 @@ import { playgroundEffects } from "./effects";
 const ASCII_ONLY = /^[\x00-\x7F]*$/;
 
 describe("playgroundEffects", () => {
-  it("registers LUMIERE (SWBE-215), poids-lourd (SWBE-213) and BIG BANG (SWBE-214)", () => {
-    expect(playgroundEffects.map((effect) => effect.id)).toEqual([
-      "lumiere",
-      "poids-lourd",
-      "big-bang",
-    ]);
+  it("registers LUMIERE (SWBE-215) and poids-lourd (SWBE-213)", () => {
+    expect(playgroundEffects.map((effect) => effect.id)).toEqual(["lumiere", "poids-lourd"]);
   });
 
   it("registers poids-lourd (SWBE-213)", () => {

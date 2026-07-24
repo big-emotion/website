@@ -18,16 +18,16 @@ describe("createCounterBatcher", () => {
     vi.stubGlobal("window", { addEventListener: vi.fn() });
 
     const batcher = createCounterBatcher();
-    batcher.recordPlay("big-bang");
-    batcher.recordPlay("big-bang");
-    batcher.recordPlay("big-bang");
+    batcher.recordPlay("lumiere");
+    batcher.recordPlay("lumiere");
+    batcher.recordPlay("lumiere");
 
     vi.advanceTimersByTime(5_000);
 
     expect(fetchMock).toHaveBeenCalledOnce();
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toBe("/api/playground/counter");
-    expect(JSON.parse(init.body)).toEqual({ increments: [{ effectId: "big-bang", amount: 3 }] });
+    expect(JSON.parse(init.body)).toEqual({ increments: [{ effectId: "lumiere", amount: 3 }] });
   });
 
   it("batches multiple different effects into the same flush", () => {
@@ -37,7 +37,7 @@ describe("createCounterBatcher", () => {
     vi.stubGlobal("window", { addEventListener: vi.fn() });
 
     const batcher = createCounterBatcher();
-    batcher.recordPlay("big-bang");
+    batcher.recordPlay("lumiere");
     batcher.recordPlay("other-effect", 2);
 
     batcher.flush();
@@ -45,7 +45,7 @@ describe("createCounterBatcher", () => {
     const [, init] = fetchMock.mock.calls[0];
     expect(JSON.parse(init.body).increments).toEqual(
       expect.arrayContaining([
-        { effectId: "big-bang", amount: 1 },
+        { effectId: "lumiere", amount: 1 },
         { effectId: "other-effect", amount: 2 },
       ]),
     );
@@ -70,7 +70,7 @@ describe("createCounterBatcher", () => {
     vi.stubGlobal("window", { addEventListener: vi.fn() });
 
     const batcher = createCounterBatcher();
-    batcher.recordPlay("big-bang");
+    batcher.recordPlay("lumiere");
     batcher.flush();
 
     expect(sendBeacon).toHaveBeenCalledOnce();
@@ -85,7 +85,7 @@ describe("createCounterBatcher", () => {
     vi.stubGlobal("window", { addEventListener: vi.fn() });
 
     const batcher = createCounterBatcher();
-    batcher.recordPlay("big-bang");
+    batcher.recordPlay("lumiere");
     batcher.flush();
 
     expect(fetchMock).toHaveBeenCalledOnce();
@@ -98,7 +98,7 @@ describe("createCounterBatcher", () => {
     vi.stubGlobal("window", { addEventListener: vi.fn() });
 
     const batcher = createCounterBatcher();
-    batcher.recordPlay("big-bang");
+    batcher.recordPlay("lumiere");
 
     expect(() => batcher.flush()).not.toThrow();
     await vi.waitFor(() => expect(fetchMock).toHaveBeenCalled());
@@ -112,7 +112,7 @@ describe("createCounterBatcher", () => {
     vi.stubGlobal("window", { addEventListener: vi.fn(), dispatchEvent });
 
     const batcher = createCounterBatcher();
-    batcher.recordPlay("big-bang");
+    batcher.recordPlay("lumiere");
     batcher.flush();
 
     await vi.waitFor(() => expect(dispatchEvent).toHaveBeenCalledOnce());
@@ -127,7 +127,7 @@ describe("createCounterBatcher", () => {
     vi.stubGlobal("navigator", {});
     vi.stubGlobal("window", { addEventListener });
 
-    createCounterBatcher().recordPlay("big-bang");
+    createCounterBatcher().recordPlay("lumiere");
 
     expect(addEventListener).toHaveBeenCalledWith("pagehide", expect.any(Function));
   });

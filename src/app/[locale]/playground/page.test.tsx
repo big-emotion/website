@@ -38,10 +38,6 @@ describe("/playground", () => {
       "href",
       "/playground/poids-lourd",
     );
-    expect(screen.getByRole("link", { name: "BIG BANG" })).toHaveAttribute(
-      "href",
-      "/playground/big-bang",
-    );
     expect(screen.getByText(/murs élastiques/)).toBeInTheDocument();
     expect(
       screen.queryByText("Aucune expérience pour le moment. Revenez bientôt."),

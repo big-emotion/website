@@ -58,15 +58,4 @@ export const playgroundEffects: readonly PlaygroundEffect[] = [
     preview: "drop",
     component: lazy(() => import("./effects/poids-lourd")),
   },
-  {
-    id: "big-bang",
-    slug: "big-bang",
-    title: { fr: "BIG BANG", en: "BIG BANG" },
-    description: {
-      fr: "Touchez le logo : il explose en milliers de particules, puis se reforme sous vos yeux.",
-      en: "Tap the logo: it shatters into thousands of particles, then reassembles before your eyes.",
-    },
-    preview: "burst",
-    component: lazy(() => import("./effects/big-bang/big-bang-effect")),
-  },
 ];

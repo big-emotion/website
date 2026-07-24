@@ -3,7 +3,7 @@
 // inside a hover handler, so three.js, the Draco decoder and the GLB stay out of the
 // gallery's initial payload and arrive when a visitor first asks to see one.
 //
-// Loading it once is enough for all three cards — the decoded rig is memoised here and
+// Loading it once is enough for every card — the decoded rig is memoised here and
 // cloned per card, sharing geometry on the GPU. Each card still owns its renderer (a
 // WebGL context cannot be shared across canvases) and its own PMREM environment, which
 // is generated per renderer.
@@ -11,11 +11,10 @@
 import * as THREE from "three";
 import { CAMERA } from "@/components/scene/states";
 import { buildStudioEnvironment, loadStudioRig } from "@/components/scene/studio-rig";
-import { burstEnvelope, IMPACT_DURATION_S } from "../effects/big-bang/impact";
 import { DROP_FLOOR, DROP_REST_HEIGHT, dropHeight, pointerYawPitch } from "./motion";
 
 /** Which sample of its effect a card plays. One per registered effect (see effects.ts). */
-export type PreviewMotion = "orient" | "drop" | "burst";
+export type PreviewMotion = "orient" | "drop";
 
 export type CardPreview = {
   /** Pointer entered or the card took keyboard focus: start playing. */
@@ -34,17 +33,8 @@ const PREVIEW_CAMERA_DISTANCE = 1.9;
 const PREVIEW_MARK_SCALE = 1.25;
 /** How fast the mark eases towards the pointer, and back to face-on when it leaves. */
 const ORIENT_SMOOTHING_PER_S = 7;
-/** Peak outward displacement of the burst, in the rig's unit space. */
-const BURST_AMPLITUDE = 0.28;
 /** Tumble the falling mark picks up, radians per second. */
 const DROP_TUMBLE_RAD_PER_S = 1.6;
-
-const BURST_DECLARATION = /* glsl */ `uniform float uBurst;`;
-// The teaser blows the whole mark apart rather than one patch: at card size a local
-// impact would be a few pixels wide and read as nothing at all.
-const BURST_DISPLACEMENT = /* glsl */ `
-  vec3 transformed = position + normal * uBurst;
-`;
 
 let sharedRig: Promise<THREE.Group> | null = null;
 
@@ -97,24 +87,15 @@ export async function createCardPreview(
   scene.add(rim);
   scene.add(new THREE.HemisphereLight(0xffffff, 0x6a6f78, 0.5));
 
-  // Shares geometry with the other cards' clones; materials are cloned so the burst
-  // card's shader injection cannot leak onto the other two.
+  // Shares geometry with the other cards' clones; materials are cloned so a card can
+  // tint or fade its own mark without the change leaking onto its neighbours.
   const mark = rig.clone(true);
-  const burstUniform = { value: 0 };
   const ownedMaterials: THREE.Material[] = [];
   mark.traverse((object) => {
     const mesh = object as THREE.Mesh;
     if (!mesh.isMesh) return;
 
     const material = (mesh.material as THREE.MeshStandardMaterial).clone();
-    if (motion === "burst") {
-      material.onBeforeCompile = (shader) => {
-        shader.uniforms.uBurst = burstUniform;
-        shader.vertexShader = shader.vertexShader
-          .replace("#include <common>", `#include <common>\n${BURST_DECLARATION}`)
-          .replace("#include <begin_vertex>", BURST_DISPLACEMENT);
-      };
-    }
     mesh.material = material;
     ownedMaterials.push(material);
   });
@@ -134,7 +115,6 @@ export async function createCardPreview(
     pointer.y = 0;
     spin.rotation.set(0, 0, 0);
     spin.position.y = motion === "drop" ? DROP_REST_HEIGHT : 0;
-    burstUniform.value = 0;
   }
 
   function step(deltaS: number) {
@@ -150,21 +130,15 @@ export async function createCardPreview(
       return;
     }
 
-    if (motion === "drop") {
-      const height = dropHeight(elapsedS);
-      spin.position.y = height;
-      // The tumble stops with the fall rather than spinning on where it landed.
-      if (height > DROP_FLOOR + 0.001) spin.rotation.z -= DROP_TUMBLE_RAD_PER_S * deltaS;
-      return;
-    }
-
-    burstUniform.value = burstEnvelope(elapsedS) * BURST_AMPLITUDE;
+    const height = dropHeight(elapsedS);
+    spin.position.y = height;
+    // The tumble stops with the fall rather than spinning on where it landed.
+    if (height > DROP_FLOOR + 0.001) spin.rotation.z -= DROP_TUMBLE_RAD_PER_S * deltaS;
   }
 
   /** True once the card's gesture has played out and nothing will change again. */
   function settled(): boolean {
     if (motion === "orient") return false; // it follows the pointer for as long as it stays
-    if (motion === "burst") return elapsedS >= IMPACT_DURATION_S;
     return dropHeight(elapsedS) <= DROP_FLOOR + 0.001;
   }
 

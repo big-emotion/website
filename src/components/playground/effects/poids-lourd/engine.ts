@@ -12,6 +12,7 @@ import {
   CAMERA_DISTANCE_DEFAULT,
   clampCameraDistance,
   frameDelta,
+  stepCameraDistance,
   isAtRest,
   isThrow,
   reflectOffWalls,
@@ -23,6 +24,7 @@ import {
   type Vec2,
 } from "./physics";
 import { reportInteraction } from "@/components/playground/report-interaction";
+import type { ZoomDirection } from "@/components/playground/zoom-controls";
 
 export type QualityTier = "high" | "low";
 
@@ -36,6 +38,9 @@ export type PoidsLourdEngineOptions = {
 export type PoidsLourdEngine = {
   mount: (container: HTMLElement) => void;
   reset: () => void;
+  /** One press of the on-screen zoom control — the only zoom a trackpad or a touchscreen
+   *  can reach, since the wheel gesture needs a mouse button held at the same time. */
+  zoom: (direction: ZoomDirection) => void;
   setQualityTier: (tier: QualityTier) => void;
   dispose: () => void;
 };
@@ -53,6 +58,10 @@ const FOV_DEGREES = CAMERA.fov;
 // One notch of the wheel is ~100 deltaY, so this dollies about a third of a world unit
 // per notch: enough to feel immediate, gentle enough to land on a framing you meant.
 const DOLLY_SENSITIVITY = 0.003;
+// A trackpad pinch reaches the page as a wheel event too, but with deltas an order of
+// magnitude smaller than a wheel notch — at the wheel's own sensitivity a full pinch
+// would barely shift the framing.
+const PINCH_SENSITIVITY = 0.024;
 
 // The walls are the viewport edges, so they move with the camera — every dolly has to
 // recompute them or the logo would bounce off nothing, or off the frame's outside.
@@ -109,13 +118,17 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
   }
 
   function onWheel(event: WheelEvent) {
-    // The wheel only dollies while a button is held — while the visitor is grabbing the
-    // logo or holding the slow-motion button. Taking it unconditionally is what trapped
-    // the page: the stage fills most of the viewport, so a preventDefault on every wheel
-    // event left no way to scroll back up to the header.
-    if (!held && !slowMotion) return;
+    // A bare wheel is left to the page on purpose: the stage fills most of the viewport,
+    // so swallowing every wheel event is what trapped visitors with no way back to the
+    // header. It dollies while a mouse button is held (grab or slow-motion) or under a
+    // pinch, which every browser delivers as a wheel event with `ctrlKey` set — the
+    // gesture a trackpad can actually make. Ctrl/Cmd + wheel rides the same branch for
+    // mouse users, and page zoom stays available from the keyboard.
+    const pinching = event.ctrlKey || event.metaKey;
+    if (!held && !slowMotion && !pinching) return;
     event.preventDefault();
-    cameraDistance = clampCameraDistance(cameraDistance + event.deltaY * DOLLY_SENSITIVITY);
+    const sensitivity = pinching ? PINCH_SENSITIVITY : DOLLY_SENSITIVITY;
+    cameraDistance = clampCameraDistance(cameraDistance + event.deltaY * sensitivity);
     applyCameraDistance();
   }
 
@@ -280,6 +293,11 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
       applyCameraDistance();
       body?.position.set(0, 0, 0);
       body?.rotation.set(0, 0, 0);
+    },
+
+    zoom(direction: ZoomDirection) {
+      cameraDistance = stepCameraDistance(cameraDistance, direction);
+      applyCameraDistance();
     },
 
     setQualityTier(tier: QualityTier) {
