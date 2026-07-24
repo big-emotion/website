@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { Link } from "@/i18n/navigation";
+import { BackLink } from "@/components/back-link";
 import { isChallengeUnlocked } from "./challenges";
 import { resolveShareText, shareEffect, type ShareOutcome } from "./share";
 
@@ -74,15 +74,7 @@ export function EffectHud({
           hide the logo on black. The band starts where the header ends. */}
       <div className="px-5 pt-28 md:px-8 md:pt-36">
         <div className="bg-ink px-5 py-6 text-paper md:px-8">
-          <Link
-            href={backHref}
-            className="font-display inline-flex min-h-11 items-center text-sm uppercase tracking-wide hover:opacity-60"
-          >
-            <span aria-hidden="true" className="mr-2">
-              &larr;
-            </span>
-            {copy.back}
-          </Link>
+          <BackLink href={backHref} label={copy.back} />
 
           <div className="mt-2 flex flex-wrap items-end justify-between gap-4">
             <h1 className="font-display text-[clamp(2.25rem,8vw,6rem)] leading-none">{title}</h1>
