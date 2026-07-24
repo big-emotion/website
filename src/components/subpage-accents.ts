@@ -1,10 +1,9 @@
-export type SubpageId = "approach" | "cases" | "culture" | "contact" | "playground";
+export type SubpageId = "approach" | "cases" | "culture" | "contact" | "playground" | "blog";
 
-// Blog articles (`blog/page.tsx`, `blog/[uid]/page.tsx`) render straight on `bg-lyon`
-// rather than through `SubpageHero`, so they need a header-ink entry (REQ-036) without
-// joining `SubpageId` — that type also keys `SUBPAGE_PHOTOS` in subpage-hero.tsx, which
-// has no blog photo.
-export type HeaderAccentId = SubpageId | "blog";
+// Every accent route now opens on `SubpageHero`, so this is no longer a wider set than
+// `SubpageId` — blog was the one entry that had a header ink but no hero of its own.
+// The alias stays because the header and footer read accents by this name.
+export type HeaderAccentId = SubpageId;
 
 type Accent = {
   /** Background + ink for the hero band itself. */

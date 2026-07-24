@@ -1,6 +1,7 @@
 import type { StaticImageData } from "next/image";
 import type { ReactNode } from "react";
 import approachPhoto from "@/photos/approach.jpg";
+import blogPhoto from "@/photos/blog.jpg";
 import casesPhoto from "@/photos/cases.jpg";
 import contactPhoto from "@/photos/contact.jpg";
 import culturePhoto from "@/photos/culture.jpg";
@@ -10,11 +11,13 @@ import { SUBPAGE_ACCENTS, type SubpageId } from "./subpage-accents";
 import { SubpagePhoto } from "./subpage-photo";
 
 /**
- * SWBE-91. Generated to the brand's iconography rules rather than taken from the
- * designer's prototype: two of those four JPEGs carried third-party trademarks (adidas,
- * AITO) and all were below the 1600px floor. The prompt behind each file is versioned in
- * `docs/redesign/2026-07-subpage-photo-prompts.md` — regenerate from there, not from
- * scratch, or the four heroes drift apart.
+ * SWBE-91 generated these to the brand's iconography rules; art direction has since
+ * replaced most of them with frames chosen from the designer's own mood board. That
+ * board is mixed: several of its shots carry a third-party trademark (Nike, adidas and
+ * Paris Basketball, AITO, Desperados), and those are the ones SWBE-91 had to replace in
+ * the first place — so a frame is only eligible once it carries no other brand's mark.
+ * `cases` is still the generated image; its prompt lives in
+ * `docs/redesign/2026-07-subpage-photo-prompts.md`.
  *
  * These are imported rather than referenced by a `public/` path so the emitted URL carries
  * a hash of the file's contents. Art direction replaces these images in place, keeping the
@@ -36,6 +39,7 @@ export const SUBPAGE_PHOTOS: Record<SubpageId, StaticImageData | null> = {
   // under the 1600px floor the four above were regenerated to meet; art direction should
   // reshoot it at full size, and the prompt file is the place to record that.
   playground: playgroundPhoto,
+  blog: blogPhoto,
 };
 
 /**

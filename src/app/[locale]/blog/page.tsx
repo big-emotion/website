@@ -5,6 +5,7 @@ import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { ArticleCard } from "@/components/blog/article-card";
 import { FeaturedArticle } from "@/components/blog/featured-article";
+import { SubpageHero } from "@/components/subpage-hero";
 import { content } from "@/content/site";
 import { routing } from "@/i18n/routing";
 import { formatArticleDate } from "@/lib/display-date";
@@ -53,17 +54,20 @@ export default async function BlogPage({ params }: RouteProps) {
   const postCount = articles.length === 1 ? blog.postCount.one : blog.postCount.other;
 
   return (
-    <section className="bg-lyon px-5 py-20 text-paper md:px-8 md:py-32">
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
-        <h1 className="font-display text-[clamp(2.75rem,9vw,7rem)] text-lemon">{title}</h1>
+    // Same band as every other section route (SubpageHero), so the blog opens on the
+    // photo-beside-the-title layout instead of the bare heading it shipped with. The
+    // index below keeps the lyon surface the hero paints, which is what makes this one
+    // continuous page rather than a hero stapled onto a different section.
+    <>
+      <SubpageHero page="blog" title={[title]} lead={blog.lead}>
         {articles.length > 0 && (
           <span className="rounded-full bg-tangerine px-3 py-1 text-sm font-bold uppercase tracking-wide text-ink">
             {articles.length} {postCount}
           </span>
         )}
-      </div>
-      <p className="mt-6 max-w-[44ch] text-lg leading-relaxed">{blog.lead}</p>
+      </SubpageHero>
 
+      <section className="bg-lyon px-5 pb-20 text-paper md:px-8 md:pb-32">
       {articles.length === 0 ? (
         <p className="mt-14 max-w-prose text-lg leading-relaxed text-paper/70">{blog.emptyState}</p>
       ) : (
@@ -99,6 +103,7 @@ export default async function BlogPage({ params }: RouteProps) {
           )}
         </>
       )}
-    </section>
+      </section>
+    </>
   );
 }
