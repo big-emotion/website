@@ -11,7 +11,7 @@
 //
 // BILINGUAL (SWBE-21): everything a visitor reads lives under `content[locale]`;
 // everything that is the same in both locales — the brand name, contact details, client
-// names, the personality axes — stays at module level. next-intl's `messages/*.json`
+// names, the personality axes' measured dot positions — stays at module level. next-intl's `messages/*.json`
 // deliberately holds none of this: it carries UI affordances only (aria labels, form
 // microcopy), and marketing copy stays here (ARCH-017, AGENTS.md).
 //
@@ -125,6 +125,11 @@ type LocaleContent = {
     bio: string;
     links: readonly LinkOut[];
   }[];
+  /** Pole wording for each `personalityAxes` entry, which carries only the measured
+   *  dot position. Keying by axis id makes a missing or renamed axis a type error
+   *  rather than a locale that silently falls back to the other language's poles.
+   *  Sans-slot copy, not `font-display`, so the French keeps its accents. */
+  personalityPoles: Record<PersonalityAxisId, { start: string; end: string }>;
   values: readonly string[];
   contact: {
     title: readonly string[];
@@ -185,18 +190,22 @@ export const clients = [
 // Brand personality slider (brand book, "Brand personality slider" page).
 // `position` is the brand's static dot placement along each axis, 0 (start
 // pole) to 100 (end pole), measured from the guideline artwork by locating
-// the dot's pixel center relative to the line's endpoints. Two source labels
-// were corrected from apparent typos in the guideline ("Coold" -> "Cold",
-// "Detalied" -> "Detailed"). The poles are the brand book's own English
-// vocabulary and stay untranslated in both locales.
+// the dot's pixel center relative to the line's endpoints. It is a measurement,
+// not copy, so it stays here while the pole wording is authored per locale under
+// `personalityPoles` — a French visitor reads the axes in French. The ids keep the
+// brand book's own English pole pair, which is how the guideline names them; two of
+// those were corrected from apparent typos in the source ("Coold" -> "Cold",
+// "Detalied" -> "Detailed").
 export const personalityAxes = [
-  { start: "Formal", end: "Casual", position: 54 },
-  { start: "Cold", end: "Warm", position: 35 },
-  { start: "Serious", end: "Playful", position: 45 },
-  { start: "Detailed", end: "Minimal", position: 63 },
-  { start: "Corporate", end: "Friendly", position: 40 },
-  { start: "Complex", end: "Simple", position: 54 },
+  { id: "formal-casual", position: 54 },
+  { id: "cold-warm", position: 35 },
+  { id: "serious-playful", position: 45 },
+  { id: "detailed-minimal", position: 63 },
+  { id: "corporate-friendly", position: 40 },
+  { id: "complex-simple", position: 54 },
 ] as const;
+
+type PersonalityAxisId = (typeof personalityAxes)[number]["id"];
 
 const fr: LocaleContent = {
   meta: {
@@ -315,6 +324,14 @@ const fr: LocaleContent = {
       ],
     },
   ],
+  personalityPoles: {
+    "formal-casual": { start: "Formel", end: "Décontracté" },
+    "cold-warm": { start: "Froid", end: "Chaleureux" },
+    "serious-playful": { start: "Sérieux", end: "Ludique" },
+    "detailed-minimal": { start: "Détaillé", end: "Minimal" },
+    "corporate-friendly": { start: "Institutionnel", end: "Amical" },
+    "complex-simple": { start: "Complexe", end: "Simple" },
+  },
   values: ["Audace", "Sincerite", "Energie", "Simplicite radicale", "Exigence creative"],
   contact: {
     title: ["Creons de la", "big emotion"],
@@ -445,6 +462,14 @@ const en: LocaleContent = {
       ],
     },
   ],
+  personalityPoles: {
+    "formal-casual": { start: "Formal", end: "Casual" },
+    "cold-warm": { start: "Cold", end: "Warm" },
+    "serious-playful": { start: "Serious", end: "Playful" },
+    "detailed-minimal": { start: "Detailed", end: "Minimal" },
+    "corporate-friendly": { start: "Corporate", end: "Friendly" },
+    "complex-simple": { start: "Complex", end: "Simple" },
+  },
   values: ["Boldness", "Sincerity", "Energy", "Radical simplicity", "Creative rigour"],
   contact: {
     title: ["Let's make", "big emotion"],
