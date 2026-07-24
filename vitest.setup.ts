@@ -18,3 +18,9 @@ if (typeof window !== "undefined" && !window.matchMedia) {
       dispatchEvent: () => false,
     }) as MediaQueryList;
 }
+
+// jsdom exposes scrollTo but reports every call as "not implemented". It has no layout
+// to move anyway; tests that own scroll behavior spy on this seam and assert the request.
+if (typeof window !== "undefined") {
+  window.scrollTo = () => {};
+}

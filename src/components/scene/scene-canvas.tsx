@@ -19,6 +19,13 @@ const MOVE_DURATION = 1.0; // transition duration between framings
 
 type Status = "loading" | "ready" | "fallback";
 
+type SceneCanvasProps = {
+  /** Lift the otherwise-background scene above the whole page for the home intro. */
+  introActive?: boolean;
+  /** Fires after the logo reveal, or immediately when the animated scene cannot run. */
+  onIntroComplete?: () => void;
+};
+
 function getSupportsSceneSnapshot(): boolean {
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
   const probe = document.createElement("canvas");
@@ -44,7 +51,7 @@ function subscribeToMotionPreference(onChange: () => void) {
  *  background/ink flipping per state (see globals.css `[data-active]` rules).
  *  Falls back to a static wordmark when WebGL is unavailable or the user prefers
  *  reduced motion — content itself always scrolls normally either way. */
-export function SceneCanvas() {
+export function SceneCanvas({ introActive = false, onIntroComplete }: SceneCanvasProps = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const finalMarkRef = useRef<HTMLDivElement>(null);
   const supportsScene = useSyncExternalStore(
@@ -65,6 +72,10 @@ export function SceneCanvas() {
     window.addEventListener("scroll", onScroll, { once: true, passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    if (!supportsScene) onIntroComplete?.();
+  }, [onIntroComplete, supportsScene]);
 
   useEffect(() => {
     if (!supportsScene) return;
@@ -207,7 +218,10 @@ export function SceneCanvas() {
         duration: 1.3,
         ease: "power2.out",
         onUpdate: applyLive,
-        onComplete: buildScroll,
+        onComplete: () => {
+          buildScroll();
+          onIntroComplete?.();
+        },
       });
       const skipReveal = () => reveal.progress(1);
       window.addEventListener("scroll", skipReveal, { once: true });
@@ -224,7 +238,10 @@ export function SceneCanvas() {
         playReveal();
       },
       () => {
-        if (!disposed) setStatus("fallback");
+        if (!disposed) {
+          setStatus("fallback");
+          onIntroComplete?.();
+        }
       },
     );
 
@@ -233,19 +250,19 @@ export function SceneCanvas() {
       renderer.setAnimationLoop(null);
       cleanupFns.forEach((fn) => fn());
     };
-  }, [supportsScene]);
+  }, [onIntroComplete, supportsScene]);
 
   const effectiveStatus: Status = supportsScene ? status : "fallback";
 
-  // The scene is a fixed, full-viewport *background underlay*, so it must paint
-  // BEHIND the page. A position:fixed layer with z-index:auto paints above its
-  // static in-flow siblings, so without a negative z-index the opaque
-  // .scene-stage covers every section below the hero and buries their content.
-  // -z-10 puts the whole scene behind the flow, where the transparent scroll
-  // panels let it show through for the length of the page. The header and
-  // scroll-cue sit above via their own higher z-index.
+  // During the intro the opaque scene sits above the SSR veil, header and copy, so
+  // only the logo reveal can paint. Afterwards it becomes the page's background
+  // underlay: -z-10 keeps the opaque stage behind the transparent scroll panels while
+  // their content and the header remain in front.
   return (
-    <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10">
+    <div
+      aria-hidden="true"
+      className={`pointer-events-none fixed inset-0 ${introActive ? "z-[110]" : "-z-10"}`}
+    >
       <div className="scene-stage fixed inset-0" />
       {/* Between stage and canvas so the 3D mark renders on top of it — DOM order is
           the paint order inside this underlay. GSAP fades it in on the final beat. */}
@@ -281,7 +298,10 @@ export function SceneCanvas() {
         </div>
       )}
 
-      <p className="scene-scrollcue" data-visible={effectiveStatus !== "loading" && !hasScrolled}>
+      <p
+        className="scene-scrollcue"
+        data-visible={effectiveStatus !== "loading" && !introActive && !hasScrolled}
+      >
         {scrollCue}
       </p>
     </div>

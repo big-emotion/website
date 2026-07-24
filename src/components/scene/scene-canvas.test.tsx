@@ -2,7 +2,7 @@
 // @req REQ-011
 // @req REQ-012
 
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -152,11 +152,15 @@ vi.mock("three/examples/jsm/loaders/DRACOLoader.js", () => ({
   },
 }));
 
+const gsapTo = vi.hoisted(() => vi.fn());
+
 vi.mock("gsap", () => {
-  const to = vi.fn((_target: unknown, vars: { onComplete?: () => void }) => {
-    vars.onComplete?.();
-    return { kill: vi.fn(), progress: vi.fn() };
-  });
+  const to = gsapTo.mockImplementation((_target: unknown, vars: { onComplete?: () => void }) => ({
+    kill: vi.fn(),
+    progress: vi.fn((value: number) => {
+      if (value === 1) vars.onComplete?.();
+    }),
+  }));
   const timeline = vi.fn(() => ({
     call: vi.fn().mockReturnThis(),
     to: vi.fn().mockReturnThis(),
@@ -186,16 +190,23 @@ const { SceneCanvas } = await import("./scene-canvas");
 
 // The scroll cue reads its label from the active locale, which the app supplies through
 // the provider mounted in the locale layout.
-function renderScene() {
+function renderScene({
+  introActive,
+  onIntroComplete,
+}: {
+  introActive?: boolean;
+  onIntroComplete?: () => void;
+} = {}) {
   return render(
     <NextIntlClientProvider locale="fr">
-      <SceneCanvas />
+      <SceneCanvas introActive={introActive} onIntroComplete={onIntroComplete} />
     </NextIntlClientProvider>,
   );
 }
 
 beforeEach(() => {
   stubMatchMedia(false);
+  gsapTo.mockClear();
 });
 
 afterEach(() => {
@@ -205,12 +216,14 @@ afterEach(() => {
 });
 
 describe("SceneCanvas", () => {
-  it("renders the static wordmark fallback when WebGL is unavailable", () => {
+  it("renders the static wordmark fallback and releases the intro when WebGL is unavailable", async () => {
     // jsdom's canvas has no WebGL context by default — this is the real,
     // unmocked no-WebGL path.
-    renderScene();
+    const onIntroComplete = vi.fn();
+    renderScene({ introActive: true, onIntroComplete });
     expect(screen.getByTestId("scene-fallback")).toBeInTheDocument();
     expect(screen.queryByTestId("scene-canvas")).not.toBeInTheDocument();
+    await waitFor(() => expect(onIntroComplete).toHaveBeenCalledOnce());
   });
 
   it("renders the static wordmark fallback when the user prefers reduced motion", () => {
@@ -230,7 +243,33 @@ describe("SceneCanvas", () => {
     await waitFor(() => {
       expect(screen.queryByTestId("scene-loader")).not.toBeInTheDocument();
     });
+
+    expect(document.body.dataset.active).toBeUndefined();
+    const reveal = gsapTo.mock.calls[0]?.[1] as { onComplete?: () => void };
+    act(() => reveal.onComplete?.());
     expect(document.body.dataset.active).toBe("0");
+  });
+
+  it("keeps the scene above the page until the 3D reveal completes", async () => {
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(
+      {} as unknown as RenderingContext,
+    );
+    const onIntroComplete = vi.fn();
+
+    const { container } = renderScene({ introActive: true, onIntroComplete });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("scene-loader")).not.toBeInTheDocument();
+    });
+    const root = container.querySelector('[aria-hidden="true"]');
+    expect(root?.className).toContain("z-[110]");
+    expect(onIntroComplete).not.toHaveBeenCalled();
+    expect(container.querySelector(".scene-scrollcue")).toHaveAttribute("data-visible", "false");
+
+    const reveal = gsapTo.mock.calls[0]?.[1] as { onComplete?: () => void };
+    act(() => reveal.onComplete?.());
+
+    expect(onIntroComplete).toHaveBeenCalledOnce();
   });
 
   it("stacks the final-beat wordmark between the stage and the canvas", () => {
