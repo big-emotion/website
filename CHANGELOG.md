@@ -7,6 +7,149 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-07-24
+
+### Added
+
+- The Playground: a localized SSG `/playground` gallery plus a per-effect route,
+  built so an unopened effect costs 0 kB. A typed registry is the single entry
+  point an effect registers through, an `EffectStage` lazy boundary defers the
+  3D, and the home hero's studio rig was extracted so every effect inspects the
+  same branded chrome wordmark (SWBE-211, REQ-037, DEC-030, ARCH-019).
+- Two effects on that rig. LUMIERE spins the wordmark on a damped trackball and
+  reveals a glint once the chrome holds a 6°/800ms key-light alignment
+  (SWBE-215). POIDS LOURD is a grab/throw physics toy — semi-implicit Euler,
+  elastic wall reflection, pointer-velocity throw and a gesture-gated device
+  tilt, hand-rolled rather than pulling in an engine (SWBE-213, DEC-031). Both
+  fall back to a text notice without WebGL or under reduced motion.
+- A per-effect page frame with a colocated OG card, a native-share control with
+  clipboard fallback, and effect URLs in the sitemap (SWBE-212, DEC-034).
+  Hidden challenge badges with celebration and share variants land on top
+  (SWBE-217).
+- A collective play counter: a flat-file store with atomic temp+rename writes
+  behind a narrow read/increment interface, a zod-validated rate-limited API
+  route that never throws on a persistence failure, a client batcher that
+  coalesces plays into one POST per flush window (`sendBeacon` on unload), and
+  a chip that updates live off this visitor's own round-trip without polling
+  (SWBE-216). The interface is deliberately narrow so SWBE-30 can back it with
+  Redis later.
+- Legal pages and cookie management, closing an LCEN art. 6-III gap the
+  readiness audit had carried as P0 since v0.2.0: `/mentions-legales/`,
+  `/politique-de-confidentialite/` and `/accessibilite/` in both locales, from a
+  new footer row. They are `legal_page` Prismic documents, but Prismic cannot
+  take them down — the renderer falls back to mandatory copy in
+  `src/content/legal.ts` whenever a document is missing or its body is under a
+  minimum floor, because the obligation does not pause while the CMS is empty.
+  Consent is tarteaucitron, vendored and loaded on demand from the footer
+  button; a test fails if a consent-gated service is registered while nothing on
+  the site needs consent before it runs (SWBE-34).
+- The brand charter becomes reviewable: `brand/BRAND.md` transcribes the rules,
+  `brand/pages/*.jpg` carries the 15 PDF pages as images an agent can actually
+  read, and a `bigemotion-brand` skill loads them on demand. The palette is now
+  a test — `globals.css.test.ts` fails the build on a drifted hex or a smuggled
+  seventh colour, because a doc nobody reads protects nothing.
+- All three BBH width cuts are self-hosted. Only Hegarty shipped before, so no
+  headline could set the condensed/regular/extended interplay the charter calls
+  the signature; they are width modifiers inside a `.font-display` block, and a
+  browser only fetches a cut a page sets text in. All three carry the same
+  121-glyph ASCII-only cmap, so DEC-023 is untouched.
+- The French copy is swept to tutoiement and the register is now enforced by
+  `tutoiement.test.tsx`, which catches the pronoun-less second-person-plural
+  verbs ("Revenez bientôt") that have nothing to grep for.
+- The brand's real SVG logo lockup replaces the typographic placeholder in the
+  marketing header, the espace/auth header and the footer. It draws
+  `currentColor`, so each surface drives the mark instead of the file's
+  hardcoded lemon. The favicon follows, drawing the "B!" from the real vectors —
+  the full lockup is illegible at 16px.
+- A three-part footer band — brand mark, social sprite, localized copyright —
+  that adopts the surface of the hero it sits under, so `/contact` closes dark.
+  The icon row stays unlinked while the profile URLs are unconfirmed (REQ-033).
+- The current nav link and the inactive locale are dimmed and marked
+  `aria-current="page"`. The dim is opacity on the existing accent, so it stays
+  legible on every subpage accent and the visual state cannot diverge from what
+  assistive tech announces (REQ-002).
+- Each blog article draws one of nine WCAG-AA brand colour associations from the
+  guidelines' ASSOCIATIONS board. Every page in the section reads three custom
+  properties instead of naming tokens, and contrast is asserted against the
+  palette read out of `globals.css` rather than restated in a comment. An
+  article also gains the same way out a Playground effect has — one shared
+  `BackLink`, not a copy.
+- Section heroes are art-directed from the designer's own mood board, and the
+  blog gets the stacked title/lead/photo band it never had. Only unmarked frames
+  were eligible: several board shots carry another brand's mark, which is
+  exactly what SWBE-91 had to replace.
+
+### Changed
+
+- The Approach cards lead with the two trades — conseil and sur-mesure — and
+  sell the wow on top, instead of opening on a methodology card that said the
+  same thing as the custom-development one. The Culture founders leave the
+  static grid for a slow horizontal band on the client wall's marquee
+  machinery; the repeated half is out of the accessibility tree, focus pauses
+  the band, and reduced motion unwraps it back into the two-column grid.
+- Both effects zoom three times deeper. Past the dolly floor the lens takes
+  over — `resolveFraming` holds the camera still and narrows the field of view
+  by whatever it stopped short of, preserving `distance * tan(fov/2)` so the
+  wall and screen-to-world maths never learn about the split. The step became
+  multiplicative at the same time.
+- Zoom is reachable without a mouse. It was behind "hold a button and turn the
+  wheel", a gesture that does not exist on a trackpad, and nothing on screen
+  said so. There are now 44px on-screen controls, trackpad pinch (and Ctrl/Cmd +
+  wheel), and the original hold-and-wheel untouched. A bare wheel still belongs
+  to the page.
+- Gallery cards play a sample of the effect they open on hover or focus, behind
+  a dynamic import fired from the handler, so the gallery still ships no 3D
+  until someone asks for it and touch pays for no WebGL context at all.
+- CI gates on gitleaks, typecheck, formatting and Prismic model drift instead of
+  running lint/test/build as one job. gitleaks is its own job so it reports in
+  seconds even when the build is broken; the Prismic checks run only on
+  develop → main, since model drift comes from an editor touching the dashboard,
+  not from the diff under review. Husky, commitlint and lint-staged make the
+  same surface enforceable locally, and the repository was given a Prettier
+  baseline (mechanical — the reformat SHA is in `.git-blame-ignore-revs`).
+- `THREE.Clock` is replaced by `THREE.Timer` across the three render loops;
+  three r183 deprecated it and warned on every effect mount.
+
+### Removed
+
+- The BIG BANG effect, outright — directory, registry entry, badge copy and the
+  burst preview motion the gallery card played, so no shader path survives as
+  dead code.
+- The full-screen `LoadScreen` marquee that scrolled twelve "B!G" words over the
+  home page. The reference loader fades a solid lemon screen to reveal the 3D
+  logo spinning into place, which `SceneCanvas` already does now that the hero
+  model ships.
+
+### Fixed
+
+- The play counter was structurally stuck at zero: the effects dispatched
+  `playground:interaction` and the batcher exposed `recordPlay`, but nothing
+  subscribed. The metric is also renamed — "logos maltraités" read as violence
+  rather than as play.
+- The effect stages called `preventDefault` on every wheel event, taking the
+  gesture from the document with no way to scroll back to the header.
+- `playground` was missing from the accent ledger, so every Playground route
+  closed on a lemon footer instead of its own grey.
+- The OG card for a registered effect failed to render: satori rejects a `<div>`
+  with more than one text child and no explicit display. Latent since SWBE-212,
+  reachable only once `generateStaticParams` had a real effect to prerender.
+- 47 type errors across six test files. Nothing here ever ran `tsc --noEmit` —
+  `next build` only typechecks its own graph, which excludes tests. All fixes
+  are test-side.
+- ESLint no longer walks `.claude/worktrees`, where a parked second checkout's
+  vendored Draco decoder failed `pnpm lint` for everyone.
+- Agent pull requests no longer deadlock behind GitHub's manual "Approve and
+  run" gate, which the 2026-06-11 change applies to `github-actions[bot]` runs
+  and which both the reviewer and merger read CI status through.
+
+### Security
+
+- The site now loads no third-party script. `<PrismicPreview>` injected
+  `static.cdn.prismic.io/prismic.js` on every page for every visitor; it mounts
+  only inside a draft-mode session, keeping a small bootstrap so editors still
+  enter preview exactly as before. This is also what made the cookie policy
+  possible to state honestly.
+
 ## [0.7.0] - 2026-07-23
 
 ### Added
@@ -258,7 +401,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   under the Node.js container and its `/api/contact` replacement is not shipped
   (SWBE-31).
 
-[Unreleased]: https://github.com/big-emotion/website/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/big-emotion/website/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/big-emotion/website/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/big-emotion/website/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/big-emotion/website/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/big-emotion/website/compare/v0.5.0...v0.5.1
