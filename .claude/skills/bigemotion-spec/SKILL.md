@@ -40,24 +40,25 @@ If the argument is empty, ask for the description before doing anything else (th
 
 1. **Repo identity** — this repo's `package.json` `.name` must be `big-emotion`. If it is not, stop: this skill is scoped to the BIG EMOTION website repo and must not run against another checkout.
 2. **Bootstrap sentinel exists** — `docs/.confluence-bootstrap-complete` must be present. If absent, **stop and tell the user**: the Confluence engineering tree has not been bootstrapped for this repo yet (see "Bootstrap" below) — nothing can be drafted until it is.
-3. **Config readable** — `docs/confluence-spec/config.json` must be present and parseable, with non-null values for `cloudId`, `siteUrl`, `spaceKey`, `engineeringRootPageId`, `requirementsPageId`, `decisionsPageId`, `architecturePageId`, `obsoletePageId`, `jiraProjectKey`, and `jiraIssueTypeIds.{Epic,Story,Task,Bug}`. Any null in the four `*PageId` fields means the bootstrap publish step was incomplete — stop.
-4. **Atlassian MCP reachable** — `getAccessibleAtlassianResources` returns at least one site, and the site whose ID matches `cloudId` is in the list. If not, stop — both halves of the workflow are impossible.
-5. **Atlassian identity resolvable** — `atlassianUserInfo` succeeds. Used to attribute the drafts to the current user.
-6. **Jira project visible** — `getVisibleJiraProjects` includes a project whose key is `jiraProjectKey` (currently `SWBE`). If not, the user lacks access — stop.
-7. **Template available** — `docs/templates/jira-ticket-template.md` exists. If absent, stop — the Jira tickets cannot be filled.
+3. **Config readable** — `docs/confluence-spec/config.json` must be present and parseable, with non-null values for `cloudId`, `siteUrl`, `spaceKey`, `engineeringRootPageId`, `engineeringTreePageId`, `requirementsPageId`, `decisionsPageId`, `architecturePageId`, `obsoletePageId`, `jiraProjectKey`, and `jiraIssueTypeIds.{Epic,Story,Task,Bug}`. Any null in the four spec `*PageId` fields means the bootstrap publish step was incomplete — stop.
+4. **Requirement catalog aligned** — `docs/confluence-spec/req-catalog.json` must be present and parseable. Its `pageId` must equal `requirementsPageId`; every requirement entry must have a unique `REQ-NNN` ID, title, and lifecycle status. If it is missing or mismatched, stop before any remote write.
+5. **Atlassian MCP reachable** — `getAccessibleAtlassianResources` returns at least one site, and the site whose ID matches `cloudId` is in the list. If not, stop — both halves of the workflow are impossible.
+6. **Atlassian identity resolvable** — `atlassianUserInfo` succeeds. Used to attribute the drafts to the current user.
+7. **Jira project visible** — `getVisibleJiraProjects` includes a project whose key is `jiraProjectKey` (currently `SWBE`). If not, the user lacks access — stop.
+8. **Template available** — `docs/templates/jira-ticket-template.md` exists. If absent, stop — the Jira tickets cannot be filled.
 
 On a safety blocker: **stop and report**. Do not guess, do not skip a precondition, do not write anything.
 
 ## Bootstrap
 
-Unlike the chancellerie source (`/chancellerie-bootstrap-confluence`, a reusable one-shot skill), the BIG EMOTION bootstrap is a **lightweight, one-time setup** — a small script or guided manual creation done once for this repo, not a skill invocation. It:
+The BIG EMOTION bootstrap is a **one-shot skill** invoked as `/bigemotion-bootstrap-confluence`. It:
 
 1. Requires the owner to have chosen the Confluence location first: a dedicated space, or a page tree inside an existing space (e.g. the `Big Emotion` (`BI`) space already used for onboarding/roadmap docs). This is a manual precondition — never assume it, always ask if `docs/confluence-spec/config.json` doesn't exist yet.
 2. Creates the engineering root page plus `Requirements` / `Decisions` / `Architecture` / `Obsolete` subpages under that location — all empty, no inventory backfill from history.
 3. Writes `docs/confluence-spec/config.json` with the resolved page IDs, `jiraProjectKey: "SWBE"`, and `jiraIssueTypeIds` (`Epic`, `Story`, `Task`, `Bug` — verify current IDs via `getJiraProjectIssueTypesMetadata` at bootstrap time; they were `10000` / `10009` / `10358` / `10360` as of 2026-07-16 and can drift).
 4. Writes the sentinel `docs/.confluence-bootstrap-complete`.
 
-If the sentinel is missing, this skill stops (precondition 2) and tells the user the bootstrap needs to run first — it does not attempt the bootstrap itself.
+If the sentinel is missing, this skill stops (precondition 2) and tells the user to run `/bigemotion-bootstrap-confluence` first. If the sentinel exists, the bootstrap skill itself refuses to run again.
 
 ## Workflow
 
@@ -67,6 +68,7 @@ The full chain is **read → investigate → dedupe → choose granularity → d
 
 - Verify `package.json` `.name` is `big-emotion` (precondition 1).
 - Load `docs/confluence-spec/config.json`. Extract every field listed in precondition 3.
+- Load `docs/confluence-spec/req-catalog.json`, verify its `pageId` equals `requirementsPageId`, and retain its requirement IDs and lifecycle statuses.
 - Verify `docs/.confluence-bootstrap-complete` exists. If missing, stop.
 - Read `docs/templates/jira-ticket-template.md` into memory so it can be applied per-ticket in Step 5.
 - Resolve `cloudId` via `getAccessibleAtlassianResources` and cross-check it matches the config; resolve own `accountId` via `atlassianUserInfo` (informational — this skill does not self-assign anything).
@@ -75,8 +77,8 @@ The full chain is **read → investigate → dedupe → choose granularity → d
 
 - Read the user's description. **Ask ONE clarification question if and only if** the shape of the change is genuinely ambiguous — e.g. you cannot tell whether it is a bug (existing REQ broken) or a feature (new REQ needed). Otherwise, **state your assumptions explicitly and proceed**.
 - Fetch the engineering root and its descendants:
-  - `getConfluencePage(cloudId, pageId=engineeringRootPageId)` → confirm the tree shape.
-  - `getConfluencePageDescendants(cloudId, parentId=engineeringRootPageId)` → list the four canonical subpages (`Requirements`, `Decisions`, `Architecture`, `Obsolete`).
+  - `getConfluencePage(cloudId, pageId=engineeringTreePageId)` → confirm the canonical tree shape.
+  - `getConfluencePageDescendants(cloudId, parentId=engineeringTreePageId)` → list the four canonical subpages (`Requirements`, `Decisions`, `Architecture`, `Obsolete`).
   - For each of `requirementsPageId`, `decisionsPageId`, `architecturePageId`: `getConfluencePage` (full body) to retrieve the existing REQ/DEC/ARCH sections and their IDs.
 - Walk the impact graph `REQ ← DEC ← ARCH`: if a candidate change touches an ARCH, list every DEC that references it; if it touches a DEC, list every REQ that depends on it. Propagation goes **upward** from ARCH to DEC to REQ. Surface the propagated impact in the preview.
   - Detection is text-based: an ARCH is "referenced" by a DEC if the DEC body contains its ID (`ARCH-007`); a DEC is referenced by a REQ the same way. Use `searchConfluenceUsingCql` scoped to the engineering root with `text ~ "<ID>"` if a full body scan is impractical.
@@ -212,6 +214,14 @@ Links → Jira: SWBE-43, SWBE-44
 
 Use the same version-mismatch retry policy as Step 7 (one retry max, then abort verbatim). This closes the bidirectional link: section knows its ticket, ticket already knows its section from Step 8.
 
+After every remote write has succeeded, update `docs/confluence-spec/req-catalog.json` as the local traceability index:
+
+- `NEW REQ` → append the new ID, title, and `Pending` status.
+- `EDIT REQ` → update the title only when the canonical requirement is still `Pending`.
+- `RETIRE REQ` → mark the predecessor `Obsolete` and append its successor as `Pending`.
+- Preserve the catalog's indentation, field order, monotonic ID order, and `pageId`.
+- Run `pnpm lint:req`. If it fails, stop and report the local mismatch; do not conceal the already-completed Confluence/Jira writes.
+
 ### Step 10 — Return
 
 End-of-turn report:
@@ -234,6 +244,7 @@ Notes:
   • <any assumption made during Step 2>
   • <any RETIRE successor proposed>
   • <any duplicate detected and folded>
+  • Local catalog: docs/confluence-spec/req-catalog.json updated; pnpm lint:req passed
 ```
 
 Print Confluence URLs (heading anchors), Jira keys with browse URLs, and a per-ticket recap of touched REQ/DEC/ARCH IDs.
@@ -290,6 +301,7 @@ Forbidden:
 | `package.json` `.name` is not `big-emotion` | Stop. This skill is scoped to the BIG EMOTION website repo. |
 | `docs/.confluence-bootstrap-complete` missing | Stop. Tell the user the Confluence engineering tree needs the one-shot bootstrap first (see "Bootstrap"). |
 | `docs/confluence-spec/config.json` missing or has null `*PageId` | Stop. Report which fields are missing. |
+| `docs/confluence-spec/req-catalog.json` missing, malformed, or its `pageId` differs from `requirementsPageId` | Stop before remote writes. Reconcile the local traceability index with Confluence. |
 | `docs/templates/jira-ticket-template.md` missing | Stop. The Jira tickets cannot be filled without the template. |
 | Atlassian MCP unreachable / wrong `cloudId` | Stop. Surface the error verbatim. |
 | Jira project `SWBE` not visible to the current user | Stop. The user lacks access. |
@@ -305,7 +317,7 @@ Forbidden:
 
 - The `alignment-agent` skill that classifies each diff as `aligned / advance / drift`. Winter-milestone item (see SWBE-9 / chancellerie precedent), not part of this port.
 - A mirror `specs/SPEC.md` regenerated from Confluence. Same.
-- A CI gate that fails a PR on drift. Same.
+- A full semantic Confluence/code drift classifier. CI enforces requirement IDs and test evidence, not prose equivalence.
 - Multi-project Jira routing. This skill only targets the project whose key is in `config.json` (currently `SWBE`).
 - Bulk creation. The skill processes one user description per invocation; if the user wants three independent specs, they invoke the skill three times.
 - Renumbering of already-published IDs. IDs are append-only and monotonic.
@@ -317,13 +329,14 @@ Forbidden:
 
 ## Relationship to neighbouring skills
 
-- **Confluence bootstrap** is a one-time setup that must complete before this skill is ever invoked (see "Bootstrap" above) — it writes the sentinel `docs/.confluence-bootstrap-complete` that this skill checks at Step 1. Unlike the chancellerie source, it is not a reusable skill; if the sentinel is missing, this skill aborts and explains what still needs to happen.
+- `bigemotion-bootstrap-confluence` is the one-shot predecessor to this skill. It writes the sentinel `docs/.confluence-bootstrap-complete`; if the sentinel is missing, this skill aborts and points to that command.
 - `bigemotion-ticket` runs **after** this skill. Given a Jira key created in Step 8, it self-assigns, refines, branches, implements, opens the PR, and transitions the ticket. The two skills are intentionally split: spec drafting (this skill, gated) versus implementation (the ticket skill, full-auto).
 
 ## Deltas vs `chancellerie-spec` (source: `sitewebgrandechancellerie`)
 
 - Jira project `SWBE` (not `CHAN`); issue type IDs Epic `10000` / Story `10009` / Task (`Tâche`) `10358` / Bug `10360` — verified 2026-07-16 via `getJiraProjectIssueTypesMetadata`; re-verify if `config.json` disagrees, IDs are per-instance and can drift.
 - Config file `docs/confluence-spec/config.json` and sentinel `docs/.confluence-bootstrap-complete`, both in this repo (`big-emotion`), independent of the chancellerie repo's copies — even though both projects live on the same Atlassian site (`big-emotion.atlassian.net`), the engineering trees and page IDs are separate.
-- No ported `bigemotion-bootstrap-confluence` skill: the bootstrap is a lightweight one-shot action (script or guided manual creation), not a slash command. See "Bootstrap" above.
+- Added `bigemotion-bootstrap-confluence` as a guarded, create-only one-shot command.
+- Added `docs/confluence-spec/req-catalog.json` as the local ID/lifecycle index used by `pnpm lint:req`; Confluence remains the canonical prose source.
 - Added a repo-identity precondition (`package.json` `.name == "big-emotion"`) per SWBE-5's locked decision that every ported skill verifies it is running in the right repo.
 - No `chancellerie-frame` equivalent: SWBE-5 only ports four skills (release / audit / ticket / spec); there is no Figma-frame-coupling neighbour skill in this repo yet.

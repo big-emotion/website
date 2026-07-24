@@ -1,3 +1,5 @@
+// @req REQ-042
+
 import { describe, expect, it, vi } from "vitest";
 import type { CounterState } from "@/lib/playground-counter";
 import { handleGetCounter, handlePostCounter } from "./handler";

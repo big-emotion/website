@@ -37,8 +37,9 @@ A single argument: the Jira ticket URL or issue key.
 
 1. **Repo root** — `package.json` `.name` is `big-emotion`. If not, stop and tell the user to `cd` in.
 2. **Atlassian MCP reachable** — `mcp__atlassian__getAccessibleAtlassianResources` returns the `big-emotion.atlassian.net` site. Resolve and keep `cloudId` for every subsequent Jira call. If it fails, stop — the Jira half of the workflow is impossible.
-3. **gh authenticated** — `gh auth status` succeeds for `big-emotion/website`.
-4. **Base branch fetchable** — `git fetch origin` succeeds and `origin/develop` exists. Implementation runs in a dedicated worktree (Step 5), so the user's main checkout is never touched and need not be clean — but the worktree must be cut from a real remote base branch. If `origin/develop` is missing, **stop** — do not silently fall back to `main`, which would put the work on the deploy branch.
+3. **Traceability config readable** — `docs/confluence-spec/config.json` and `docs/confluence-spec/req-catalog.json` are parseable, the catalog `pageId` equals `requirementsPageId`, and every requirement has a unique `REQ-NNN` ID and lifecycle status.
+4. **gh authenticated** — `gh auth status` succeeds for `big-emotion/website`.
+5. **Base branch fetchable** — `git fetch origin` succeeds and `origin/develop` exists. Implementation runs in a dedicated worktree (Step 5), so the user's main checkout is never touched and need not be clean — but the worktree must be cut from a real remote base branch. If `origin/develop` is missing, **stop** — do not silently fall back to `main`, which would put the work on the deploy branch.
 
 Fixed values (no config file — hardcoded so this path and Ferry can't drift apart):
 
@@ -61,6 +62,7 @@ Fixed values (no config file — hardcoded so this path and Ferry can't drift ap
 ### Step 3 — Read & refine
 
 - Summarise the ticket's intent, scope, and acceptance criteria.
+- Extract every `REQ-NNN` referenced by the ticket body, comments, and linked Confluence sections. Verify each ID exists in `docs/confluence-spec/req-catalog.json` and is not `Obsolete`. A missing or obsolete requirement is a safety blocker: stop and route the change back through `/bigemotion-spec`.
 - **Surface assumptions explicitly** in the refinement (per the core operating behaviors): any ambiguous requirement gets a stated assumption rather than a silent guess.
 - **Prismic coupling rule — conditional on repo state.** Check whether `customtypes/` exists at the repo root.
   - If it does **not** exist: the design-revamp epic hasn't landed the Prismic integration yet. Note **"Prismic check N/A — not wired yet"** in the refinement comment and skip the rest of this rule.
@@ -104,6 +106,8 @@ All implementation happens in a **dedicated git worktree**, never in the user's 
 
 Follow TDD and KISS (user `CLAUDE.md`): tests before code, simplest design that satisfies acceptance criteria, surgical scope — touch only what the ticket requires.
 
+Every requirement-bearing test added or changed for the ticket carries `// @req REQ-NNN` immediately above the test or enclosing suite. A requirement-bearing exported function may also carry a JSDoc `@req REQ-NNN`; when it does, a test with the same ID is mandatory. Never annotate with a `Pending` or `Obsolete` ID to make the gate pass. After implementation evidence is green, change a touched requirement from `Pending` to `Implemented` in the local catalog only when the matching Confluence lifecycle has also been updated; otherwise leave it `Pending`.
+
 Dependency-aware execution:
 
 1. **If a Prismic modeling sub-task exists, it runs FIRST and alone.** No UI/data sub-task starts until it is green.
@@ -114,10 +118,10 @@ Dependency-aware execution:
 
 ### Step 7 — Verify (safety blocker if it fails)
 
-Before any PR, this must pass on the branch (this repo's gate per `AGENTS.md` — there is no typecheck script):
+Before any PR, this must pass on the branch:
 
 ```bash
-pnpm lint && pnpm test && pnpm build
+pnpm lint && pnpm typecheck && pnpm format:check && pnpm lint:req && pnpm test && pnpm build
 ```
 
 If Prismic models changed (rule fired in Step 3), also run whatever Prismic check command exists in `package.json` at that time.
@@ -179,7 +183,7 @@ Capture the PR URL from the command output.
 
 ### Step 11 — Report
 
-End-of-turn summary (one or two sentences): the ticket key, the branch, the worktree path (kept for follow-up — remove with `git worktree remove <path>` once the PR is merged), the PR URL, the Jira status it now sits in, and any flagged anomalies (previous assignee overridden, missing transition, assumptions made during refinement).
+End-of-turn summary (one or two sentences): the ticket key, touched `REQ-NNN` IDs, the branch, the worktree path (kept for follow-up — remove with `git worktree remove <path>` once the PR is merged), the PR URL, the Jira status it now sits in, and any flagged anomalies (previous assignee overridden, missing transition, assumptions made during refinement).
 
 ## Failure handling
 

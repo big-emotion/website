@@ -1,3 +1,5 @@
+// @req REQ-009
+
 import { describe, expect, it } from "vitest";
 import { locales, type Locale } from "@/i18n/locales";
 import { content, site } from "./site";

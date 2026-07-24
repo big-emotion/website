@@ -16,6 +16,9 @@ Package manager is **pnpm**.
 ```bash
 pnpm dev                                  # dev server at http://localhost:3000
 pnpm lint                                 # ESLint (flat config)
+pnpm typecheck                            # TypeScript, no emit
+pnpm format:check                         # Prettier drift check
+pnpm lint:req                             # Confluence REQ lifecycle and test traceability
 pnpm test                                 # Vitest, single run
 pnpm test:watch                           # Vitest, watch mode
 pnpm vitest run src/components/wordmark.test.tsx   # single test file
@@ -33,7 +36,7 @@ pnpm slicemachine                         # Slice Machine UI, pointed at PRISMIC
 
 `pnpm build` needs `PRISMIC_REPOSITORY_NAME` and `PRISMIC_ACCESS_TOKEN` (see `.env.example`) — it pre-renders the case studies and fails fast without them.
 
-Run `pnpm lint && pnpm test && pnpm build` before committing. `pnpm build` is part of the gate because the standalone build fails on things dev mode tolerates. This same gate also runs as a required check on every pull request to `main` (`.github/workflows/ci.yml`).
+Run `pnpm lint && pnpm typecheck && pnpm format:check && pnpm lint:req && pnpm test && pnpm build` before committing. `pnpm build` is part of the gate because the standalone build fails on things dev mode tolerates. This same gate also runs as a required check on pushes and pull requests for `develop` and `main` (`.github/workflows/ci.yml`).
 
 With pnpm ≥ 10, a fresh clone must approve the `sharp` and `unrs-resolver` postinstall scripts once (`pnpm approve-builds`) or the install errors out. The resulting `pnpm-workspace.yaml` is intentionally NOT committed: its syntax varies across pnpm majors and pnpm 9 (still used locally) rejects it — the VPS keeps its own untracked copy.
 
@@ -107,3 +110,5 @@ The card order on `/cases` comes from the `display_order` number field, not from
 ## Testing
 
 Vitest + Testing Library on jsdom, `globals: true`, alias `@` → `src/`. Tests are colocated with what they test (`*.test.tsx` / `*.test.ts` next to the source). Test behavior through the rendered output and user interactions, not implementation details.
+
+**Confluence requirement traceability.** Confluence is the canonical prose source; `docs/confluence-spec/config.json` stores the stable page IDs and `docs/confluence-spec/req-catalog.json` is the local ID/lifecycle index consumed by CI. Every `Implemented` or `Approved` requirement must have at least one test annotated with `// @req REQ-NNN`. `Pending` requirements do not need test evidence, while `Obsolete` and unknown IDs are forbidden. New requirement-bearing tests must place the annotation immediately above the test or enclosing suite. A requirement-bearing exported function may use JSDoc `@req REQ-NNN`, but the same ID must appear in a test. Use `/bigemotion-spec` for ongoing Confluence/Jira intent changes; `/bigemotion-bootstrap-confluence` is create-only and refuses to run after the sentinel exists.

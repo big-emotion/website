@@ -8,11 +8,11 @@ metadata:
 
 # BIG EMOTION Audit
 
-Read-only audit of the BIG EMOTION website (static-export Next.js, Apache+PHP on the OVH VPS). Produces a scored, evidence-based report and refreshes `docs/PRODUCTION-READINESS-AUDIT.md`.
+Read-only audit of the BIG EMOTION website (standalone Next.js in Docker behind Traefik on the OVH VPS). Produces a scored, evidence-based report and refreshes `docs/PRODUCTION-READINESS-AUDIT.md`.
 
 This skill **never** modifies source, never bumps versions, never tags, never pushes, never deploys. It only reads and writes the audit doc.
 
-Ported from `chancellerie-audit` (see `sitewebgrandechancellerie/.claude/skills/chancellerie-audit/SKILL.md`) and refitted for a static-export marketing site: 8 domains instead of 9, no RGAA (private agency, not a public authority), no Azure/OIDC, real `pnpm` gates instead of invented ones.
+Ported from `chancellerie-audit` (see `sitewebgrandechancellerie/.claude/skills/chancellerie-audit/SKILL.md`) and refitted for the standalone marketing, API, auth, Prismic, and deployment surfaces: 8 domains instead of 9, no RGAA (private agency, not a public authority), no Azure/OIDC, and the repository's real `pnpm` gates.
 
 ## When to Activate
 
@@ -22,7 +22,7 @@ Ported from `chancellerie-audit` (see `sitewebgrandechancellerie/.claude/skills/
 
 ## Preconditions
 
-Run from the repo root (path contains `package.json` with `"name": "big-emotion"`). If not, stop and tell the user to `cd` into the repo.
+Run from the repo root (path contains `package.json` with `"name": "big-emotion"`). If not, stop and tell the user to `cd` into the repo. Also require parseable `docs/confluence-spec/config.json` and `docs/confluence-spec/req-catalog.json`, with the catalog `pageId` equal to `requirementsPageId`; otherwise the audit cannot assess traceability.
 
 ## Inputs
 
@@ -39,9 +39,9 @@ Run in parallel via Bash:
 - `git status --porcelain` — flag uncommitted changes (audit a dirty tree is fine but report it).
 - `git log --oneline -20` — recent commit cadence.
 - `git tag --sort=-creatordate | head -10` — release tags (expect empty pre-launch; report as such, not as a gap).
-- `git rev-parse origin/main` — branch tip. This repo has no `develop`/staging branch: a staging build is instead produced locally via `NEXT_PUBLIC_BASE_PATH=/preview pnpm build` and dropped in a subfolder of the live web root (see AGENTS.md). Note this model rather than looking for branch drift.
+- `git rev-parse origin/main origin/develop` and `git rev-list --count origin/main..origin/develop` — release and integration tips plus unpromoted commit count. Feature work targets `develop`; releases are tagged from `main` after a manual fast-forward promotion.
 - `jq '{name, version, private, packageManager, scripts}' package.json` — version, scripts, package manager.
-- `ls .github/workflows/ 2>/dev/null || echo "no .github/workflows directory"` — CI/CD surface. As of this writing the repo has none; deploy is manual SSH (`docs/adr/0003`). Report the actual state, don't assume automation exists.
+- `ls .github/workflows/` — CI/CD surface. Verify `ci.yml` gates pushes and pull requests to `develop` and `main`, while `deploy-production.yml` deploys only `v*` tags.
 - `ls docs/ docs/adr/ deploy/` — structural map.
 
 ### Step 2 — Read the existing audit (if present)
@@ -66,11 +66,14 @@ The canonical structure is:
 Run these in parallel (skip any that fail and note it in the report):
 
 - `pnpm lint` — ESLint.
+- `pnpm typecheck` — standalone TypeScript validation.
+- `pnpm format:check` — formatting drift.
+- `pnpm lint:req` — Confluence requirement IDs, lifecycle, and test evidence.
 - `pnpm test` (skip with `--quick`).
-- `pnpm build` (skip with `--quick`; static export — there is no separate typecheck script, `next build` typechecks as part of the build).
+- `pnpm build` (skip with `--quick`; standalone Next.js production build).
 - `pnpm audit --json --audit-level=moderate` — dependency CVEs (parse JSON, count by severity).
-- `git grep -nE "TODO|FIXME|XXX|HACK" src/ public/ | wc -l` — code debt heuristic (`public/contact.php` is the one piece of server code, include it).
-- `gh run list --limit 5 --json status,conclusion,name 2>/dev/null` — recent CI health, best-effort. Expect this to return nothing (no workflows exist yet); say so plainly rather than treating an empty result as success.
+- `git grep -nE "TODO|FIXME|XXX|HACK" src/ public/ deploy/ | wc -l` — code debt heuristic. Treat `public/contact.php` as a retired behavioral reference, not active server code.
+- `gh run list --limit 5 --json status,conclusion,name,headSha,url 2>/dev/null` — recent CI health, best-effort. Correlate the latest successful `ci.yml` run with the audited commit.
 
 **Brand-token discipline** — there is no `lint:tokens` script in this repo (unlike chancellerie), so grep directly for the four distinctive brand hex values outside their source of truth:
 
@@ -80,29 +83,38 @@ git grep -niE "#f2ff26|#ff5200|#0024cc|#dbdbdb" -- '*.ts' '*.tsx' '*.css' ':!src
 
 Any hit is a P1 finding (hardcoded brand color instead of `var(--color-*)`). If the scan is clean across several audit runs, note in "Gaps and risks" that adding a `lint:tokens` script (à la chancellerie) would make this enforcement automatic instead of manual.
 
+For **Confluence traceability**, check:
+
+- `docs/confluence-spec/config.json` contains the canonical Engineering tree and four child page IDs.
+- `docs/confluence-spec/req-catalog.json` has unique monotonic IDs and its `pageId` matches `requirementsPageId`.
+- `pnpm lint:req` passes: every `Implemented` or `Approved` requirement has test evidence, `Obsolete` IDs are rejected, and requirement-bearing JSDoc exports have matching tests.
+- `.github/workflows/ci.yml` and `lint-staged.config.mjs` invoke the traceability gate.
+
 For **application security**, check:
 
-- `public/.htaccess` — security headers via `mod_headers`: `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy`, `Strict-Transport-Security`. Read and verify each is present. **No CSP is expected** — the file documents why (Next's static-export inline bootstrap script would be blocked without per-build nonces); treat the absence as a deliberate, documented tradeoff, not an automatic gap, but note the residual XSS-mitigation risk it leaves.
-- `public/contact.php` — grep for: a honeypot field (`grep -n honeypot`), the per-IP rate limiter (`rateLimited()`), input validation (`filter_var(...FILTER_VALIDATE_EMAIL)`), an aligned envelope sender (`ENVELOPE_SENDER` constant used with `mail()`'s `-f` flag). Confirm no SMTP credentials, API keys, or other secrets are hardcoded (`grep -niE "password|secret|api[_-]?key" public/contact.php deploy/env.template`) — `deploy/env.template` should hold placeholders only.
+- `next.config.ts` — security headers, legacy redirects, `trailingSlash`, and `output: "standalone"`.
+- `src/app/api/contact/handler.ts`, `src/lib/rate-limit.ts`, and `src/lib/mail.ts` — validation, throttling, anti-abuse behavior, and absence of hardcoded credentials.
+- `src/app/api/revalidate/handler.ts` and preview routes — fail-closed webhook authentication, constant-time comparison, coarse `prismic` tag invalidation, and draft-mode isolation.
+- `src/proxy.ts`, `src/lib/session.ts`, and `src/lib/magic-link.ts` — auth routing, signed HttpOnly sessions, one-time expiring links, and anti-enumeration behavior.
 - `.github/workflows/*.yml` (if any exist) — third-party Actions pinned by **SHA**, not `@main`/`@v1`/`@latest`: `git grep -nE "uses:\s+[^/\s]+/[^@\s]+@(main|master|v[0-9]+|latest)" .github/workflows/`. If the directory doesn't exist, say so — don't silently skip the check.
 - `.github/dependabot.yml` — exists and covers `npm`. If absent, flag as a supply-chain gap (this repo does carry npm dependencies).
 - `package.json` `dependencies`/`devDependencies` — none pinned to git refs, file paths, or `link:`/`workspace:` (`grep -E '"(git\+|github:|file:|link:)"' package.json`).
 
 For **legal compliance (RGPD)** — note **RGAA is explicitly out of scope**: BIG EMOTION is a private agency, not a French public authority, so the accessibility-declaration legal obligation that applied to the chancellerie project does not apply here. Check:
 
-- Self-hosted fonts only: `src/app/layout.tsx` uses `next/font/local` against files under `src/app/fonts/`; no `<link>`/`@import` to `fonts.googleapis.com` anywhere in `src/` (`git grep -n "fonts.googleapis\|fonts.gstatic" src/`).
+- Self-hosted fonts only: `src/app/document-shell.tsx` uses `next/font/local` against files under `src/app/fonts/`; no `<link>`/`@import` to `fonts.googleapis.com` anywhere in `src/` (`git grep -n "fonts.googleapis\\|fonts.gstatic" src/`).
 - No third-party trackers loaded by default: `git grep -niE "gtag|analytics|hotjar|clarity|facebook.net|doubleclick" src/`.
-- **Mentions légales**: search `src/content/site.ts` and rendered sections/footer for legal identification (company name, address, SIRET, publication director) — French law (LCEN art. 6-III) requires this on any commercial site regardless of RGAA status. If absent, this is a real gap — flag it explicitly, don't soften it.
-- Contact-form data handling: read `public/contact.php` — what persists beyond the mail send (the rate-limit file, keyed on IP)? Note the retention and whether it's proportionate.
+- **Legal pages**: inspect `src/content/legal.ts`, `src/components/legal/legal-body.tsx`, and the three localized legal routes. Confirm mandatory fallback copy survives missing/undersized Prismic content.
+- **Consent**: verify `src/components/consent/consent-manager.ts` remains on-demand only while `CONSENT_SERVICES` is empty, and that its cookie name matches the privacy policy.
+- Contact-form data handling: inspect the active API handler and in-memory rate limiter. Note what PII persists, for how long, and whether it is proportionate.
 
-For **deploy consistency** (Domain 8's evidence table), adapted to this repo's manual-deploy model:
+For **deploy consistency** (Domain 8's evidence table):
 
 - Canonical version: `package.json` `.version`.
-- `deploy/deploy.sh` rsync target: should be `/home/ubuntu/big-emotion/live/` (per `docs/adr/0003`).
-- `deploy/deploy.sh` — does the `rsync -a --delete out/ .../live/` step exclude `/preview`? A staging build can be dropped into a `/preview` subfolder of the live web root via `NEXT_PUBLIC_BASE_PATH=/preview`; without `--exclude='/preview'`, every production deploy silently wipes it. Check for the exclude flag; if missing, this is a real finding, not a maybe.
-- `deploy/deploy.sh` — a **break-glass marker**: a comment documenting the manual rollback procedure (e.g. how to redeploy a known-good commit if a bad build ships). Check for a comment mentioning rollback/break-glass/previous-ref; if absent, flag as a gap (the script currently has no such note).
-- `.github/workflows/deploy-production.yml` — if present, confirm it triggers on a `v*` tag push (a merge to `main` must NOT deploy — ADR 0006) and mirrors the rsync target/excludes above. If absent (the current state), report deploy as manual-SSH-only; that's a legitimate finding, not a script bug.
-- `public/.htaccess` legacy WordPress 301s — spot-check the `RewriteRule` block still redirects the known old URLs (`contactez-nous`, `les-membres`, `case-study-mamiezi`, `case-study-adolebatisseur`) to the correct anchors; these are an SEO invariant and must not regress.
+- `.github/workflows/deploy-production.yml` — confirm it triggers only on `v*` tag pushes plus explicit `workflow_dispatch`, builds the standalone Docker image, transfers it to the VPS, and serializes deployments.
+- `deploy/Dockerfile`, `deploy/docker-compose.yml`, and `deploy/deploy.sh` — verify the automated image contract and break-glass rebuild path agree on environment variables, health checks, service name, and Traefik routing.
+- `next.config.ts` — spot-check legacy WordPress redirect sources and current destinations; redirects live here, never in `.htaccess`.
+- `git rev-list --count origin/main..origin/develop` — zero is required before a release tag can represent all integrated work.
 - `CHANGELOG.md` and `git tag --list` — if the `bigemotion-release` skill exists in `.claude/skills/`, verify CHANGELOG/tag state matches its conventions; if neither exists yet, report as pre-launch, not as a gap.
 
 Report the deploy-consistency result as a small table, e.g.:
@@ -111,11 +123,11 @@ Report the deploy-consistency result as a small table, e.g.:
 | Location                                  | Value                                             | Status     |
 | ------------------------------------------ | -------------------------------------------------- | ---------- |
 | package.json .version                     | 0.1.0                                             | canonical  |
-| deploy.sh rsync target                    | /home/ubuntu/big-emotion/live/                    | match      |
-| deploy.sh --exclude='/preview'            | absent                                            | MISSING    |
-| deploy.sh break-glass marker              | absent                                            | MISSING    |
-| .github/workflows/deploy-production.yml   | absent — deploy is manual SSH (docs/adr/0003)     | manual     |
-| .htaccess legacy WordPress 301s           | 4 rules present, targets verified                 | match      |
+| deploy-production.yml trigger             | v* tags + workflow_dispatch                       | match      |
+| Docker image / compose runtime contract    | standalone Node server behind Traefik             | match      |
+| deploy.sh break-glass path                 | documented and aligned                            | match      |
+| next.config.ts legacy WordPress 301s       | source invariants preserved                       | match      |
+| origin/main..origin/develop                | 0 before release                                  | match      |
 | CHANGELOG.md / git tags                   | absent                                            | pre-launch |
 ```
 
@@ -160,7 +172,7 @@ Read each suspect file to confirm the hit is real (not a string literal, not a c
 
 **Output:** flat markdown list grouped by category, P0 first within each group. Each line: `**Pn** path:line — value — one-line description`.
 
-**Score impact** — feed this into Domain 4 (Architecture & static-export integrity):
+**Score impact** — feed this into Domain 4 (Architecture & standalone integrity):
 
 - 0 P0 / ≤ 5 P1 → no penalty.
 - 1–3 P0 or 6–15 P1 → −1 on Domain 4.
@@ -174,14 +186,14 @@ Use this rubric (1–10 each, weighted equal):
 
 | # | Domain | What to look for |
 | --- | --- | --- |
-| 1 | Application security | `public/.htaccess` headers (HSTS, X-Frame-Options, Referrer-Policy, Permissions-Policy — CSP deliberately absent, see file header comment); `public/contact.php` posture (honeypot, per-IP `rateLimited()` throttle, `filter_var` email validation, aligned envelope sender via `-f`); no secrets committed. |
-| 2 | RGPD / privacy | Self-hosted fonts only via `next/font/local` (no Google Fonts CDN); no third-party trackers loaded by default; mentions légales present and reachable; contact-form PII handling reviewed (rate-limit file retention). RGAA is **not required** — private agency, not a public authority. |
-| 3 | Accessibility (craft, not compliance) | Semantic landmarks (`<header>`, `<nav>`, `<main>`, `<footer>`) in `src/app/layout.tsx`; alt text on images driven by `src/content/site.ts`; visible focus styles in `globals.css`; `prefers-reduced-motion` respected by the CSS-only marquee/animations; mobile-first verified at 320–430 px. |
-| 4 | Architecture & static-export integrity | `next.config.ts` `output: "export"` intact, no SSR/API-route/middleware leakage; `trailingSlash: true` preserved; all copy lives in `src/content/site.ts` (no inline marketing copy in components); server code confined to `public/contact.php` + `public/.htaccess`; `contact-form.tsx` ↔ `contact.php` JSON/redirect contract in sync; no untunable magic numbers (see Step 3.5). |
-| 5 | Code quality | `pnpm lint` clean; comments explain why, not what; names carry domain meaning (no `data`/`handle`/`util`); server vs. client component split respected (only `site-header.tsx` and `contact-form.tsx` are `"use client"`). |
-| 6 | Correctness & tests | `pnpm test` passes; Vitest + Testing Library coverage exercises rendered output and user interactions, not implementation details; tests colocated (`*.test.tsx` next to the component); CI green (if CI exists — note if it doesn't). |
-| 7 | Performance | Self-hosted woff2 fonts via `next/font/local` with `display: "swap"`; `next/image` `unoptimized: true` policy acknowledged, image weights sane; `.htaccess` caching policy (immutable `_next/static`, no-cache HTML); note the upcoming payload-budget risk once 3D assets land (per the revamp program), even though none exist yet. |
-| 8 | Supply chain + release/deploy consistency | `package.json` dependencies free of git-ref/path/`link:` entries; `pnpm audit` clean at `moderate`; `.github/workflows` Actions pinned by SHA + Dependabot configured (if any workflows exist — else flag "no CI/CD automation present" explicitly); deploy-consistency table from Step 3 has no unexplained `MISSING` rows; legacy WordPress 301s in `.htaccess` still present and correct; CHANGELOG/tag state consistent with the `bigemotion-release` skill's conventions (or reported pre-launch). |
+| 1 | Application security | Security headers and redirects in `next.config.ts`; contact validation/rate limiting; signed sessions and single-use magic links; fail-closed Prismic webhook; no secrets committed. |
+| 2 | RGPD / privacy | Self-hosted fonts; no third-party scripts by default; legal fallback copy remains reachable without Prismic; consent manager behavior matches registered services; contact-form PII handling reviewed. |
+| 3 | Accessibility (craft, not compliance) | Semantic landmarks in both document surfaces; content-driven alt text; visible focus styles; reduced-motion behavior; mobile-first verified at 320–430 px. |
+| 4 | Architecture & standalone integrity | `output: "standalone"` and `trailingSlash: true`; marketing SSG plus dynamic API/auth routes; locale-aware navigation; server behavior in `next.config.ts`/`deploy/`; no untunable magic numbers (see Step 3.5). |
+| 5 | Code quality | `pnpm lint`, `pnpm typecheck`, and `pnpm format:check` pass; comments explain why; names carry domain meaning; server/client boundaries are intentional. |
+| 6 | Correctness, tests & traceability | `pnpm test` and `pnpm lint:req` pass; tests exercise contracts; implemented Confluence REQs have annotated evidence; obsolete/unknown IDs fail CI; recent CI is green. |
+| 7 | Performance | Self-hosted woff2 fonts; active `next/image` optimization; static marketing routes; Three.js/GSAP/Lenis payload and Draco assets remain bounded; caching/revalidation behavior is intentional. |
+| 8 | Supply chain + release/deploy consistency | Dependencies avoid git/file links; `pnpm audit` is clean at `moderate`; Actions are SHA-pinned; Dependabot exists; CI gates `develop`/`main`; production deploys only from `v*` tags; `develop` promotion and CHANGELOG/tag state are consistent. |
 
 Compute overall score = mean of the 8 domain scores, rounded to one decimal.
 
@@ -196,7 +208,7 @@ Always include a top section answering the four canonical questions explicitly:
    - Mentions légales present and reachable (LCEN art. 6-III — required regardless of RGAA)?
    - Contact-form data retention proportionate?
    - Note explicitly: RGAA does not apply (private agency).
-3. **Security posture?** One short paragraph + bullet list of strengths and gaps. Reference: `.htaccess` headers (and the documented no-CSP tradeoff), `contact.php` posture, secrets handling, supply chain (Actions pinning if any, Dependabot, `pnpm audit`).
+3. **Security posture?** One short paragraph + bullet list of strengths and gaps. Reference `next.config.ts` headers, API/auth boundaries, Prismic webhook/preview isolation, secrets handling, and supply chain.
 4. **Is the score close to 8–9/10?** Quote the computed score, compare to target, list the top 3 gaps that would close the distance.
 
 ### Step 6 — Write the report
@@ -211,7 +223,8 @@ Before reporting done:
 
 - [ ] All 8 domain scores justified by at least one piece of evidence (command output, file path, line number).
 - [ ] The four canonical questions are answered explicitly in section 1 of the report.
-- [ ] No score is invented — if a check could not run, mark it `N/A` and explain (this includes "no CI exists" — that's a fact to report, not an error to hide).
+- [ ] No score is invented — if a check could not run, mark it `N/A` and explain.
+- [ ] Confluence config/catalog alignment and `pnpm lint:req` are evidenced under Domain 6.
 - [ ] `docs/PRODUCTION-READINESS-AUDIT.md` was updated (or created) and the Date field reflects today.
 - [ ] Step 3.5 ran: P0 + P1 hardcoded values are listed under "Gaps and risks > Hardcoded values" in the audit doc, and Domain 4 reflects the penalty (or notes the count was below threshold).
 - [ ] Step 3 deploy-consistency table is included in section 8 of the report.
@@ -239,4 +252,4 @@ Full report: docs/PRODUCTION-READINESS-AUDIT.md
 - Bumping versions, creating tags, updating CHANGELOG. Use the `bigemotion-release` skill for that.
 - Live Lighthouse / WebPageTest runs. Performance domain scores on configuration and budgets, not live measurement.
 - Azure, OIDC, and RGAA-declaration checks — those are chancellerie-specific and do not apply to this project.
-- Prismic checks — this project has no CMS today. Add a domain note once Prismic (or any CMS) lands.
+- Mutating Prismic schemas or content. The audit may run read-only drift checks but never pushes models or content.

@@ -1,3 +1,7 @@
+// @req REQ-008
+// @req REQ-011
+// @req REQ-012
+
 import { render, screen, waitFor } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";

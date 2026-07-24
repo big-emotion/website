@@ -1,3 +1,6 @@
+// @req REQ-021
+// @req REQ-046
+
 import { describe, expect, it } from "vitest";
 import { hasPublishedBody } from "./legal-body";
 

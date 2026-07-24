@@ -80,6 +80,11 @@ jobs:
 
       - run: pnpm format:check
 
+      # Confluence is the source of truth for requirements. The local catalog
+      # mirrors the canonical IDs so CI can prove that every implemented REQ has
+      # a test anchor and that code never cites an unknown or obsolete contract.
+      - run: pnpm lint:req
+
       - run: pnpm test
 
       # Keyed on the lockfile with the commit SHA as a unique suffix so every

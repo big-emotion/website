@@ -1,0 +1,255 @@
+{
+  "pageId": "171245569",
+  "requirements": [
+    {
+      "id": "REQ-001",
+      "title": "One-page anchored marketing site",
+      "status": "Obsolete"
+    },
+    {
+      "id": "REQ-002",
+      "title": "Brand colours come only from design tokens",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-003",
+      "title": "Accessible header and mobile menu",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-004",
+      "title": "Contact form works with and without JavaScript",
+      "status": "Obsolete"
+    },
+    {
+      "id": "REQ-005",
+      "title": "Contact endpoint resists abuse",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-006",
+      "title": "Legacy WordPress URLs are preserved by 301s",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-007",
+      "title": "Offline-reproducible static build",
+      "status": "Obsolete"
+    },
+    {
+      "id": "REQ-008",
+      "title": "Motion respects reduced-motion",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-009",
+      "title": "Marketing copy lives in a typed content module",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-010",
+      "title": "Scroll-driven 3D hero experience",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-011",
+      "title": "The 3D experience degrades gracefully",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-012",
+      "title": "Motion and 3D dependencies are self-hosted",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-013",
+      "title": "Compressed 3D asset budget",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-014",
+      "title": "Routed FR/EN localization, EN default",
+      "status": "Obsolete"
+    },
+    {
+      "id": "REQ-015",
+      "title": "Real section routes",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-016",
+      "title": "Display typography delivers the BBH width signature",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-017",
+      "title": "Authenticated client portal",
+      "status": "Pending"
+    },
+    {
+      "id": "REQ-018",
+      "title": "Magic-link auth for provisioned emails",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-019",
+      "title": "Per-client support agent with usage budget",
+      "status": "Pending"
+    },
+    {
+      "id": "REQ-020",
+      "title": "Contact through the Next.js API route",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-021",
+      "title": "Legal and privacy pages",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-022",
+      "title": "Backups with restore test",
+      "status": "Pending"
+    },
+    {
+      "id": "REQ-023",
+      "title": "Monitoring and alerting",
+      "status": "Pending"
+    },
+    {
+      "id": "REQ-024",
+      "title": "Transactional mail through one sender identity",
+      "status": "Obsolete"
+    },
+    {
+      "id": "REQ-025",
+      "title": "Ferry merger is reachable by a Jira column move",
+      "status": "Pending"
+    },
+    {
+      "id": "REQ-026",
+      "title": "Editor-managed content publishes without a deploy",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-027",
+      "title": "Pages use reusable Prismic slices",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-028",
+      "title": "First-party bilingual blog",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-029",
+      "title": "Brand personality slider",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-030",
+      "title": "Routed FR/EN localization, FR default",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-031",
+      "title": "Transactional mail uses one path and per-purpose senders",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-032",
+      "title": "Client area is served from b2b.big-emotion.com",
+      "status": "Pending"
+    },
+    {
+      "id": "REQ-033",
+      "title": "Footer social links use confirmed destinations only",
+      "status": "Pending"
+    },
+    {
+      "id": "REQ-034",
+      "title": "Auth endpoint resists abuse and enumeration",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-035",
+      "title": "Blog articles use the Direction B visual system",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-036",
+      "title": "Site header meets WCAG-AA contrast",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-037",
+      "title": "Playground is a living gallery of logo experiences",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-038",
+      "title": "Every effect is a shareable destination",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-039",
+      "title": "POIDS LOURD is a physical logo toy",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-040",
+      "title": "BIG BANG provides destruction and rebirth",
+      "status": "Pending"
+    },
+    {
+      "id": "REQ-041",
+      "title": "LUMIERE exposes the studio light",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-042",
+      "title": "Playground exposes an anonymous collective counter",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-043",
+      "title": "Every published effect has one hidden challenge",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-044",
+      "title": "Cookieless self-hosted audience measurement",
+      "status": "Pending"
+    },
+    {
+      "id": "REQ-045",
+      "title": "Standalone server build supports dynamic routes",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-046",
+      "title": "Legal content and consent controls survive CMS absence",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-047",
+      "title": "Prismic webhook authentication and cache revalidation",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-048",
+      "title": "Draft preview stays isolated from public cached content",
+      "status": "Implemented"
+    },
+    {
+      "id": "REQ-049",
+      "title": "Every public surface follows the mobile-first responsive contract",
+      "status": "Pending"
+    },
+    {
+      "id": "REQ-050",
+      "title": "Every change passes the complete project quality gate",
+      "status": "Implemented"
+    }
+  ]
+}
