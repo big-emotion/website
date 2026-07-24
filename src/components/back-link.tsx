@@ -6,8 +6,8 @@ import { Link } from "@/i18n/navigation";
  * rather than a second, slightly different one.
  *
  * Layout is the caller's job — this owns the link itself (display type, arrow, the 44px
- * touch target) and nothing around it, so it can sit on the Playground's ink band as
- * happily as on an article's lyon background.
+ * touch target) and nothing around it. Colour is inherited, so it sits on the Playground's
+ * ink band as happily as on whichever brand association an article drew.
  */
 export function BackLink({ href, label }: { href: string; label: string }) {
   return (
