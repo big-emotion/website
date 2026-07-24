@@ -42,7 +42,7 @@ describe("/playground", () => {
     );
     expect(screen.getByText(/murs élastiques/)).toBeInTheDocument();
     expect(
-      screen.queryByText("Aucune expérience pour le moment. Revenez bientôt."),
+      screen.queryByText("Aucune expérience pour le moment. Reviens bientôt."),
     ).not.toBeInTheDocument();
   });
 

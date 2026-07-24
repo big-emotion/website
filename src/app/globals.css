@@ -14,6 +14,8 @@
 /* Fonts are injected on <html> by next/font; `inline` emits the var() reference. */
 @theme inline {
   --font-display: var(--font-bbh);
+  --font-display-condensed: var(--font-bbh-condensed);
+  --font-display-extended: var(--font-bbh-extended);
   --font-body: var(--font-bricolage);
 }
 
@@ -30,6 +32,24 @@ body {
   letter-spacing: -0.02em;
   line-height: 0.92;
   text-transform: uppercase;
+}
+
+/* BBH's three width cuts. The charter makes the interplay the signature — one headline
+   sets some words condensed and others extended, which is why these are width modifiers
+   applied inside a `.font-display` block rather than three separate display faces:
+
+     <h2 class="font-display">
+       <span class="font-display-condensed">We</span> create
+       <span class="font-display-extended">impact</span>
+     </h2>
+
+   Declared after `.font-display` so the modifier wins on equal specificity. */
+.font-display-condensed {
+  font-family: var(--font-display-condensed);
+}
+
+.font-display-extended {
+  font-family: var(--font-display-extended);
 }
 
 /* CSS-only marquee so the manifesto band animates without shipping JS.

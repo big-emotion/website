@@ -58,11 +58,21 @@ for.
 
 **BBH** — display. A variable family in three widths, and using all three is the point:
 
-| Cut | Width | Role |
-| --- | --- | --- |
-| BBH Bogle | condensed | titles, mixed with the others in one line |
-| BBH Hegarty | regular | subtitles, and titles |
-| BBH Bartle | extended | titles, mixed with the others in one line |
+| Cut | Width | Class | Role |
+| --- | --- | --- | --- |
+| BBH Bogle | condensed | `font-display-condensed` | titles, mixed with the others in one line |
+| BBH Hegarty | regular | `font-display` | subtitles, and titles |
+| BBH Bartle | extended | `font-display-extended` | titles, mixed with the others in one line |
+
+The widths are **modifiers inside a display block**, because the charter's own example
+mixes them within a single line:
+
+```jsx
+<h2 className="font-display">
+  <span className="font-display-condensed">We</span> create{" "}
+  <span className="font-display-extended">impact</span>
+</h2>
+```
 
 > *« La BBH est une police variable composée de 3 typos : une condensée, une regular et une
 > etendue, 3 formes afin de faire jouer avec les messages & habillages graphiques, le style
@@ -76,7 +86,8 @@ builds stay offline-reproducible and no visitor request reaches Google — see A
 
 ### The accent trap (DEC-023)
 
-The shipped BBH woff2 has an **ASCII-only cmap**. Any accented character in a
+**All three cuts** ship the same 121-glyph, **ASCII-only cmap** — adding Bogle and Bartle
+changed nothing here, they are as accent-free as Hegarty. Any accented character in a
 `font-display` slot silently falls back to another face and the line breaks visually.
 So: **display copy is authored unaccented** — "Defiler", "Derriere chaque clic", "REFERENCES".
 Body copy keeps its accents normally.
@@ -137,6 +148,11 @@ The charter ships its own generation prompt, reproduced verbatim:
 > Transformer un message en émotion mémorable. »*
 
 Values: **Audace · Sincérité · Énergie · Simplicité radicale · Exigence créative.**
+
+`src/content/tutoiement.test.tsx` fails the build on a `vous`/`votre`/`vos` or a
+second-person-plural verb anywhere in the French copy. Like the accent rule, **it cannot
+reach Prismic**: the Home scroll spine (`page` uid `home`) and the articles are authored in
+the dashboard, where nothing fails first. Author Prismic copy in the tu form.
 
 The approved lines — reuse these rather than inventing a new claim:
 
@@ -208,13 +224,23 @@ Recorded so they are decisions, not accidents. Fix, or arbitrate and note the ar
 
 | Charter | Site today | Note |
 | --- | --- | --- |
-| BBH in three widths, and the interplay is the signature (`05`, `09`) | only `bbh-hegarty` is self-hosted in `src/app/fonts/` | Bogle (condensed) and Bartle (extended) are missing, so no headline can mix widths. The single largest gap. |
-| Tutoiement assumé (`07`) | mixed — `site.ts` has both "ton besoin" and "Revenez bientôt" | Pick one register and sweep. |
 | `@big-emotion on socials` (`14`) | `socialHandle = "@bigemotion"` in `src/content/site.ts` | Open arbitration; the real handles need checking before either is treated as canon. |
 | Looping logo load screen (`12`) | none | Weigh against LCP before building it. |
+
+Closed:
+
+- **The three widths are self-hosted** (`05`, `09`). Bogle, Hegarty and Bartle all ship as
+  woff2 under `src/app/fonts/`, from the `@fontsource/bbh-sans-*` packages. Use them as
+  width modifiers inside a `.font-display` block — see §2 above. A browser only fetches a
+  cut a page actually sets text in, so declaring all three costs nothing unused.
+- **Tutoiement is swept and gated** (`07`). `src/content/tutoiement.test.tsx` fails on a
+  `vous`/`votre`/`vos` or a second-person-plural verb ending anywhere in the French copy —
+  the pronoun-less kind ("Revenez bientôt") is what slipped through before.
 
 ## Checking a change against this
 
 - Colour tokens: `pnpm vitest run src/app/globals.css.test.ts`
 - Display-slot copy (ASCII rule) and locale parity: `pnpm vitest run src/content/site.test.ts`
+- Tutoiement across every French surface: `pnpm vitest run src/content/tutoiement.test.tsx`
+- The three cuts are on disk: `pnpm vitest run src/app/fonts/fonts.test.ts`
 - Everything else is a judgement call — read the relevant page image, then §1–§8 above.

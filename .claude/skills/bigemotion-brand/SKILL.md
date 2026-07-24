@@ -32,36 +32,45 @@ transcription of the designer's PDF and the thing this skill exists to point you
 2. For anything visual, **also look at the relevant page image** — the charter is a design
    document and the images carry things prose cannot. `brand/pages/` is named by topic
    (`03-palette`, `05-typography`, `13-website-art-direction`, …).
-3. Apply the rules. Then run the two gates that can actually fail:
+3. Apply the rules. Then run the four gates that can actually fail:
 
 ```bash
-pnpm vitest run src/app/globals.css.test.ts   # palette matches the charter
-pnpm vitest run src/content/site.test.ts      # display-slot ASCII rule + locale parity
+pnpm vitest run src/app/globals.css.test.ts     # palette matches the charter
+pnpm vitest run src/content/site.test.ts        # display-slot ASCII rule + locale parity
+pnpm vitest run src/content/tutoiement.test.tsx # French copy addresses the reader as tu
+pnpm vitest run src/app/fonts/fonts.test.ts     # the three BBH width cuts are on disk
 ```
 
-## The five that get broken most
+## The six that get broken most
 
 Everything is in `BRAND.md`; these are the ones worth carrying in your head.
 
 1. **Never a raw hex in a component.** Six tokens, declared in `src/app/globals.css`, and no
    seventh colour. `bg-lemon`, `text-ink`, `bg-tangerine`, `bg-lyon`, `bg-brutal`, `bg-paper`.
-2. **Display copy is ASCII-only.** The shipped BBH woff2 has an ASCII-only cmap, so an
-   accent in a `font-display` slot silently falls back to another face. Write "Defiler",
-   not "Défiler". The test guards `site.ts`; it **cannot** guard Prismic — an editor typing
-   "Médias" breaks it at runtime with nothing failing first.
-3. **Type deforms, the logo never does.** Stretching a headline to fill its format is the
+2. **Display copy is ASCII-only.** All three BBH cuts share the same 121-glyph
+   ASCII-only cmap, so an accent in a `font-display` slot silently falls back to another
+   face. Write "Defiler", not "Défiler". The test guards `site.ts`; it **cannot** guard
+   Prismic — an editor typing "Médias" breaks it at runtime with nothing failing first.
+3. **Use the three widths.** `font-display-condensed` (Bogle) and `font-display-extended`
+   (Bartle) are modifiers inside a `.font-display` block — mixing them in one headline is
+   the charter's signature, not decoration.
+4. **Type deforms, the logo never does.** Stretching a headline to fill its format is the
    signature. Stretching the lockup is a mistake. Clear space = the height of the `!`; no
    shadow, no outline, no effect.
-4. **Only the sanctioned colour pairings** (`BRAND.md` §1). Black on blue and blue on black
+5. **Only the sanctioned colour pairings** (`BRAND.md` §1). Black on blue and blue on black
    are not among them, however tempting.
-5. **Photos are contrasted, saturated, off-kilter and in motion.** Forbidden: neutral white
+6. **Photos are contrasted, saturated, off-kilter and in motion.** Forbidden: neutral white
    background, flat lighting, desaturated colour, tame lifestyle calm, pastel.
 
 ## Tone
 
-Short sentences, action verbs, tutoiement, cash not corporate, humour allowed and jargon
-banned. Make them feel before you make them understand. The ten approved lines are in
-`BRAND.md` §5 — reuse one rather than inventing a new claim.
+Short sentences, action verbs, **tutoiement**, cash not corporate, humour allowed and
+jargon banned. Make them feel before you make them understand. The ten approved lines are
+in `BRAND.md` §5 — reuse one rather than inventing a new claim.
+
+The tutoiement is gated by a test for copy in the repo — but like the ASCII rule, **the
+gate stops at Prismic**. The Home scroll spine and the articles are authored in the
+dashboard, so a `vous` typed there ships with nothing failing first.
 
 ## Do not
 

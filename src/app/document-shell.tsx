@@ -7,13 +7,34 @@ import localFont from "next/font/local";
 // request ever hits Google (GDPR-friendly). Source files come from the
 // @fontsource-variable/* packages.
 
-// Display: BBH Hegarty (Studio DRAMA), the brand's own display face — confirmed
-// libre on Google Fonts 2026-07-20 (DEC-023, supersedes DEC-008's "not libre"
-// premise). Ships as a single static weight; the full three-width Bogle/Hegarty/
-// Bartle signature is deferred.
+// Display: BBH (Studio DRAMA), the brand's own display face — confirmed libre on Google
+// Fonts 2026-07-20 (DEC-023, supersedes DEC-008's "not libre" premise). The charter
+// ships it as three separate width cuts rather than one variable axis, and calls the
+// interplay between them the signature: a single headline sets "WE" condensed, "CREATE"
+// regular and "IMPACT" extended (brand/BRAND.md §2). All three are declared here; a
+// browser only fetches the ones a page actually sets text in.
+//
+// All three carry the same 121-glyph ASCII-only cmap, so the no-accents-in-display rule
+// holds for every cut, not just Hegarty.
 const display = localFont({
   src: "./fonts/bbh-hegarty-latin.woff2",
   variable: "--font-bbh",
+  weight: "400",
+  style: "normal",
+  display: "swap",
+});
+
+const displayCondensed = localFont({
+  src: "./fonts/bbh-bogle-latin.woff2",
+  variable: "--font-bbh-condensed",
+  weight: "400",
+  style: "normal",
+  display: "swap",
+});
+
+const displayExtended = localFont({
+  src: "./fonts/bbh-bartle-latin.woff2",
+  variable: "--font-bbh-extended",
   weight: "400",
   style: "normal",
   display: "swap",
@@ -45,7 +66,10 @@ export function DocumentShell({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang={lang} className={`${display.variable} ${body.variable} h-full antialiased`}>
+    <html
+      lang={lang}
+      className={`${display.variable} ${displayCondensed.variable} ${displayExtended.variable} ${body.variable} h-full antialiased`}
+    >
       <body className="min-h-full flex flex-col overflow-x-hidden bg-paper text-ink">
         <a
           href="#main"

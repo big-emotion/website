@@ -4,7 +4,7 @@ import { TILT_PERMISSION_STORAGE_KEY, TiltPermissionCard } from "./tilt-permissi
 
 const copy = {
   title: "Incliner pour jouer",
-  body: "Autorisez l'inclinaison pour ajouter un peu de gravite au geste.",
+  body: "Autorise l'inclinaison pour ajouter un peu de gravite au geste.",
   enable: "Activer",
   dismiss: "Non merci",
 };

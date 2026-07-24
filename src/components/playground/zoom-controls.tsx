@@ -28,7 +28,7 @@ const copy: Record<Locale, ZoomControlsCopy> = {
   fr: {
     zoomIn: "Zoomer sur le logo",
     zoomOut: "Dézoomer",
-    gestureHint: "Zoom : pincez le trackpad ou Ctrl + molette",
+    gestureHint: "Zoom : pince le trackpad ou Ctrl + molette",
   },
   en: {
     zoomIn: "Zoom in on the logo",

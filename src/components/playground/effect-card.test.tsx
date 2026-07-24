@@ -10,7 +10,7 @@ function renderCard() {
       <EffectCard
         href="/playground/poids-lourd"
         title="Poids Lourd"
-        hook="Saisissez, glissez et lancez le logo chromé contre des murs élastiques."
+        hook="Saisis, glisse et lance le logo chromé contre des murs élastiques."
         playLabel="Jouer"
         preview="drop"
       />

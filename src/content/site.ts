@@ -229,15 +229,15 @@ const fr: LocaleContent = {
   },
   blog: {
     lead: "Ce qu’on apprend en construisant, écrit chez nous plutôt que sur LinkedIn ou Medium.",
-    emptyState: "Aucun article pour le moment. Revenez bientôt.",
+    emptyState: "Aucun article pour le moment. Reviens bientôt.",
     byline: "Par",
     featuredLabel: "À la une",
     readMore: "Lire l’article",
     postCount: { one: "article", other: "articles" },
   },
   playground: {
-    lead: "On sait que le logo de la page d’accueil vous a plu. Ici, il est à vous : attrapez-le, lancez-le, zoomez dedans.",
-    emptyState: "Aucune expérience pour le moment. Revenez bientôt.",
+    lead: "On sait que le logo de la page d’accueil t’a plu. Ici, il est à toi : attrape-le, lance-le, zoome dedans.",
+    emptyState: "Aucune expérience pour le moment. Reviens bientôt.",
     play: "Jouer",
     back: "Retour au Playground",
     loading: "Chargement de l'expérience…",
@@ -315,7 +315,7 @@ const fr: LocaleContent = {
   values: ["Audace", "Sincerite", "Energie", "Simplicite radicale", "Exigence creative"],
   contact: {
     title: ["Creons de la", "big emotion"],
-    lead: "Une marque qui mérite d’être plus forte ? Dites ce que vous construisez.",
+    lead: "Une marque qui mérite d’être plus forte ? Dis-nous ce que tu construis.",
     responseTime: "On te répond sous 24 h.",
     socialSuffix: "sur les réseaux",
   },
