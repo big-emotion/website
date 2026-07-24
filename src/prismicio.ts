@@ -1,5 +1,6 @@
 import * as prismic from "@prismicio/client";
 import { enableAutoPreviews } from "@prismicio/next";
+import { LEGAL_UIDS, type LegalUid } from "@/content/legal";
 import type { Locale } from "@/i18n/locales";
 import { localePath } from "@/i18n/urls";
 
@@ -110,5 +111,15 @@ export const linkResolver: prismic.LinkResolverFunction = (document) => {
     return localePath(locale, `/blog/${document.uid}`);
   }
 
+  // Legal routes are named after their uid. Checked against the known list rather than
+  // trusting the uid, so a stray document cannot claim a top-level path that 404s.
+  if (document.type === "legal_page" && isLegalUid(document.uid)) {
+    return localePath(locale, `/${document.uid}`);
+  }
+
   return null;
 };
+
+function isLegalUid(uid: string | null | undefined): uid is LegalUid {
+  return LEGAL_UIDS.includes(uid as LegalUid);
+}

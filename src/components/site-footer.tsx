@@ -1,8 +1,11 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+import { CookieSettingsButton } from "@/components/consent/cookie-settings-button";
+import type { LegalNavLink } from "@/content/legal";
 import { content, site } from "@/content/site";
 import type { Locale } from "@/i18n/locales";
-import { usePathname } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import { Logo } from "./logo";
 import { SocialSprite } from "./social-sprite";
 import { SUBPAGE_ACCENTS, subpageFromPathname } from "./subpage-accents";
@@ -19,10 +22,22 @@ const DEFAULT_SURFACE = "bg-lemon text-ink";
 // the pathname tells it which hero it sits under. `bg`/ink come as one token pair
 // (SUBPAGE_ACCENTS.surface) so the ink stays legible on whichever surface is picked —
 // text-ink on lemon/tangerine, text-paper on lyon, text-lemon on ink.
-export function SiteFooter({ locale }: { locale: Locale }) {
+export function SiteFooter({
+  locale,
+  legalLinks,
+}: {
+  locale: Locale;
+  /** Resolved on the server — see `legalNavLinks` for why they are not imported here. */
+  legalLinks: readonly LegalNavLink[];
+}) {
   const { footerLegal } = content[locale];
+  const t = useTranslations("layout");
   const subpage = subpageFromPathname(usePathname());
   const surface = subpage ? SUBPAGE_ACCENTS[subpage].surface : DEFAULT_SURFACE;
+
+  const privacyHref = legalLinks.find(
+    (link) => link.uid === "politique-de-confidentialite",
+  )?.href;
 
   return (
     <footer className={surface}>
@@ -41,6 +56,31 @@ export function SiteFooter({ locale }: { locale: Locale }) {
           © {new Date().getFullYear()} {site.name}. {footerLegal}
         </p>
       </div>
+
+      {/* The obligatory row (SWBE-34). Reachable from every page, which is the whole
+          point of it living in the footer: LCEN and the RGPD both ask for the notice to
+          be permanently available, not filed somewhere a reader has to hunt for.
+          `border-current` picks up whichever ink the surface chose. */}
+      <nav aria-label={t("legalNav")} className="border-t border-current/20 px-5 py-6 md:px-8">
+        <ul className="flex flex-col items-center gap-3 text-sm md:flex-row md:flex-wrap md:justify-center md:gap-x-8 md:gap-y-2">
+          {legalLinks.map((link) => (
+            <li key={link.uid}>
+              <Link href={link.href} className="underline underline-offset-4">
+                {link.label}
+              </Link>
+            </li>
+          ))}
+          {privacyHref && (
+            <li>
+              <CookieSettingsButton
+                locale={locale}
+                privacyHref={privacyHref}
+                className="underline underline-offset-4"
+              />
+            </li>
+          )}
+        </ul>
+      </nav>
     </footer>
   );
 }

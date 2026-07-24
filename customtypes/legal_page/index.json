@@ -1,0 +1,53 @@
+{
+  "id": "legal_page",
+  "label": "Page légale",
+  "repeatable": true,
+  "status": true,
+  "format": "page",
+  "json": {
+    "Principal": {
+      "uid": {
+        "type": "UID",
+        "config": {
+          "label": "UID",
+          "placeholder": "mentions-legales"
+        }
+      },
+      "title": {
+        "type": "Text",
+        "config": {
+          "label": "Titre",
+          "placeholder": "Mentions legales"
+        }
+      },
+      "updated_at": {
+        "type": "Date",
+        "config": {
+          "label": "Derniere mise a jour"
+        }
+      },
+      "body": {
+        "type": "StructuredText",
+        "config": {
+          "label": "Corps de texte",
+          "multi": "paragraph,heading2,heading3,strong,em,hyperlink,list-item,o-list-item",
+          "placeholder": "Le texte legal, en francais courant"
+        }
+      }
+    },
+    "SEO": {
+      "meta_title": {
+        "type": "Text",
+        "config": {
+          "label": "Titre meta (optionnel, defaut : le titre)"
+        }
+      },
+      "meta_description": {
+        "type": "Text",
+        "config": {
+          "label": "Description meta"
+        }
+      }
+    }
+  }
+}
