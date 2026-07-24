@@ -247,7 +247,7 @@ const fr: LocaleContent = {
       copiedToast: "Lien copié dans le presse-papiers.",
       failedToast: "Impossible de partager pour le moment.",
     },
-    counter: { one: "logo maltraité", other: "logos maltraités" },
+    counter: { one: "partie jouée", other: "parties jouées" },
     challengeUnlockedLead: "Défi secret débloqué :",
     badges: {
       lumiere: {
@@ -380,7 +380,7 @@ const en: LocaleContent = {
       copiedToast: "Link copied to your clipboard.",
       failedToast: "Couldn't share this right now.",
     },
-    counter: { one: "logo mistreated", other: "logos mistreated" },
+    counter: { one: "play", other: "plays" },
     challengeUnlockedLead: "Secret challenge unlocked:",
     badges: {
       lumiere: {

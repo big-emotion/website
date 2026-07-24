@@ -91,15 +91,25 @@ export function CardPreview({
     );
   }
 
+  // They cross-fade rather than stack: the flat lockup and the chrome one are the same
+  // mark, so showing both at once reads as a doubled logo, not as a preview.
+  const playing = ready && active;
+
   return (
     <div className="relative h-full w-full" onPointerMove={trackPointer}>
-      {children}
+      <div
+        className={`h-full w-full transition-opacity duration-300 motion-reduce:transition-none ${
+          playing ? "opacity-0" : "opacity-100"
+        }`}
+      >
+        {children}
+      </div>
       <div
         ref={stageRef}
         data-testid="card-preview-stage"
         aria-hidden="true"
         className={`absolute inset-0 transition-opacity duration-300 motion-reduce:transition-none ${
-          ready && active ? "opacity-100" : "opacity-0"
+          playing ? "opacity-100" : "opacity-0"
         }`}
       />
     </div>

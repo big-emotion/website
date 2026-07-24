@@ -27,8 +27,11 @@ export type CardPreview = {
   dispose: () => void;
 };
 
-/** Framing: a touch further back than the hero's, so the mark clears the card's edges. */
-const PREVIEW_CAMERA_DISTANCE = 3.1;
+// A card is a fraction of the viewport, so the hero's framing would leave the mark a
+// thumbnail inside it. These bring it up to roughly the width the flat lockup occupies
+// underneath, so the cross-fade swaps one for the other rather than shrinking it.
+const PREVIEW_CAMERA_DISTANCE = 1.9;
+const PREVIEW_MARK_SCALE = 1.25;
 /** How fast the mark eases towards the pointer, and back to face-on when it leaves. */
 const ORIENT_SMOOTHING_PER_S = 7;
 /** Peak outward displacement of the burst, in the rig's unit space. */
@@ -117,6 +120,7 @@ export async function createCardPreview(
   });
 
   const spin = new THREE.Group();
+  spin.scale.setScalar(PREVIEW_MARK_SCALE);
   spin.add(mark);
   scene.add(spin);
 

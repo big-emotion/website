@@ -1,5 +1,5 @@
 // Client-side batcher for the Playground collective counter (SWBE-216/REQ-042):
-// coalesces local "logo maltraité" events into one POST per flush window instead of
+// coalesces local play events into one POST per flush window instead of
 // one per interaction, so a rapid burst of taps produces a single request. A failed
 // or slow request never blocks or errors the playground UI — it's a nice-to-have
 // aggregate, not part of the effect itself.

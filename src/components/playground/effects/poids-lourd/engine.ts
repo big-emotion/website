@@ -109,7 +109,11 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
   }
 
   function onWheel(event: WheelEvent) {
-    // The gesture belongs to the stage, so the page must not scroll underneath it.
+    // The wheel only dollies while a button is held — while the visitor is grabbing the
+    // logo or holding the slow-motion button. Taking it unconditionally is what trapped
+    // the page: the stage fills most of the viewport, so a preventDefault on every wheel
+    // event left no way to scroll back up to the header.
+    if (!held && !slowMotion) return;
     event.preventDefault();
     cameraDistance = clampCameraDistance(cameraDistance + event.deltaY * DOLLY_SENSITIVITY);
     applyCameraDistance();

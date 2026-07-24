@@ -1,6 +1,8 @@
 "use client";
 
-import { Suspense, type ReactNode } from "react";
+import { Suspense, useEffect, type ReactNode } from "react";
+import { countPlays } from "./count-plays";
+import { playgroundCounter } from "./counter-client";
 import type { PlaygroundEffect } from "./effects";
 
 /**
@@ -12,6 +14,11 @@ import type { PlaygroundEffect } from "./effects";
  */
 export function EffectStage({ effect, fallback }: { effect: PlaygroundEffect; fallback: ReactNode }) {
   const Effect = effect.component;
+
+  // The stage is the one client boundary that exists for exactly as long as an effect is
+  // being played, which makes it the right place to subscribe the collective counter to
+  // the interactions that effect reports.
+  useEffect(() => countPlays(playgroundCounter), []);
 
   return (
     <Suspense fallback={fallback}>

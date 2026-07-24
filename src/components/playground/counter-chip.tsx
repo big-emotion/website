@@ -10,7 +10,7 @@ type CounterCopy = { one: string; other: string };
 
 /**
  * The Playground's collective counter (SWBE-216/REQ-042): the global total across every
- * visitor, e.g. "12 431 logos maltraités". Renders nothing until the first fetch settles
+ * visitor, e.g. "12 431 parties jouees". Renders nothing until the first fetch settles
  * — a failed or slow request never blocks or errors the page, it just leaves the chip
  * absent. Updates live when `counter-client.ts` reports a fresh total after this
  * visitor's own increment, without polling.

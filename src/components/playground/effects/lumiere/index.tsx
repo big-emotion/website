@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { Logo } from "@/components/logo";
 import { CAMERA } from "@/components/scene/states";
 import { buildStudioEnvironment, loadStudioRig } from "@/components/scene/studio-rig";
+import { reportInteraction } from "@/components/playground/report-interaction";
 import { applyDamping } from "./damping";
 import { clampDolly, DOLLY_DEFAULT } from "./zoom-clamp";
 import { INITIAL_ALIGNMENT_STATE, updateAlignment, type AlignmentState } from "./alignment-detector";
@@ -16,6 +17,7 @@ const DRAG_SENSITIVITY = 0.006;
 const DAMPING_HALF_LIFE = 0.35;
 const VELOCITY_EPSILON = 0.0005;
 const ZOOM_SENSITIVITY = 0.0025;
+const EFFECT_ID = "lumiere";
 
 // Matches the key light rigged in studio-rig.ts / scene-canvas.tsx, so the alignment
 // detector reads the same light the visitor actually sees streak across the chrome.
@@ -94,6 +96,9 @@ export default function Lumiere() {
     const drag = { active: false, lastX: 0, lastY: 0 };
     const velocity = { yaw: 0, pitch: 0 };
     let alignmentState: AlignmentState = INITIAL_ALIGNMENT_STATE;
+    // One play here is one full turn of the mark, drag and momentum together — LUMIERE
+    // has no discrete gesture like a throw or a blast to count instead.
+    let turnedRadians = 0;
 
     const onPointerDown = (e: PointerEvent) => {
       drag.active = true;
@@ -110,7 +115,15 @@ export default function Lumiere() {
       velocity.pitch = dy * DRAG_SENSITIVITY;
       spin.rotation.y += velocity.yaw;
       spin.rotation.x += velocity.pitch;
+      countTurn(velocity.yaw);
     };
+
+    function countTurn(deltaYaw: number) {
+      turnedRadians += Math.abs(deltaYaw);
+      if (turnedRadians < Math.PI * 2) return;
+      turnedRadians -= Math.PI * 2;
+      reportInteraction(EFFECT_ID, "spin");
+    }
     const onPointerUp = () => {
       drag.active = false;
     };
@@ -123,7 +136,11 @@ export default function Lumiere() {
       window.removeEventListener("pointerup", onPointerUp);
     });
 
+    // The wheel only dollies while the visitor is actually holding the mark. Taking it
+    // unconditionally is what trapped the page: the stage fills the viewport, so a
+    // preventDefault here left no way to scroll back up to the header.
     const onWheel = (e: WheelEvent) => {
+      if (!drag.active) return;
       e.preventDefault();
       camera.position.z = clampDolly(camera.position.z + e.deltaY * ZOOM_SENSITIVITY);
     };
@@ -146,7 +163,10 @@ export default function Lumiere() {
       if (!drag.active) {
         velocity.yaw = applyDamping(velocity.yaw, dt, DAMPING_HALF_LIFE);
         velocity.pitch = applyDamping(velocity.pitch, dt, DAMPING_HALF_LIFE);
-        if (Math.abs(velocity.yaw) > VELOCITY_EPSILON) spin.rotation.y += velocity.yaw;
+        if (Math.abs(velocity.yaw) > VELOCITY_EPSILON) {
+          spin.rotation.y += velocity.yaw;
+          countTurn(velocity.yaw);
+        }
         if (Math.abs(velocity.pitch) > VELOCITY_EPSILON) spin.rotation.x += velocity.pitch;
       }
 

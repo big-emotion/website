@@ -24,7 +24,7 @@ export const copy: Record<Locale, PoidsLourdCopy> = {
   fr: {
     reset: "Relancer",
     ariaLabel: "Logo chromé à saisir, glisser et lancer contre les bords élastiques",
-    gestures: "Molette : zoom · Clic droit maintenu : ralenti",
+    gestures: "Clic maintenu + molette : zoom · Clic droit maintenu : ralenti",
     fallback:
       "Cette expérience nécessite un navigateur compatible WebGL, animations activées.",
     tilt: {
@@ -37,7 +37,7 @@ export const copy: Record<Locale, PoidsLourdCopy> = {
   en: {
     reset: "Reset",
     ariaLabel: "Chrome logo to grab, drag and throw against the elastic walls",
-    gestures: "Wheel: zoom · Hold right-click: slow motion",
+    gestures: "Hold click + wheel: zoom · Hold right-click: slow motion",
     fallback: "This experience needs a WebGL-capable browser with animations enabled.",
     tilt: {
       title: "Tilt to play",

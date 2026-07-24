@@ -13,8 +13,8 @@ export const MAX_PITCH_RADIANS = 0.32;
 
 /** Where the mark floats at rest, and the floor it lands on — the preview box is short,
  *  so the whole fall is well under one world unit. */
-export const DROP_REST_HEIGHT = 0.34;
-export const DROP_FLOOR = -0.24;
+export const DROP_REST_HEIGHT = 0.26;
+export const DROP_FLOOR = -0.22;
 
 const DROP_GRAVITY = 3.4;
 const DROP_RESTITUTION = 0.42;
