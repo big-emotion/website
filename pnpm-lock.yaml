@@ -54,6 +54,15 @@ importers:
       '@fontsource-variable/bricolage-grotesque':
         specifier: ^5.2.10
         version: 5.2.10
+      '@fontsource/bbh-sans-bartle':
+        specifier: ^5.3.0
+        version: 5.3.0
+      '@fontsource/bbh-sans-bogle':
+        specifier: ^5.3.0
+        version: 5.3.0
+      '@fontsource/bbh-sans-hegarty':
+        specifier: ^5.3.0
+        version: 5.3.0
       '@slicemachine/adapter-next':
         specifier: ^0.3.96
         version: 0.3.97(next@16.2.9(@babel/core@7.29.7)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)
@@ -1113,6 +1122,15 @@ packages:
 
   '@fontsource-variable/bricolage-grotesque@5.2.10':
     resolution: {integrity: sha512-5EDsCqgGpKVcJWE4sg9ydli+t5WM97mISYw5lla/Ev4z71FwXh1oN0YUU8xjkRW9+wBCGD9R+ntAvI8G4bUFJg==}
+
+  '@fontsource/bbh-sans-bartle@5.3.0':
+    resolution: {integrity: sha512-T5JmXQPFtsblq490WsAKE1zKp6kb/mAu/ACZa7wMq03AYIPHL+zG6scEXvuE1AOwp3rAkcTZABa0DF3CiIE5Hw==}
+
+  '@fontsource/bbh-sans-bogle@5.3.0':
+    resolution: {integrity: sha512-pKyH2MFYb0LFyy3VfpM1RkU7lx8SFIoNI1jq/Ff6zfQu4S6Rfyu6hVYfZno0n7BJi76G7KGEYqjxT8Im8xKTwA==}
+
+  '@fontsource/bbh-sans-hegarty@5.3.0':
+    resolution: {integrity: sha512-3yUCIGNZVAIuXLdFrsrLxC5y2J5HMkWwk1qyNJmRcSIREEp7Eo3kbBc7WqpoG6RbkT8XyXN6qPHxzgns8mVV+Q==}
 
   '@formatjs/fast-memoize@3.1.7':
     resolution: {integrity: sha512-zXfhLpvA6T7+efdt9JLbBwZ00tT7NsBMDVnDu8rpHeNNv8KfRZAMo2gkG0k9lK/Nzc//3kJ9pImsfuJxk3KhUA==}
@@ -7413,6 +7431,12 @@ snapshots:
   '@fontsource-variable/archivo@5.2.8': {}
 
   '@fontsource-variable/bricolage-grotesque@5.2.10': {}
+
+  '@fontsource/bbh-sans-bartle@5.3.0': {}
+
+  '@fontsource/bbh-sans-bogle@5.3.0': {}
+
+  '@fontsource/bbh-sans-hegarty@5.3.0': {}
 
   '@formatjs/fast-memoize@3.1.7': {}
 

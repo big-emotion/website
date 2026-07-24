@@ -22,7 +22,7 @@ describe("ZoomControls", () => {
   it("names the trackpad and wheel gestures, so they stop being guesswork", () => {
     render(<ZoomControls locale="fr" onZoom={vi.fn()} />);
 
-    expect(screen.getByText(/pincez/i)).toBeInTheDocument();
+    expect(screen.getByText(/pince le trackpad/i)).toBeInTheDocument();
     expect(screen.getByText(/ctrl/i)).toBeInTheDocument();
   });
 

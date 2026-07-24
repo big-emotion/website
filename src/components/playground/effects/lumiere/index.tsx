@@ -9,8 +9,9 @@ import { CAMERA } from "@/components/scene/states";
 import { buildStudioEnvironment, loadStudioRig } from "@/components/scene/studio-rig";
 import { reportInteraction } from "@/components/playground/report-interaction";
 import { ZoomControls, type ZoomDirection } from "@/components/playground/zoom-controls";
+import { scrubFraming } from "@/components/playground/camera-framing";
 import { applyDamping } from "./damping";
-import { clampDolly, DOLLY_DEFAULT, stepDolly } from "./zoom-clamp";
+import { clampDolly, dollyFraming, DOLLY_DEFAULT, stepDolly } from "./zoom-clamp";
 import {
   INITIAL_ALIGNMENT_STATE,
   updateAlignment,
@@ -23,11 +24,14 @@ import {
 const DRAG_SENSITIVITY = 0.006;
 const DAMPING_HALF_LIFE = 0.35;
 const VELOCITY_EPSILON = 0.0005;
-const ZOOM_SENSITIVITY = 0.0025;
+// Both feed `scrubFraming`, which multiplies rather than adds, so these are worth a
+// share of the current framing per unit of deltaY: one wheel notch (~100) is about a
+// tenth closer or further, wherever on the range it lands.
+const ZOOM_SENSITIVITY = 0.0009;
 // A trackpad pinch reaches the page as a wheel event too, but with deltas an order of
 // magnitude smaller than a wheel notch — at the wheel's own sensitivity a full pinch
 // would barely shift the framing.
-const PINCH_SENSITIVITY = 0.02;
+const PINCH_SENSITIVITY = 0.0074;
 const EFFECT_ID = "lumiere";
 
 // Matches the key light rigged in studio-rig.ts / scene-canvas.tsx, so the alignment
@@ -68,7 +72,16 @@ export default function Lumiere() {
       CAMERA.near,
       CAMERA.far,
     );
-    camera.position.set(0, 0, DOLLY_DEFAULT);
+    // The framing a visitor zooms, which is only the camera's own position while it is
+    // above the body floor — past that the lens carries it and the camera holds still.
+    let dolly: number = DOLLY_DEFAULT;
+    const applyDolly = () => {
+      const framing = dollyFraming(dolly);
+      camera.position.set(0, 0, framing.distance);
+      camera.fov = framing.fov;
+      camera.updateProjectionMatrix();
+    };
+    applyDolly();
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
@@ -165,13 +178,15 @@ export default function Lumiere() {
       if (!drag.active && !pinching) return;
       e.preventDefault();
       const sensitivity = pinching ? PINCH_SENSITIVITY : ZOOM_SENSITIVITY;
-      camera.position.z = clampDolly(camera.position.z + e.deltaY * sensitivity);
+      dolly = clampDolly(scrubFraming(dolly, e.deltaY, sensitivity));
+      applyDolly();
     };
     renderer.domElement.addEventListener("wheel", onWheel, { passive: false });
     cleanupFns.push(() => renderer.domElement.removeEventListener("wheel", onWheel));
 
     dollyRef.current = (direction) => {
-      camera.position.z = stepDolly(camera.position.z, direction);
+      dolly = stepDolly(dolly, direction);
+      applyDolly();
     };
     cleanupFns.push(() => {
       dollyRef.current = () => {};

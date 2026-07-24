@@ -1,3 +1,9 @@
+import {
+  resolveFraming,
+  stepFraming,
+  type CameraFraming,
+} from "@/components/playground/camera-framing";
+import type { ZoomDirection } from "@/components/playground/zoom-controls";
 import { CAMERA } from "@/components/scene/states";
 
 // The wordmark's size once `loadStudioRig` has centred it and divided it down so its
@@ -8,25 +14,30 @@ import { CAMERA } from "@/components/scene/states";
 export const WORDMARK_HEIGHT = 0.552;
 export const WORDMARK_RADIUS = 0.613;
 
-// Dolly-zoom bounds for LUMIERE's inspection camera: same starting framing as the
-// home hero (REQ-041's "home-identical chrome"), clamped so a visitor can zoom in to
-// read the glint detail but never dolly through the mesh or lose it in the distance.
-// DOLLY_MIN brings the wordmark to ~80% of the frame height; the hard floor is
-// WORDMARK_RADIUS + CAMERA.near (~0.71), below which a corner swung towards the
-// camera by a drag would clip through the near plane mid-spin.
+// Framing bounds for LUMIERE's inspection camera: it opens on the home hero's own
+// framing (REQ-041's "home-identical chrome"), pulls back to hold the whole mark, and
+// closes in far enough that the glint is inspected rather than glanced at.
 export const DOLLY_DEFAULT = CAMERA.distance;
-export const DOLLY_MIN = 0.9;
+export const DOLLY_MIN = 0.3;
 export const DOLLY_MAX = 4.5;
 
-/** How far one press of the on-screen zoom control travels. Eight presses cross the whole
- *  DOLLY_MIN..DOLLY_MAX range, which is the point: the buttons are the only zoom a
- *  trackpad or a touchscreen has, so they cannot be the slow path. */
-export const DOLLY_STEP = 0.45;
+// Where the camera body stops travelling and the lens takes over (see `resolveFraming`).
+// This is the framing that puts the wordmark at ~80% of the frame height, and it clears
+// the hard floor of WORDMARK_RADIUS + CAMERA.near (~0.71) below which a corner swung
+// towards the camera by a drag would slice through the near plane mid-spin. Every
+// framing tighter than this one is carried by the lens, which is what lets the closest
+// framing magnify three times further without the camera moving an inch.
+export const DOLLY_BODY_FLOOR = 0.9;
 
-export function clampDolly(distance: number): number {
-  return Math.min(DOLLY_MAX, Math.max(DOLLY_MIN, distance));
+export function clampDolly(framing: number): number {
+  return Math.min(DOLLY_MAX, Math.max(DOLLY_MIN, framing));
 }
 
-export function stepDolly(distance: number, direction: "in" | "out"): number {
-  return clampDolly(distance + (direction === "in" ? -DOLLY_STEP : DOLLY_STEP));
+export function stepDolly(framing: number, direction: ZoomDirection): number {
+  return clampDolly(stepFraming(framing, direction));
+}
+
+/** Where to put the camera, and how wide to open it, for a given framing. */
+export function dollyFraming(framing: number): CameraFraming {
+  return resolveFraming(clampDolly(framing), DOLLY_BODY_FLOOR);
 }

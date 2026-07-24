@@ -9,10 +9,14 @@ import * as THREE from "three";
 import { CAMERA } from "@/components/scene/states";
 import { buildStudioEnvironment, loadStudioRig } from "@/components/scene/studio-rig";
 import {
+  BODY_RADIUS,
   CAMERA_DISTANCE_DEFAULT,
+  cameraFraming,
   clampCameraDistance,
   frameDelta,
   stepCameraDistance,
+  visibleHalfHeight,
+  wallHalfExtent,
   isAtRest,
   isThrow,
   reflectOffWalls,
@@ -23,6 +27,7 @@ import {
   type PointerSample,
   type Vec2,
 } from "./physics";
+import { scrubFraming } from "@/components/playground/camera-framing";
 import { reportInteraction } from "@/components/playground/report-interaction";
 import type { ZoomDirection } from "@/components/playground/zoom-controls";
 
@@ -46,28 +51,28 @@ export type PoidsLourdEngine = {
 };
 
 const GRAVITY = -9.8;
-const RADIUS = 0.5;
 const RESTITUTION = 0.65;
 const REST_SPEED = 0.05;
 const THROW_SPEED = 1.5;
 const TORQUE_DAMPING = 0.8;
 const SAMPLE_HISTORY_MS = 200;
-// The shared studio rig's field of view (PG-26) — the toy had its own 50°, which framed
-// the same logo smaller than the home hero and the two other effects do.
-const FOV_DEGREES = CAMERA.fov;
-// One notch of the wheel is ~100 deltaY, so this dollies about a third of a world unit
-// per notch: enough to feel immediate, gentle enough to land on a framing you meant.
-const DOLLY_SENSITIVITY = 0.003;
+// Both feed `scrubFraming`, which multiplies rather than adds, so these are worth a
+// share of the current framing per unit of deltaY: one wheel notch (~100) is about a
+// tenth closer or further, wherever on the range it lands.
+const DOLLY_SENSITIVITY = 0.00095;
 // A trackpad pinch reaches the page as a wheel event too, but with deltas an order of
 // magnitude smaller than a wheel notch — at the wheel's own sensitivity a full pinch
 // would barely shift the framing.
-const PINCH_SENSITIVITY = 0.024;
+const PINCH_SENSITIVITY = 0.0076;
 
-// The walls are the viewport edges, so they move with the camera — every dolly has to
-// recompute them or the logo would bounce off nothing, or off the frame's outside.
-function computeBounds(aspect: number, cameraDistance: number): Bounds {
-  const halfHeight = cameraDistance * Math.tan((FOV_DEGREES * Math.PI) / 360);
-  const halfWidth = halfHeight * aspect;
+// The walls are the viewport edges, so they move with the camera — every zoom has to
+// recompute them or the logo would bounce off nothing, or off the frame's outside. Both
+// axes go through `wallHalfExtent`, which is what stops them closing inside the toy once
+// the frame is tighter than the toy itself (portrait phones reach that on width first).
+function computeBounds(aspect: number, framing: number): Bounds {
+  const frameHalfHeight = visibleHalfHeight(framing);
+  const halfHeight = wallHalfExtent(frameHalfHeight);
+  const halfWidth = wallHalfExtent(frameHalfHeight * aspect);
   return { minX: -halfWidth, maxX: halfWidth, minY: -halfHeight, maxY: halfHeight };
 }
 
@@ -79,8 +84,10 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
   let camera: THREE.PerspectiveCamera | null = null;
   let container: HTMLElement | null = null;
   let body: THREE.Group | null = null;
-  let cameraDistance = CAMERA_DISTANCE_DEFAULT;
-  let bounds = computeBounds(1, cameraDistance);
+  // The framing a visitor zooms, which is only the camera's own distance while it is
+  // above the body floor — past that the lens carries it and the camera holds still.
+  let framing: number = CAMERA_DISTANCE_DEFAULT;
+  let bounds = computeBounds(1, framing);
   let slowMotion = false;
 
   let position: Vec2 = { x: 0, y: 0 };
@@ -128,19 +135,22 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
     if (!held && !slowMotion && !pinching) return;
     event.preventDefault();
     const sensitivity = pinching ? PINCH_SENSITIVITY : DOLLY_SENSITIVITY;
-    cameraDistance = clampCameraDistance(cameraDistance + event.deltaY * sensitivity);
-    applyCameraDistance();
+    framing = clampCameraDistance(scrubFraming(framing, event.deltaY, sensitivity));
+    applyFraming();
   }
 
   function onContextMenu(event: MouseEvent) {
     event.preventDefault();
   }
 
-  function applyCameraDistance() {
+  function applyFraming() {
     if (!camera || !container) return;
-    camera.position.z = cameraDistance;
+    const resolved = cameraFraming(framing);
+    camera.position.z = resolved.distance;
+    camera.fov = resolved.fov;
+    camera.updateProjectionMatrix();
     const rect = container.getBoundingClientRect();
-    bounds = computeBounds(rect.width / rect.height || 1, cameraDistance);
+    bounds = computeBounds(rect.width / rect.height || 1, framing);
   }
 
   function onPointerMove(event: PointerEvent) {
@@ -171,7 +181,7 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
     if (!container || !renderer || !camera) return;
     const rect = container.getBoundingClientRect();
     const aspect = rect.width / rect.height || 1;
-    bounds = computeBounds(aspect, cameraDistance);
+    bounds = computeBounds(aspect, framing);
     camera.aspect = aspect;
     camera.updateProjectionMatrix();
     renderer.setSize(rect.width, rect.height);
@@ -193,7 +203,7 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
         stepped.position,
         stepped.velocity,
         bounds,
-        RADIUS,
+        BODY_RADIUS,
         RESTITUTION,
       );
       position = reflected.position;
@@ -220,10 +230,10 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
       const scene = new THREE.Scene();
       const rect = el.getBoundingClientRect();
       const aspect = rect.width / rect.height || 1;
-      bounds = computeBounds(aspect, cameraDistance);
+      bounds = computeBounds(aspect, framing);
 
-      camera = new THREE.PerspectiveCamera(FOV_DEGREES, aspect, CAMERA.near, CAMERA.far);
-      camera.position.set(0, 0, cameraDistance);
+      camera = new THREE.PerspectiveCamera(CAMERA.fov, aspect, CAMERA.near, CAMERA.far);
+      applyFraming();
 
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setSize(rect.width, rect.height);
@@ -300,15 +310,15 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
       history = [];
       // The framing is part of the state a visitor can get lost in, so relaunching
       // restores it too rather than leaving them zoomed inside the mesh.
-      cameraDistance = CAMERA_DISTANCE_DEFAULT;
-      applyCameraDistance();
+      framing = CAMERA_DISTANCE_DEFAULT;
+      applyFraming();
       body?.position.set(0, 0, 0);
       body?.rotation.set(0, 0, 0);
     },
 
     zoom(direction: ZoomDirection) {
-      cameraDistance = stepCameraDistance(cameraDistance, direction);
-      applyCameraDistance();
+      framing = stepCameraDistance(framing, direction);
+      applyFraming();
     },
 
     setQualityTier(tier: QualityTier) {

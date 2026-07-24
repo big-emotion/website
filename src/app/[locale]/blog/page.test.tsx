@@ -157,7 +157,7 @@ describe("/blog", () => {
 
     await renderPage("fr");
 
-    expect(screen.getByText("Aucun article pour le moment. Revenez bientôt.")).toBeInTheDocument();
+    expect(screen.getByText("Aucun article pour le moment. Reviens bientôt.")).toBeInTheDocument();
   });
 
   it("does not leak one locale's articles into the other", async () => {
