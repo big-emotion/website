@@ -1,10 +1,8 @@
 import type { Content } from "@prismicio/client";
 import { asText } from "@prismicio/client";
 import { ClientWall } from "@/components/client-wall";
-import { HEADING_LINK } from "@/components/heading-link";
 import { content } from "@/content/site";
 import type { Locale } from "@/i18n/locales";
-import { Link } from "@/i18n/navigation";
 
 // The /cases route. Its title and lead sit in the accent hero above (SWBE-22), so the
 // section opens straight onto the numbers.
@@ -53,10 +51,11 @@ export function Cases({
                   of the mission whenever the client cannot be named. */}
               {caseStudy.data.client || caseStudy.data.kind}
             </p>
+            {/* Plain heading, not a link: the card sells a sector, and the detail page
+                behind it has no client story to tell yet. `/cases/[uid]` stays routable
+                so the titles become links again the day the write-ups land. */}
             <h2 className="font-display mt-2 text-[clamp(1.6rem,7vw,4rem)] text-lemon [overflow-wrap:anywhere]">
-              <Link href={`/cases/${caseStudy.uid}`} className={HEADING_LINK}>
-                {caseStudy.data.title}
-              </Link>
+              {caseStudy.data.title}
             </h2>
             <p className="mt-4 max-w-prose text-lg leading-relaxed">
               {asText(caseStudy.data.summary)}

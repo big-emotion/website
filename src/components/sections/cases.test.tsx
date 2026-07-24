@@ -78,13 +78,14 @@ describe("Cases", () => {
     expect(screen.getByRole("heading", { name: /medias & edition/i })).toBeInTheDocument();
   });
 
-  it("opens each case study on its own page", () => {
+  // The cards name a sector the agency works in, not a written-up engagement. Until real
+  // client stories are published there is nothing behind them worth opening, and a link
+  // onto a placeholder costs more credibility than the click is worth.
+  it("leaves the sector titles unclickable while no client story is published", () => {
     renderCases();
 
-    expect(screen.getByRole("link", { name: /industrie & b2b/i })).toHaveAttribute(
-      "href",
-      "/cases/industrie",
-    );
+    expect(screen.queryByRole("link", { name: /industrie & b2b/i })).toBeNull();
+    expect(screen.queryByRole("link", { name: /medias & edition/i })).toBeNull();
   });
 
   it("renders the summary as text and the tags as a list", () => {
