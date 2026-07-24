@@ -80,6 +80,8 @@ type LocaleContent = {
     featuredLabel: string;
     /** CTA on the promoted lead article. */
     readMore: string;
+    /** Back-to-index link on an article's own page. `font-display` slot — ASCII only. */
+    back: string;
     /** Hero count chip. The number is interpolated; the noun is chosen by the count. */
     postCount: { one: string; other: string };
   };
@@ -233,6 +235,7 @@ const fr: LocaleContent = {
     byline: "Par",
     featuredLabel: "À la une",
     readMore: "Lire l’article",
+    back: "Retour au blog",
     postCount: { one: "article", other: "articles" },
   },
   playground: {
@@ -364,6 +367,7 @@ const en: LocaleContent = {
     byline: "By",
     featuredLabel: "Featured",
     readMore: "Read the article",
+    back: "Back to the blog",
     postCount: { one: "post", other: "posts" },
   },
   playground: {

@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { BackLink } from "@/components/back-link";
 import { ArticleHeader } from "@/components/blog/article-header";
 import { content, site } from "@/content/site";
 import { locales, type Locale } from "@/i18n/locales";
@@ -86,6 +87,12 @@ export default async function ArticlePage({ params }: RouteProps) {
 
   return (
     <article className="bg-lyon px-5 py-20 text-paper md:px-8 md:py-32">
+      {/* Same way out as a Playground effect page: an article is a leaf, reached from the
+          index, and the site header carries no "back" of its own. */}
+      <div className="mb-8">
+        <BackLink href="/blog" label={content[locale].blog.back} />
+      </div>
+
       <ArticleHeader
         locale={locale}
         title={title ?? ""}
