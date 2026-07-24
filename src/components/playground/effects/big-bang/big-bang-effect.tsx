@@ -1,121 +1,113 @@
 "use client";
 
-// The BIG BANG playground effect (SWBE-214, REQ-040): tap the logo, it shatters into
-// an attribute-driven Points cloud sampled off the studio-rig wordmark via
-// MeshSurfaceSampler (DEC-032), drifts, then reassembles. The registry's `lazy(() =>
-// import(...))` (see effects.ts) makes this module's default export the whole
-// dependency envelope this effect pulls in — nothing here is imported anywhere else.
+// The BIG BANG playground effect (SWBE-214, REQ-040): the home hero's chrome wordmark,
+// floating on a slow idle spin. Click it and the patch you hit blows outward and springs
+// back, throwing brand-coloured sparks from the exact point of impact — every click, and
+// several at once (see impact.ts). The registry's `lazy(() => import(...))` (effects.ts)
+// makes this module's default export the whole dependency envelope the effect pulls in.
 
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
-import { MeshSurfaceSampler } from "three/examples/jsm/math/MeshSurfaceSampler.js";
-import { loadStudioRig } from "@/components/scene/studio-rig";
+import { CAMERA } from "@/components/scene/states";
+import { buildStudioEnvironment, loadStudioRig } from "@/components/scene/studio-rig";
+import { reportInteraction } from "@/components/playground/report-interaction";
+import {
+  burstEnvelope,
+  burstParticleCount,
+  IMPACT_AMPLITUDE,
+  IMPACT_DURATION_S,
+  IMPACT_RADIUS,
+  MAX_CONCURRENT_IMPACTS,
+  nextImpactSlot,
+} from "./impact";
 import {
   createWatchdogState,
   recordFrame,
   selectInitialTier,
-  TIER_PARTICLE_COUNT,
   type WatchdogState,
 } from "./tier";
-import { BIG_BANG_FRAGMENT_SHADER, BIG_BANG_VERTEX_SHADER } from "./shaders";
+import {
+  CHROME_IMPACT_CHUNKS,
+  DEBRIS_FRAGMENT_SHADER,
+  DEBRIS_VERTEX_SHADER,
+} from "./shaders";
 
-const MAX_PARTICLES = TIER_PARTICLE_COUNT.T2;
-const EXPLODE_DISTANCE = 0.9; // world units the far edge of the shatter reaches
-const EXPLODE_DURATION_S = 1.1;
-const REASSEMBLE_DELAY_S = 0.9; // hold fully-exploded before drifting back
-const REASSEMBLE_DURATION_S = 1.5;
-const POINT_SIZE = 4;
-const CAMERA = { fov: 42, near: 0.1, far: 100, distance: 2.6 } as const;
+const EFFECT_ID = "big-bang";
+// Idle motion is a slow sway, not a full turn: a continuous spin shows the back of the
+// wordmark half the time, and the mark has to stay readable while you aim at it.
+const IDLE_SWAY_RADIANS = 0.45;
+const IDLE_SWAY_RAD_PER_S = 0.35;
+// The burst has to stay legible as damage to the spot you hit. Sparks reaching much
+// past the impact radius, or drawn much larger than this, curtain the wordmark instead
+// of scarring it — which is the failure the whole rewrite is undoing.
+/** How far the furthest spark travels, in the same unit space as IMPACT_RADIUS. */
+const DEBRIS_SPREAD = 0.3;
+/** On-screen spark size at one world unit from the camera, in pixels. */
+const DEBRIS_POINT_SIZE = 9;
 
-type Phase = "assembled" | "exploding" | "holding" | "reassembling";
+// Brand tokens, as the sparks' palette (globals.css). Kept as literals because a shader
+// attribute needs numbers, not CSS custom properties.
+const SPARK_COLORS = [0xf2ff26, 0xff5200, 0xffffff] as const;
 
-/** Samples the wordmark's meshes into one flat particle buffer at the top tier's
- *  budget; lower tiers render a prefix of it via `geometry.setDrawRange` instead of
- *  reallocating, so a live tier change is just a draw-range write. Positions and
- *  target (exploded) offsets are baked in mesh world space since `holder` is never
- *  added to the scene — the Points object that owns this geometry is, at identity
- *  transform, so "holder world space" and "points local space" coincide. */
-function buildParticleGeometry(holder: THREE.Group): THREE.BufferGeometry {
-  holder.updateMatrixWorld(true);
-
-  const meshes: THREE.Mesh[] = [];
-  holder.traverse((object) => {
-    const mesh = object as THREE.Mesh;
-    if (mesh.isMesh) meshes.push(mesh);
-  });
-
-  const perMesh = Math.max(1, Math.floor(MAX_PARTICLES / Math.max(1, meshes.length)));
-  const positions = new Float32Array(MAX_PARTICLES * 3);
-  const targets = new Float32Array(MAX_PARTICLES * 3);
-  const delays = new Float32Array(MAX_PARTICLES);
-
-  const tempPosition = new THREE.Vector3();
-  const tempNormal = new THREE.Vector3();
-  let cursor = 0;
-
-  for (const mesh of meshes) {
-    if (cursor >= MAX_PARTICLES) break;
-    const sampler = new MeshSurfaceSampler(mesh).build();
-    const count = Math.min(perMesh, MAX_PARTICLES - cursor);
-
-    for (let i = 0; i < count; i += 1) {
-      sampler.sample(tempPosition, tempNormal);
-      tempPosition.applyMatrix4(mesh.matrixWorld);
-      tempNormal.transformDirection(mesh.matrixWorld);
-
-      const index = cursor + i;
-      positions[index * 3] = tempPosition.x;
-      positions[index * 3 + 1] = tempPosition.y;
-      positions[index * 3 + 2] = tempPosition.z;
-
-      const distance = EXPLODE_DISTANCE * (0.4 + Math.random() * 0.6);
-      targets[index * 3] = tempPosition.x + tempNormal.x * distance + (Math.random() - 0.5) * 0.2;
-      targets[index * 3 + 1] = tempPosition.y + tempNormal.y * distance + (Math.random() - 0.5) * 0.2;
-      targets[index * 3 + 2] = tempPosition.z + tempNormal.z * distance + (Math.random() - 0.5) * 0.2;
-
-      // Baseline stagger before any tap has happened; applyImpactStagger overwrites
-      // this once the visitor actually triggers an explosion from a real point.
-      delays[index] = Math.random() * 0.6;
-    }
-    cursor += count;
-  }
-
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-  geometry.setAttribute("aTarget", new THREE.BufferAttribute(targets, 3));
-  geometry.setAttribute("aDelay", new THREE.BufferAttribute(delays, 1));
-  geometry.setDrawRange(0, MAX_PARTICLES);
-  return geometry;
-}
-
-/** Recomputes aDelay so particles nearest the tap's impact point lead the shockwave
- *  outward, instead of every particle exploding on the same beat. */
-function applyImpactStagger(geometry: THREE.BufferGeometry, impact: THREE.Vector3) {
-  const positionAttr = geometry.getAttribute("position") as THREE.BufferAttribute;
-  const delayAttr = geometry.getAttribute("aDelay") as THREE.BufferAttribute;
-  const point = new THREE.Vector3();
-
-  let maxDistance = 0;
-  for (let i = 0; i < positionAttr.count; i += 1) {
-    point.fromBufferAttribute(positionAttr, i);
-    maxDistance = Math.max(maxDistance, point.distanceTo(impact));
-  }
-
-  for (let i = 0; i < positionAttr.count; i += 1) {
-    point.fromBufferAttribute(positionAttr, i);
-    const normalized = maxDistance > 0 ? point.distanceTo(impact) / maxDistance : 0;
-    delayAttr.setX(i, normalized * 0.55 + Math.random() * 0.1);
-  }
-  delayAttr.needsUpdate = true;
-}
-
-function easeInOut(t: number): number {
-  return t * t * (3 - 2 * t);
-}
+const MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
 function supportsWebgl(): boolean {
   const probe = document.createElement("canvas");
   return !!(probe.getContext("webgl") || probe.getContext("webgl2"));
+}
+
+/** One burst: a Points cloud whose particles all leave from wherever it is parked. */
+function createDebrisBurst(particleCount: number) {
+  const positions = new Float32Array(particleCount * 3); // all at the burst's own origin
+  const directions = new Float32Array(particleCount * 3);
+  const speeds = new Float32Array(particleCount);
+  const colors = new Float32Array(particleCount * 3);
+  const color = new THREE.Color();
+
+  for (let i = 0; i < particleCount; i += 1) {
+    // Uniform on the sphere: sampling angles independently would bunch the sparks at
+    // the poles and leave a visible seam around the equator.
+    const theta = Math.random() * Math.PI * 2;
+    const z = Math.random() * 2 - 1;
+    const radial = Math.sqrt(1 - z * z);
+    directions[i * 3] = radial * Math.cos(theta);
+    directions[i * 3 + 1] = radial * Math.sin(theta);
+    directions[i * 3 + 2] = z;
+
+    speeds[i] = 0.35 + Math.random() * 0.65;
+
+    color.setHex(SPARK_COLORS[i % SPARK_COLORS.length]);
+    colors[i * 3] = color.r;
+    colors[i * 3 + 1] = color.g;
+    colors[i * 3 + 2] = color.b;
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  geometry.setAttribute("aDirection", new THREE.BufferAttribute(directions, 3));
+  geometry.setAttribute("aSpeed", new THREE.BufferAttribute(speeds, 1));
+  geometry.setAttribute("aColor", new THREE.BufferAttribute(colors, 3));
+  // The cloud starts as a point, so three.js cannot infer a useful bounding sphere from
+  // the positions alone — without this it culls the whole burst on the first frame.
+  geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(), DEBRIS_SPREAD);
+
+  const material = new THREE.ShaderMaterial({
+    vertexShader: DEBRIS_VERTEX_SHADER,
+    fragmentShader: DEBRIS_FRAGMENT_SHADER,
+    uniforms: {
+      uProgress: { value: 1 },
+      uSpread: { value: DEBRIS_SPREAD },
+      uPointSize: { value: DEBRIS_POINT_SIZE },
+    },
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+
+  const points = new THREE.Points(geometry, material);
+  points.visible = false;
+  points.frustumCulled = false;
+  return { points, geometry, material };
 }
 
 export default function BigBangEffect() {
@@ -128,6 +120,7 @@ export default function BigBangEffect() {
 
     let disposed = false;
     const cleanupFns: Array<() => void> = [];
+    const reducedMotion = window.matchMedia(MOTION_QUERY).matches;
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
@@ -141,29 +134,30 @@ export default function BigBangEffect() {
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
     container.appendChild(renderer.domElement);
     cleanupFns.push(() => {
       renderer.dispose();
       if (container.contains(renderer.domElement)) container.removeChild(renderer.domElement);
     });
 
-    const material = new THREE.ShaderMaterial({
-      vertexShader: BIG_BANG_VERTEX_SHADER,
-      fragmentShader: BIG_BANG_FRAGMENT_SHADER,
-      uniforms: {
-        uProgress: { value: 0 },
-        uPointSize: { value: POINT_SIZE },
-        uTime: { value: 0 },
-        uColor: { value: new THREE.Color(0xffb703) }, // --color-tangerine
-      },
-      transparent: true,
-      depthWrite: false,
-    });
-    cleanupFns.push(() => material.dispose());
+    // The studio rig, verbatim from the home hero (PG-26) — environment, key, rim and
+    // hemisphere. This is what the effect was missing: without the mesh and its lighting
+    // there was no chrome logo on the page at all.
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    pmrem.compileEquirectangularShader();
+    scene.environment = pmrem.fromScene(buildStudioEnvironment(), 0.02).texture;
 
-    let points: THREE.Points | null = null;
-    let geometry: THREE.BufferGeometry | null = null;
-    cleanupFns.push(() => geometry?.dispose());
+    const key = new THREE.DirectionalLight(0xffffff, 1.6);
+    key.position.set(3, 4, 5);
+    scene.add(key);
+    const rim = new THREE.DirectionalLight(0xffffff, 1.0);
+    rim.position.set(-4, 2, -3);
+    scene.add(rim);
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x6a6f78, 0.5));
+
+    const spin = new THREE.Group();
+    scene.add(spin);
 
     let watchdog: WatchdogState = createWatchdogState(
       selectInitialTier({
@@ -173,27 +167,56 @@ export default function BigBangEffect() {
       performance.now(),
     );
 
-    const raycaster = new THREE.Raycaster();
-    raycaster.params.Points = { threshold: 0.05 };
-    const pointer = new THREE.Vector2();
+    const bursts = Array.from({ length: MAX_CONCURRENT_IMPACTS }, () =>
+      createDebrisBurst(burstParticleCount(watchdog.tier)),
+    );
+    bursts.forEach((burst) => {
+      spin.add(burst.points);
+      cleanupFns.push(() => {
+        burst.geometry.dispose();
+        burst.material.dispose();
+      });
+    });
 
-    let phase: Phase = "assembled";
-    let phaseStartS = 0;
+    // Every deformable mesh keeps its own copy of the pool, expressed in its own local
+    // space: converting once per click beats converting every vertex every frame.
+    type ImpactTarget = { mesh: THREE.Mesh; impacts: THREE.Vector4[] };
+    const targets: ImpactTarget[] = [];
+    // Backdated so every slot reads as spent before the first click.
+    const impactStartS = Array.from({ length: MAX_CONCURRENT_IMPACTS }, () => -IMPACT_DURATION_S);
+
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
     let clockS = 0;
 
     function onPointerDown(event: PointerEvent) {
-      if (!points || !geometry || (phase !== "assembled" && phase !== "reassembling")) return;
+      if (targets.length === 0) return;
 
       const rect = renderer.domElement.getBoundingClientRect();
       pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
       pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
       raycaster.setFromCamera(pointer, camera);
-      const [hit] = raycaster.intersectObject(points, false);
+      const [hit] = raycaster.intersectObjects(
+        targets.map((target) => target.mesh),
+        false,
+      );
+      // Clicking the empty stage does nothing: the explosion belongs to the logo, and
+      // firing one in mid-air would break the illusion that you struck something.
       if (!hit) return;
 
-      applyImpactStagger(geometry, hit.point);
-      phase = "exploding";
-      phaseStartS = clockS;
+      const slot = nextImpactSlot(impactStartS, clockS);
+      impactStartS[slot] = clockS;
+
+      for (const target of targets) {
+        const local = target.mesh.worldToLocal(hit.point.clone());
+        target.impacts[slot].set(local.x, local.y, local.z, 0);
+      }
+
+      const burst = bursts[slot];
+      burst.points.position.copy(spin.worldToLocal(hit.point.clone()));
+      burst.points.visible = true;
+
+      reportInteraction(EFFECT_ID, "explode");
     }
     renderer.domElement.addEventListener("pointerdown", onPointerDown);
     cleanupFns.push(() => renderer.domElement.removeEventListener("pointerdown", onPointerDown));
@@ -209,13 +232,37 @@ export default function BigBangEffect() {
     loadStudioRig(
       (holder) => {
         if (disposed) return;
-        geometry = buildParticleGeometry(holder);
-        points = new THREE.Points(geometry, material);
-        scene.add(points);
+        holder.traverse((object) => {
+          const mesh = object as THREE.Mesh;
+          if (!mesh.isMesh) return;
+
+          // Cloned so each mesh owns its uniform block: the GLB shares one material
+          // across meshes, and a shared block would put every hit point in the wrong
+          // local space for all but one of them.
+          const material = (mesh.material as THREE.MeshStandardMaterial).clone();
+          const impacts = Array.from(
+            { length: MAX_CONCURRENT_IMPACTS },
+            () => new THREE.Vector4(0, 0, 0, 0),
+          );
+
+          material.onBeforeCompile = (shader) => {
+            shader.uniforms.uImpacts = { value: impacts };
+            shader.uniforms.uImpactRadius = { value: IMPACT_RADIUS };
+            shader.uniforms.uImpactAmplitude = { value: IMPACT_AMPLITUDE };
+            shader.vertexShader = shader.vertexShader
+              .replace("#include <common>", `#include <common>\n${CHROME_IMPACT_CHUNKS.declaration}`)
+              .replace("#include <begin_vertex>", CHROME_IMPACT_CHUNKS.displacement);
+          };
+          mesh.material = material;
+          cleanupFns.push(() => material.dispose());
+          targets.push({ mesh, impacts });
+        });
+
+        spin.add(holder);
       },
       () => {
-        // Load failure: the effect stays an empty stage rather than throwing — there
-        // is nothing meaningful to shatter without the logo geometry.
+        // Load failure: the stage stays empty rather than throwing — there is nothing
+        // meaningful to break without the logo geometry.
       },
     );
 
@@ -226,29 +273,27 @@ export default function BigBangEffect() {
     function tick(nowMs: number) {
       const deltaMs = nowMs - lastFrameMs;
       lastFrameMs = nowMs;
-      clockS += deltaMs / 1000;
+      const deltaS = deltaMs / 1000;
+      clockS += deltaS;
 
       watchdog = recordFrame(watchdog, nowMs, deltaMs);
-      geometry?.setDrawRange(0, TIER_PARTICLE_COUNT[watchdog.tier]);
-
-      const elapsed = clockS - phaseStartS;
-      if (phase === "exploding") {
-        const progress = Math.min(1, elapsed / EXPLODE_DURATION_S);
-        material.uniforms.uProgress.value = easeInOut(progress);
-        if (progress >= 1) {
-          phase = "holding";
-          phaseStartS = clockS;
-        }
-      } else if (phase === "holding" && elapsed >= REASSEMBLE_DELAY_S) {
-        phase = "reassembling";
-        phaseStartS = clockS;
-      } else if (phase === "reassembling") {
-        const progress = Math.min(1, elapsed / REASSEMBLE_DURATION_S);
-        material.uniforms.uProgress.value = 1 - easeInOut(progress);
-        if (progress >= 1) phase = "assembled";
+      if (!reducedMotion) {
+        spin.rotation.y = Math.sin(clockS * IDLE_SWAY_RAD_PER_S) * IDLE_SWAY_RADIANS;
       }
 
-      material.uniforms.uTime.value = clockS;
+      for (let slot = 0; slot < MAX_CONCURRENT_IMPACTS; slot += 1) {
+        const elapsed = clockS - impactStartS[slot];
+        const strength = burstEnvelope(elapsed);
+        for (const target of targets) target.impacts[slot].w = strength;
+
+        const burst = bursts[slot];
+        if (elapsed >= IMPACT_DURATION_S) {
+          burst.points.visible = false;
+        } else {
+          burst.material.uniforms.uProgress.value = elapsed / IMPACT_DURATION_S;
+        }
+      }
+
       renderer.render(scene, camera);
     }
 
@@ -259,6 +304,10 @@ export default function BigBangEffect() {
   }, []);
 
   return (
-    <div ref={containerRef} data-testid="big-bang-stage" className="h-[70vh] w-full md:h-[80vh]" />
+    <div
+      ref={containerRef}
+      data-testid="big-bang-stage"
+      className="h-[70vh] min-h-[420px] w-full touch-none md:h-[80vh]"
+    />
   );
 }

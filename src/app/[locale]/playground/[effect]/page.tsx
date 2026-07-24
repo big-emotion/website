@@ -67,25 +67,28 @@ export default async function PlaygroundEffectPage({ params }: RouteProps) {
   const href = `${ROUTE}/${slug}`;
 
   return (
-    <article>
+    // Grey all the way down, like the gallery this page hangs off: the stage used to
+    // inherit nothing, so the chrome logo was lit against the body's paper white.
+    <article className="min-h-dvh bg-brutal text-ink">
       <EffectHud
         title={effect.title[locale]}
         backHref={ROUTE}
         shareUrl={localeUrl(locale, href)}
         copy={{ back: playground.back, share: playground.share }}
+        stage={
+          <EffectStage
+            effect={effect}
+            fallback={
+              <p role="status" aria-live="polite" className="px-5 py-20 md:px-8">
+                {playground.loading}
+              </p>
+            }
+          />
+        }
       >
         <CounterChip locale={locale} copy={playground.counter} />
         {/* Challenge badge (story 7) slots in here once that story ships. */}
       </EffectHud>
-
-      <EffectStage
-        effect={effect}
-        fallback={
-          <p role="status" aria-live="polite" className="px-5 py-20 md:px-8">
-            {playground.loading}
-          </p>
-        }
-      />
     </article>
   );
 }

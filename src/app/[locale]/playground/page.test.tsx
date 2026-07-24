@@ -29,21 +29,36 @@ describe("/playground", () => {
     );
 
     expect(screen.getByText(/espace vivant/)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "lumiere" })).toHaveAttribute(
+    // Cards are named after the effect, not its URL segment — the slug was never copy.
+    expect(screen.getByRole("link", { name: "LUMIERE" })).toHaveAttribute(
       "href",
       "/playground/lumiere",
     );
-    expect(screen.getByRole("link", { name: "poids-lourd" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Poids Lourd" })).toHaveAttribute(
       "href",
       "/playground/poids-lourd",
     );
-    expect(screen.getByRole("link", { name: "big-bang" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "BIG BANG" })).toHaveAttribute(
       "href",
       "/playground/big-bang",
     );
+    expect(screen.getByText(/murs élastiques/)).toBeInTheDocument();
     expect(
       screen.queryByText("Aucune expérience pour le moment. Revenez bientôt."),
     ).not.toBeInTheDocument();
+  });
+
+  // The gallery is a section route like /culture or /cases, so it takes the same hero
+  // band — a photo beside the stacked title, not the hand-rolled h1 it shipped with.
+  it("opens on the shared subpage hero, photo included", async () => {
+    render(
+      <NextIntlClientProvider locale="fr" messages={fr}>
+        {await PlaygroundPage({ params: Promise.resolve({ locale: "fr" }) })}
+      </NextIntlClientProvider>,
+    );
+
+    expect(screen.getByTestId("subpage-photo-frame")).toBeInTheDocument();
+    expect(screen.queryByTestId("subpage-photo-placeholder")).not.toBeInTheDocument();
   });
 });
 

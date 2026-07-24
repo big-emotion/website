@@ -8,7 +8,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import { CAMERA, computeFit, STATES, TAU } from "./states";
 import { buildStudioEnvironment, loadStudioRig } from "./studio-rig";
-import { Wordmark } from "@/components/wordmark";
+import { Logo } from "@/components/logo";
 import { content } from "@/content/site";
 import { defaultLocale, isLocale } from "@/i18n/locales";
 
@@ -255,7 +255,7 @@ export function SceneCanvas() {
           data-testid="scene-fallback"
           className="fixed inset-0 flex items-center justify-center"
         >
-          <Wordmark className="text-[18vw] leading-none opacity-90" />
+          <Logo className="w-[70vw] opacity-90" />
         </div>
       ) : (
         <div ref={containerRef} data-testid="scene-canvas" className="fixed inset-0" />
@@ -272,7 +272,7 @@ export function SceneCanvas() {
               no assistive tech ever reads it. Translate it the day the loader is exposed
               — that is also when it earns a messages/*.json key. */}
           <span className="sr-only">Loading</span>
-          <Wordmark stacked={false} className="scene-loader-mark text-[16vw]" />
+          <Logo className="scene-loader-mark w-[46vw]" />
         </div>
       )}
 

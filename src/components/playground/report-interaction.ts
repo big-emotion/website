@@ -3,7 +3,7 @@
 // dispatches a DOM event so that story's listener can subscribe without this effect
 // needing to know how, or whether, interactions end up counted.
 
-export type PlaygroundInteraction = "grab" | "throw" | "bounce";
+export type PlaygroundInteraction = "grab" | "throw" | "bounce" | "explode";
 
 export type PlaygroundInteractionDetail = {
   effectId: string;

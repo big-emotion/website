@@ -49,8 +49,11 @@ export function CounterChip({ locale, copy }: { locale: Locale; copy: CounterCop
   const noun = total === 1 ? copy.one : copy.other;
   const formatted = new Intl.NumberFormat(locale).format(total);
 
+  // The thesis-sticker vocabulary from Direction B (PG-09): lemon on ink, hard shadow,
+  // knocked off-axis. It reads the same whether it sits on the grey gallery hero or on
+  // the ink bar of an effect page, which is why it carries its own surface pair.
   return (
-    <p className="text-sm uppercase tracking-wide">
+    <p className="inline-block -rotate-[1.2deg] border-2 border-ink bg-lemon px-3 py-1 text-sm font-bold uppercase tracking-wide text-ink shadow-[3px_3px_0_var(--color-ink)]">
       {formatted} {noun}
     </p>
   );

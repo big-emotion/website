@@ -1,54 +1,98 @@
-// BIG BANG's attribute-driven Points shader (DEC-032): a single vertex/fragment pair
-// drives both destruction and rebirth off one `uProgress` uniform (0 = assembled,
-// 1 = fully exploded) — reassemble is just this same shader animated back down to 0,
-// so there is no second "reassemble" shader to keep in sync with the first.
+// BIG BANG's two shader pieces (DEC-032), both driven by the impact pool in impact.ts.
 //
-// Per-particle motion lives in vertex attributes computed once when the geometry is
-// built (see big-bang-effect.tsx): `aTarget` is where MeshSurfaceSampler's sampled
-// surface point ends up at full explode, `aDelay` staggers particles outward from the
-// tap's impact point so the shatter reads as a shockwave rather than every particle
-// moving in lockstep.
+// The effect renders the real chrome wordmark — the same GLB, rig and material as the
+// home hero (PG-26) — and deforms it locally where it was clicked. That is the whole
+// reason the first cut looked wrong: it never added the mesh to the scene at all, only a
+// flat-coloured point cloud standing in for it.
+//
+// 1. CHROME_IMPACT_CHUNKS patch the stock MeshStandardMaterial through onBeforeCompile,
+//    so the chrome keeps its PBR shading, environment map and tone mapping — only the
+//    vertex positions move.
+// 2. The debris pair draws the sparks each impact throws off.
 
-export const BIG_BANG_VERTEX_SHADER = /* glsl */ `
-  attribute vec3 aTarget;
-  attribute float aDelay;
+import { MAX_CONCURRENT_IMPACTS } from "./impact";
+
+/**
+ * Injected into MeshStandardMaterial's vertex program. `uImpacts` carries one vec4 per
+ * pool slot — xyz is the hit point in *this mesh's* local space, w is the current
+ * strength from `burstEnvelope`. A spent slot has w = 0 and costs a single compare.
+ *
+ * Vertices are pushed away from the hit point rather than along their own normal: a
+ * normal-only push inflates the patch evenly and reads as a blister, while pushing away
+ * from the impact throws the near side outward the way something struck would go. The
+ * normal is still mixed in so faces perpendicular to the blast do not shear flat.
+ */
+export const CHROME_IMPACT_CHUNKS = {
+  declaration: /* glsl */ `
+    uniform vec4 uImpacts[${MAX_CONCURRENT_IMPACTS}];
+    uniform float uImpactRadius;
+    uniform float uImpactAmplitude;
+  `,
+  displacement: /* glsl */ `
+    vec3 transformed = vec3(position);
+
+    for (int i = 0; i < ${MAX_CONCURRENT_IMPACTS}; i++) {
+      float strength = uImpacts[i].w;
+      if (strength <= 0.0) continue;
+
+      vec3 away = transformed - uImpacts[i].xyz;
+      float distance = length(away);
+      if (distance > uImpactRadius) continue;
+
+      // 1 at the hit point, 0 at the rim — smoothstep so the patch blends into the
+      // untouched surface instead of leaving a visible crease around it.
+      float falloff = 1.0 - smoothstep(0.0, uImpactRadius, distance);
+      vec3 direction = normalize(mix(normal, away / max(distance, 0.0001), 0.75));
+      transformed += direction * falloff * strength * uImpactAmplitude;
+    }
+  `,
+};
+
+/**
+ * Debris. One burst is a Points cloud parked at the hit point, every particle flying
+ * along its own direction at its own speed; `uProgress` runs 0→1 over the impact's life.
+ * Particles carry their own brand colour so the sparks read as lemon/tangerine/paper
+ * rather than as one flat wash.
+ */
+export const DEBRIS_VERTEX_SHADER = /* glsl */ `
+  attribute vec3 aDirection;
+  attribute float aSpeed;
+  attribute vec3 aColor;
 
   uniform float uProgress;
+  uniform float uSpread;
   uniform float uPointSize;
-  uniform float uTime;
 
   varying float vAlpha;
+  varying vec3 vColor;
 
   void main() {
-    // Each particle's own 0..1 explode timeline is a slice of uProgress starting at
-    // its delay, so particles further from the impact point (higher aDelay) lag
-    // behind — the shockwave read.
-    float local = clamp((uProgress - aDelay) / max(1.0 - aDelay, 0.0001), 0.0, 1.0);
-    float eased = local * local * (3.0 - 2.0 * local); // smoothstep ease, no extra uniform
+    // Ease-out travel: sparks leave at the speed of the impact and coast to a stop.
+    float travel = 1.0 - (1.0 - uProgress) * (1.0 - uProgress);
+    vec3 pos = position + aDirection * aSpeed * uSpread * travel;
 
-    vec3 pos = mix(position, aTarget, eased);
-    // Subtle drift while scattered so fully-exploded particles don't freeze mid-air.
-    pos += sin(uTime * 1.5 + aDelay * 6.2831853) * 0.002 * eased;
-
-    vAlpha = 1.0 - 0.4 * eased;
+    // Full strength while they leave, gone by the time the surface has settled.
+    vAlpha = 1.0 - smoothstep(0.45, 1.0, uProgress);
+    vColor = aColor;
 
     vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-    gl_PointSize = uPointSize * (300.0 / -mvPosition.z);
+    // Perspective attenuation: uPointSize is the on-screen size at one world unit away,
+    // so a spark shrinks as it travels instead of ballooning across the viewport.
+    gl_PointSize = uPointSize / max(-mvPosition.z, 0.001);
     gl_Position = projectionMatrix * mvPosition;
   }
 `;
 
-export const BIG_BANG_FRAGMENT_SHADER = /* glsl */ `
-  uniform vec3 uColor;
-
+export const DEBRIS_FRAGMENT_SHADER = /* glsl */ `
   varying float vAlpha;
+  varying vec3 vColor;
 
   void main() {
     vec2 centered = gl_PointCoord - vec2(0.5);
     float dist = length(centered);
     if (dist > 0.5) discard;
 
-    float edge = smoothstep(0.5, 0.35, dist);
-    gl_FragColor = vec4(uColor, edge * vAlpha);
+    float edge = smoothstep(0.5, 0.32, dist);
+    gl_FragColor = vec4(vColor, edge * vAlpha);
   }
 `;

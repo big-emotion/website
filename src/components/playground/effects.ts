@@ -16,6 +16,7 @@
 
 import { lazy, type ComponentType, type LazyExoticComponent } from "react";
 import type { Locale } from "@/i18n/locales";
+import type { PreviewMotion } from "./preview/runtime";
 
 export type PlaygroundEffect = {
   /** Stable identifier, also used as the React key in the gallery grid. */
@@ -26,6 +27,10 @@ export type PlaygroundEffect = {
   title: Record<Locale, string>;
   /** Feeds the page lead and the OG card description. */
   description: Record<Locale, string>;
+  /** Which sample of itself the effect plays inside its gallery card on hover. The
+   *  preview runtime is dynamically imported, so naming a motion here costs the gallery
+   *  nothing until a visitor actually hovers a card. */
+  preview: PreviewMotion;
   /** `lazy(() => import("./some-effect"))` — built once at registration. */
   component: LazyExoticComponent<ComponentType>;
 };
@@ -39,6 +44,7 @@ export const playgroundEffects: readonly PlaygroundEffect[] = [
       fr: "Fais pivoter le chrome sous la lumière du studio et zoome pour en inspecter chaque reflet.",
       en: "Spin the chrome under the studio light and zoom in to inspect every reflection.",
     },
+    preview: "orient",
     component: lazy(() => import("./effects/lumiere")),
   },
   {
@@ -49,6 +55,7 @@ export const playgroundEffects: readonly PlaygroundEffect[] = [
       fr: "Saisissez, glissez et lancez le logo chromé contre des murs élastiques.",
       en: "Grab, drag and throw the chrome logo against elastic walls.",
     },
+    preview: "drop",
     component: lazy(() => import("./effects/poids-lourd")),
   },
   {
@@ -59,6 +66,7 @@ export const playgroundEffects: readonly PlaygroundEffect[] = [
       fr: "Touchez le logo : il explose en milliers de particules, puis se reforme sous vos yeux.",
       en: "Tap the logo: it shatters into thousands of particles, then reassembles before your eyes.",
     },
+    preview: "burst",
     component: lazy(() => import("./effects/big-bang/big-bang-effect")),
   },
 ];

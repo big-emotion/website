@@ -9,6 +9,32 @@ export type Bounds = { minX: number; maxX: number; minY: number; maxY: number };
 
 export type PointerSample = { x: number; y: number; t: number };
 
+/**
+ * Camera framing. The toy shipped at 50° / distance 4, which is not the studio rig the
+ * home hero and the other two effects use — the logo landed at roughly a quarter of the
+ * frame and read as a thumbnail. These bring it back onto the rig's 42° (PG-26) and
+ * closer in, and the wheel dollies between the bounds from there.
+ */
+export const CAMERA_DISTANCE_DEFAULT = 3;
+export const CAMERA_DISTANCE_MIN = 1.8;
+export const CAMERA_DISTANCE_MAX = 5.5;
+
+/** Time dilation while the secondary mouse button is held — the "slow it down" gesture,
+ *  kept on the mouse itself so the stage needs no on-screen speed control. */
+export const SLOW_MOTION_SCALE = 0.25;
+
+/** Longest step the integrator will take. A backgrounded tab hands back a delta of
+ *  seconds; without the cap the body would tunnel straight through a wall on return. */
+const MAX_FRAME_SECONDS = 0.05;
+
+export function clampCameraDistance(distance: number): number {
+  return Math.min(CAMERA_DISTANCE_MAX, Math.max(CAMERA_DISTANCE_MIN, distance));
+}
+
+export function frameDelta(elapsedSeconds: number, slowMotion: boolean): number {
+  return Math.min(elapsedSeconds, MAX_FRAME_SECONDS) * (slowMotion ? SLOW_MOTION_SCALE : 1);
+}
+
 /** Semi-implicit Euler: velocity absorbs acceleration first, then position absorbs
  *  the updated velocity — stable enough for a single body at interactive frame rates. */
 export function stepMotion(position: Vec2, velocity: Vec2, acceleration: Vec2, dt: number) {

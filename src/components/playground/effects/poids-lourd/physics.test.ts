@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  CAMERA_DISTANCE_DEFAULT,
+  CAMERA_DISTANCE_MAX,
+  CAMERA_DISTANCE_MIN,
+  clampCameraDistance,
+  frameDelta,
+  SLOW_MOTION_SCALE,
   isAtRest,
   isThrow,
   reflectOffWalls,
@@ -152,5 +158,50 @@ describe("stepTorque", () => {
   it("decays toward rest as damping approaches 1", () => {
     const result = stepTorque(0, 2, 0.9, 1);
     expect(result.angularVelocity).toBeCloseTo(0.2);
+  });
+});
+
+// The two mouse-only camera gestures (wheel dolly, held secondary button for slow
+// motion). Both are pure arithmetic, so they are proved here rather than through a
+// renderer.
+describe("clampCameraDistance", () => {
+  it("keeps the default framing untouched", () => {
+    expect(clampCameraDistance(CAMERA_DISTANCE_DEFAULT)).toBe(CAMERA_DISTANCE_DEFAULT);
+  });
+
+  it("stops the visitor dollying through the logo", () => {
+    expect(clampCameraDistance(0.2)).toBe(CAMERA_DISTANCE_MIN);
+    expect(clampCameraDistance(-40)).toBe(CAMERA_DISTANCE_MIN);
+  });
+
+  it("stops the logo receding out of reach", () => {
+    expect(clampCameraDistance(999)).toBe(CAMERA_DISTANCE_MAX);
+  });
+
+  it("frames the logo larger than the range it shipped with", () => {
+    // It shipped at distance 4 with a 50° field of view; the rig it now shares with the
+    // home hero is 42° at 2.6 (PG-26), and half of the visible height is what decides
+    // how much of the frame the unit-scaled logo fills.
+    const visibleHalfHeight = (distance: number, fovDegrees: number) =>
+      distance * Math.tan((fovDegrees * Math.PI) / 360);
+
+    expect(visibleHalfHeight(CAMERA_DISTANCE_DEFAULT, 42)).toBeLessThan(
+      visibleHalfHeight(4, 50),
+    );
+  });
+});
+
+describe("frameDelta", () => {
+  it("runs at wall-clock speed by default", () => {
+    expect(frameDelta(0.016, false)).toBeCloseTo(0.016);
+  });
+
+  it("stretches time while the secondary button is held", () => {
+    expect(frameDelta(0.016, true)).toBeCloseTo(0.016 * SLOW_MOTION_SCALE);
+    expect(frameDelta(0.016, true)).toBeLessThan(frameDelta(0.016, false));
+  });
+
+  it("caps a stalled frame so a backgrounded tab doesn't teleport the logo", () => {
+    expect(frameDelta(3, false)).toBeLessThanOrEqual(0.05);
   });
 });

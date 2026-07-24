@@ -1,7 +1,10 @@
 import { render, screen, waitFor } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
 import { lazy } from "react";
 import { describe, expect, it, vi } from "vitest";
 import type { PlaygroundEffect } from "@/components/playground/effects";
+import en from "../../../../../messages/en.json";
+import fr from "../../../../../messages/fr.json";
 
 vi.mock("next-intl/server", () => ({ setRequestLocale: vi.fn() }));
 
@@ -31,8 +34,16 @@ const {
   generateMetadata,
 } = await import("./page");
 
+// The HUD links back to the gallery with the locale-aware `Link`, which reads the intl
+// context — so the page has to be rendered inside a provider, as the layout does.
 const renderPage = (locale: string, effect: string) =>
-  PlaygroundEffectPage({ params: Promise.resolve({ locale, effect }) }).then(render);
+  PlaygroundEffectPage({ params: Promise.resolve({ locale, effect }) }).then((page) =>
+    render(
+      <NextIntlClientProvider locale={locale} messages={locale === "en" ? en : fr}>
+        {page}
+      </NextIntlClientProvider>,
+    ),
+  );
 
 describe("/playground/[effect]", () => {
   it("gives the effect the page's only h1, in the locale of the route", async () => {

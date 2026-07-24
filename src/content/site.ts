@@ -89,6 +89,8 @@ type LocaleContent = {
   playground: {
     lead: string;
     emptyState: string;
+    /** Call to action on a gallery card (PG-03). `font-display` slot — ASCII only. */
+    play: string;
     /** Back-to-gallery link on an effect's own page. */
     back: string;
     /** EffectStage's Suspense fallback while an effect's chunk is fetched (PG-18). */
@@ -228,6 +230,7 @@ const fr: LocaleContent = {
   playground: {
     lead: "Un espace vivant où on teste les effets avant qu’ils passent en production. Les cartes arrivent projet par projet.",
     emptyState: "Aucune expérience pour le moment. Revenez bientôt.",
+    play: "Jouer",
     back: "Retour au Playground",
     loading: "Chargement de l'expérience…",
     share: {
@@ -345,6 +348,7 @@ const en: LocaleContent = {
   playground: {
     lead: "A living space where we test effects before they ship in production. Cards land project by project.",
     emptyState: "No experiments yet. Check back soon.",
+    play: "Play",
     back: "Back to Playground",
     loading: "Loading the experiment…",
     share: {

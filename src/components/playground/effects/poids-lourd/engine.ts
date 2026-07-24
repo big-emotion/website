@@ -6,8 +6,12 @@
 // ARCH-019) keeps it unit-testable without a renderer.
 
 import * as THREE from "three";
+import { CAMERA } from "@/components/scene/states";
 import { buildStudioEnvironment, loadStudioRig } from "@/components/scene/studio-rig";
 import {
+  CAMERA_DISTANCE_DEFAULT,
+  clampCameraDistance,
+  frameDelta,
   isAtRest,
   isThrow,
   reflectOffWalls,
@@ -43,11 +47,17 @@ const REST_SPEED = 0.05;
 const THROW_SPEED = 1.5;
 const TORQUE_DAMPING = 0.8;
 const SAMPLE_HISTORY_MS = 200;
-const FOV_DEGREES = 50;
-const CAMERA_DISTANCE = 4;
+// The shared studio rig's field of view (PG-26) — the toy had its own 50°, which framed
+// the same logo smaller than the home hero and the two other effects do.
+const FOV_DEGREES = CAMERA.fov;
+// One notch of the wheel is ~100 deltaY, so this dollies about a third of a world unit
+// per notch: enough to feel immediate, gentle enough to land on a framing you meant.
+const DOLLY_SENSITIVITY = 0.003;
 
-function computeBounds(aspect: number): Bounds {
-  const halfHeight = CAMERA_DISTANCE * Math.tan((FOV_DEGREES * Math.PI) / 360);
+// The walls are the viewport edges, so they move with the camera — every dolly has to
+// recompute them or the logo would bounce off nothing, or off the frame's outside.
+function computeBounds(aspect: number, cameraDistance: number): Bounds {
+  const halfHeight = cameraDistance * Math.tan((FOV_DEGREES * Math.PI) / 360);
   const halfWidth = halfHeight * aspect;
   return { minX: -halfWidth, maxX: halfWidth, minY: -halfHeight, maxY: halfHeight };
 }
@@ -57,9 +67,12 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
   const getTiltBias = options.getTiltBias ?? (() => ({ x: 0, y: 0 }));
 
   let renderer: THREE.WebGLRenderer | null = null;
+  let camera: THREE.PerspectiveCamera | null = null;
   let container: HTMLElement | null = null;
   let body: THREE.Group | null = null;
-  let bounds = computeBounds(1);
+  let cameraDistance = CAMERA_DISTANCE_DEFAULT;
+  let bounds = computeBounds(1, cameraDistance);
+  let slowMotion = false;
 
   let position: Vec2 = { x: 0, y: 0 };
   let velocity: Vec2 = { x: 0, y: 0 };
@@ -80,11 +93,37 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
   }
 
   function onPointerDown(event: PointerEvent) {
+    // Secondary button = the slow-motion hold, not a grab. Keeping the two on separate
+    // buttons is what lets a visitor slow the toy down *while* it is in flight.
+    if (event.button === 2) {
+      slowMotion = true;
+      return;
+    }
+    if (event.button !== 0) return;
+
     held = true;
     velocity = { x: 0, y: 0 };
     const world = screenToWorld(event.clientX, event.clientY);
     history = [{ x: world.x, y: world.y, t: event.timeStamp }];
     reportInteraction(effectId, "grab");
+  }
+
+  function onWheel(event: WheelEvent) {
+    // The gesture belongs to the stage, so the page must not scroll underneath it.
+    event.preventDefault();
+    cameraDistance = clampCameraDistance(cameraDistance + event.deltaY * DOLLY_SENSITIVITY);
+    applyCameraDistance();
+  }
+
+  function onContextMenu(event: MouseEvent) {
+    event.preventDefault();
+  }
+
+  function applyCameraDistance() {
+    if (!camera || !container) return;
+    camera.position.z = cameraDistance;
+    const rect = container.getBoundingClientRect();
+    bounds = computeBounds(rect.width / rect.height || 1, cameraDistance);
   }
 
   function onPointerMove(event: PointerEvent) {
@@ -99,6 +138,10 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
   }
 
   function onPointerUp(event: PointerEvent) {
+    if (event.button === 2) {
+      slowMotion = false;
+      return;
+    }
     if (!held) return;
     held = false;
     const world = screenToWorld(event.clientX, event.clientY);
@@ -108,10 +151,12 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
   }
 
   function onResize() {
-    if (!container || !renderer) return;
+    if (!container || !renderer || !camera) return;
     const rect = container.getBoundingClientRect();
     const aspect = rect.width / rect.height || 1;
-    bounds = computeBounds(aspect);
+    bounds = computeBounds(aspect, cameraDistance);
+    camera.aspect = aspect;
+    camera.updateProjectionMatrix();
     renderer.setSize(rect.width, rect.height);
   }
 
@@ -147,10 +192,10 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
       const scene = new THREE.Scene();
       const rect = el.getBoundingClientRect();
       const aspect = rect.width / rect.height || 1;
-      bounds = computeBounds(aspect);
+      bounds = computeBounds(aspect, cameraDistance);
 
-      const camera = new THREE.PerspectiveCamera(FOV_DEGREES, aspect, 0.1, 100);
-      camera.position.set(0, 0, CAMERA_DISTANCE);
+      camera = new THREE.PerspectiveCamera(FOV_DEGREES, aspect, CAMERA.near, CAMERA.far);
+      camera.position.set(0, 0, cameraDistance);
 
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setSize(rect.width, rect.height);
@@ -169,13 +214,17 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
       const key = new THREE.DirectionalLight(0xffffff, 1.6);
       key.position.set(3, 4, 5);
       scene.add(key);
+      // The rim was missing here while the home hero had it (PG-26), which is what left
+      // the chrome's far edge unlit and flattened the logo against the backdrop.
+      const rim = new THREE.DirectionalLight(0xffffff, 1.0);
+      rim.position.set(-4, 2, -3);
+      scene.add(rim);
       scene.add(new THREE.HemisphereLight(0xffffff, 0x6a6f78, 0.5));
 
       const clock = new THREE.Clock();
       const render = () => {
-        const dt = Math.min(clock.getDelta(), 0.05);
-        tick(dt);
-        renderer?.render(scene, camera);
+        tick(frameDelta(clock.getDelta(), slowMotion));
+        if (camera) renderer?.render(scene, camera);
       };
 
       loadStudioRig(
@@ -189,12 +238,18 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
       );
 
       el.addEventListener("pointerdown", onPointerDown);
+      // Not passive: the dolly owns the wheel over the stage, so it has to be able to
+      // stop the page scrolling behind it.
+      el.addEventListener("wheel", onWheel, { passive: false });
+      el.addEventListener("contextmenu", onContextMenu);
       window.addEventListener("pointermove", onPointerMove);
       window.addEventListener("pointerup", onPointerUp);
       window.addEventListener("pointercancel", onPointerUp);
       window.addEventListener("resize", onResize);
       cleanupFns.push(() => {
         el.removeEventListener("pointerdown", onPointerDown);
+        el.removeEventListener("wheel", onWheel);
+        el.removeEventListener("contextmenu", onContextMenu);
         window.removeEventListener("pointermove", onPointerMove);
         window.removeEventListener("pointerup", onPointerUp);
         window.removeEventListener("pointercancel", onPointerUp);
@@ -211,7 +266,12 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
       angle = 0;
       angularVelocity = 0;
       held = false;
+      slowMotion = false;
       history = [];
+      // The framing is part of the state a visitor can get lost in, so relaunching
+      // restores it too rather than leaving them zoomed inside the mesh.
+      cameraDistance = CAMERA_DISTANCE_DEFAULT;
+      applyCameraDistance();
       body?.position.set(0, 0, 0);
       body?.rotation.set(0, 0, 0);
     },
@@ -224,6 +284,7 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
       cleanupFns.forEach((fn) => fn());
       cleanupFns.length = 0;
       renderer = null;
+      camera = null;
       container = null;
       body = null;
     },

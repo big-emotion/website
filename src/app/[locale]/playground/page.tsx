@@ -3,9 +3,10 @@ import { hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { CounterChip } from "@/components/playground/counter-chip";
+import { EffectCard } from "@/components/playground/effect-card";
 import { playgroundEffects } from "@/components/playground/effects";
+import { SubpageHero } from "@/components/subpage-hero";
 import { content } from "@/content/site";
-import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { sectionMetadata } from "../section-metadata";
 
@@ -39,26 +40,37 @@ export default async function PlaygroundPage({ params }: RouteProps) {
   }
 
   return (
-    <section className="bg-brutal px-5 py-20 text-ink md:px-8 md:py-32">
-      <h1 className="font-display text-[clamp(2.75rem,9vw,7rem)]">{title}</h1>
-      <p className="mt-6 max-w-[44ch] text-lg leading-relaxed">{playground.lead}</p>
-      <div className="mt-4">
+    // The surface has to be carried by a full-height wrapper, not by the grid alone:
+    // `main` is a flex child that grows to the viewport, so a short page would otherwise
+    // end early and reveal the paper-white body underneath it as a stray band.
+    <div className="min-h-dvh bg-brutal text-ink">
+      <SubpageHero
+        page="playground"
+        title={[title]}
+        lead={playground.lead}
+        titleSizeClassName="text-[clamp(2.25rem,7vw,5.75rem)]"
+      >
         <CounterChip locale={locale} copy={playground.counter} />
-      </div>
+      </SubpageHero>
 
-      {playgroundEffects.length === 0 ? (
-        <p className="mt-14 max-w-prose text-lg leading-relaxed text-ink/70">
-          {playground.emptyState}
-        </p>
-      ) : (
-        <div className="mt-14 grid gap-x-8 gap-y-10 md:grid-cols-2 xl:grid-cols-3">
-          {playgroundEffects.map((effect) => (
-            <Link key={effect.id} href={`${ROUTE}/${effect.slug}`} className="block">
-              {effect.slug}
-            </Link>
-          ))}
-        </div>
-      )}
-    </section>
+      <section className="px-5 pb-20 md:px-8 md:pb-32">
+        {playgroundEffects.length === 0 ? (
+          <p className="max-w-prose text-lg leading-relaxed text-ink/70">{playground.emptyState}</p>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 md:gap-8 xl:grid-cols-3">
+            {playgroundEffects.map((effect) => (
+              <EffectCard
+                key={effect.id}
+                href={`${ROUTE}/${effect.slug}`}
+                title={effect.title[locale]}
+                hook={effect.description[locale]}
+                playLabel={playground.play}
+                preview={effect.preview}
+              />
+            ))}
+          </div>
+        )}
+      </section>
+    </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Wordmark } from "@/components/wordmark";
+import { Logo } from "@/components/logo";
 import { HAS_HERO_MODEL } from "./model-gate";
 
 const SceneCanvas = dynamic(() => import("./scene-canvas").then((mod) => mod.SceneCanvas), {
@@ -22,7 +22,7 @@ export function SceneMount() {
           data-testid="scene-fallback"
           className="fixed inset-0 flex items-center justify-center"
         >
-          <Wordmark className="text-[18vw] leading-none opacity-90" />
+          <Logo className="w-[70vw] opacity-90" />
         </div>
       </div>
     );

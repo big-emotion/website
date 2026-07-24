@@ -1,0 +1,747 @@
+<title>Playground — Visual Spec v1</title>
+<style>
+  /* ---------- Chrome tokens (theme-aware doc shell) ---------- */
+  :root {
+    --bg: #f7f8fc;
+    --surface: #ffffff;
+    --text: #14161f;
+    --muted: #5a5f73;
+    --line: #e3e6f0;
+    --accent: #0024cc;
+    --chip-bg: #14161f;
+    --chip-fg: #f2ff26;
+    /* Brand constants (depicted product — fixed, never themed) */
+    --lemon: #f2ff26;
+    --tangerine: #ff5200;
+    --lyon: #0024cc;
+    --brutal: #dbdbdb;
+    --ink: #000000;
+    --paper: #ffffff;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+    --display: "BBH Hegarty", "Arial Black", Impact, sans-serif;
+    --body: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1017;
+      --surface: #151924;
+      --text: #e8ecff;
+      --muted: #9aa2c0;
+      --line: #262c3d;
+      --accent: #8b9cff;
+      --chip-bg: #f2ff26;
+      --chip-fg: #14161f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0d1017; --surface: #151924; --text: #e8ecff; --muted: #9aa2c0;
+    --line: #262c3d; --accent: #8b9cff; --chip-bg: #f2ff26; --chip-fg: #14161f;
+  }
+  :root[data-theme="light"] {
+    --bg: #f7f8fc; --surface: #ffffff; --text: #14161f; --muted: #5a5f73;
+    --line: #e3e6f0; --accent: #0024cc; --chip-bg: #14161f; --chip-fg: #f2ff26;
+  }
+
+  body { background: var(--bg); color: var(--text); font-family: var(--body);
+         line-height: 1.55; margin: 0; }
+  main { max-width: 1060px; margin: 0 auto; padding: 24px 20px 96px; }
+
+  h1 { font-family: var(--display); font-size: clamp(2.2rem, 7vw, 4rem);
+       line-height: 0.95; letter-spacing: -0.01em; margin: 0.4em 0 0.15em;
+       text-transform: uppercase; text-wrap: balance; }
+  h2 { font-size: clamp(1.3rem, 3.5vw, 1.75rem); margin: 2.6em 0 0.5em;
+       letter-spacing: -0.01em; border-top: 2px solid var(--text); padding-top: 0.9em; }
+  h3 { font-size: 1.05rem; margin: 1.8em 0 0.4em; }
+  p  { max-width: 68ch; }
+  .lede { font-size: 1.12rem; max-width: 62ch; color: var(--text); }
+  .muted { color: var(--muted); }
+  a { color: var(--accent); }
+  code, pre { font-family: var(--mono); font-size: 0.85em; }
+  pre { background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+        padding: 14px 16px; overflow-x: auto; line-height: 1.5; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  .tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line);
+           vertical-align: top; }
+  th { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em;
+       color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+  td.num, th.num { font-variant-numeric: tabular-nums; }
+
+  /* Spec element ID chip */
+  .pg { display: inline-block; font-family: var(--mono); font-size: 0.72rem;
+        font-weight: 700; background: var(--chip-bg); color: var(--chip-fg);
+        padding: 2px 8px; border-radius: 4px; letter-spacing: 0.05em;
+        vertical-align: middle; }
+  .kicker { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.14em;
+            color: var(--muted); font-weight: 700; }
+  .status-draft { display: inline-block; font-size: 0.72rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.1em; color: var(--tangerine);
+        border: 1.5px solid var(--tangerine); border-radius: 4px; padding: 2px 8px; }
+
+  .callout { border-left: 3px solid var(--accent); background: var(--surface);
+             padding: 12px 16px; border-radius: 0 8px 8px 0; max-width: 68ch;
+             margin: 1em 0; }
+  .callout.warn { border-left-color: var(--tangerine); }
+
+  /* ---------- Depicted product frames (fixed brand, single-theme) ---------- */
+  .frameset { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start;
+              margin: 1.2em 0; }
+  .phone { width: 300px; flex: 0 0 auto; }
+  .phone .screen { width: 300px; height: 560px; background: var(--lyon);
+        border: 3px solid var(--ink); border-radius: 18px; overflow: hidden;
+        position: relative; display: flex; flex-direction: column;
+        box-shadow: 6px 6px 0 rgba(0,0,0,0.35); }
+  .desktop { flex: 1 1 480px; min-width: 320px; }
+  .desktop .screen { width: 100%; aspect-ratio: 16/10; background: var(--lyon);
+        border: 3px solid var(--ink); border-radius: 12px; overflow: hidden;
+        position: relative; display: flex; flex-direction: column;
+        box-shadow: 6px 6px 0 rgba(0,0,0,0.35); }
+  .framecap { font-size: 0.8rem; color: var(--muted); margin-top: 8px;
+              display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+
+  /* In-frame vocabulary (depicts the real site: brand tokens only) */
+  .f-header { background: var(--ink); color: var(--paper); display: flex;
+        align-items: center; justify-content: space-between; padding: 10px 14px;
+        font-size: 11px; flex: 0 0 auto; }
+  .f-logo { font-family: var(--display); color: var(--lemon); font-size: 13px;
+        letter-spacing: 0.02em; }
+  .f-nav { display: flex; gap: 10px; text-transform: uppercase;
+        letter-spacing: 0.08em; font-size: 9px; }
+  .f-nav .on { color: var(--lemon); border-bottom: 2px solid var(--lemon); }
+  .f-burger { width: 18px; height: 12px; border-top: 2px solid var(--paper);
+        border-bottom: 2px solid var(--paper); }
+  .f-title { font-family: var(--display); color: var(--lemon);
+        text-transform: uppercase; line-height: 0.95; }
+  .f-body { color: #e8ecff; font-size: 11px; line-height: 1.45; }
+  .f-chip { display: inline-block; background: var(--lemon); color: var(--ink);
+        border: 2px solid var(--ink); border-radius: 8px; padding: 3px 8px;
+        font-weight: 800; font-size: 10px; box-shadow: 3px 3px 0 rgba(0,0,0,0.55); }
+  .f-chip.orange { background: var(--tangerine); }
+  .f-card { background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.4);
+        border-radius: 10px; padding: 12px; }
+  .f-btn { display: inline-block; background: var(--lemon); color: var(--ink);
+        border: 2px solid var(--ink); border-radius: 6px; padding: 6px 10px;
+        font-weight: 800; font-size: 10px; text-transform: uppercase; }
+  .f-btn.ghost { background: transparent; color: var(--paper);
+        border-color: var(--paper); }
+  .f-logo3d { font-family: var(--display); color: var(--brutal); font-size: 40px;
+        text-shadow: 2px 2px 0 #7a7a7a, 4px 4px 0 #4a4a4a; line-height: 1; }
+  .anno { position: absolute; font-family: var(--mono); font-size: 9px;
+        background: var(--chip-bg); color: var(--chip-fg); padding: 1px 5px;
+        border-radius: 3px; z-index: 3; }
+
+  /* Storyboards */
+  .board { display: flex; gap: 14px; overflow-x: auto; padding: 4px 2px 12px; }
+  .panel { flex: 0 0 190px; }
+  .panel .screen { width: 190px; height: 340px; background: var(--lyon);
+        border: 2.5px solid var(--ink); border-radius: 12px; position: relative;
+        overflow: hidden; box-shadow: 4px 4px 0 rgba(0,0,0,0.3); }
+  .panel .cap { font-size: 0.78rem; color: var(--muted); margin-top: 6px;
+        line-height: 1.4; }
+  .panel .cap b { color: var(--text); }
+  .b-mark { position: absolute; font-family: var(--display); color: var(--brutal);
+        font-size: 30px; text-shadow: 2px 2px 0 #6a6a6a; line-height: 1; }
+  .b-arrow { position: absolute; color: var(--lemon); font-size: 18px; font-weight: 900; }
+  .b-dot { position: absolute; width: 6px; height: 6px; background: var(--lemon);
+        border-radius: 50%; }
+  .b-dot.o { background: var(--tangerine); }
+  .b-dot.w { background: var(--paper); }
+  .b-toast { position: absolute; left: 10px; right: 10px; background: var(--lemon);
+        color: var(--ink); border: 2px solid var(--ink); border-radius: 8px;
+        padding: 6px 8px; font-weight: 800; font-size: 9.5px; text-align: center;
+        box-shadow: 3px 3px 0 rgba(0,0,0,0.5); transform: rotate(-1.2deg); }
+  .b-streak { position: absolute; top: 0; bottom: 0; width: 14px;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.85), transparent); }
+
+  .og-card { width: 100%; max-width: 560px; aspect-ratio: 1200/630;
+        background: var(--lyon); border: 3px solid var(--ink); border-radius: 10px;
+        position: relative; overflow: hidden; padding: 4.5%;
+        display: flex; flex-direction: column; justify-content: space-between;
+        box-shadow: 6px 6px 0 rgba(0,0,0,0.35); box-sizing: border-box; }
+
+  .toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 1.2em 0 0; padding: 0;
+         list-style: none; font-size: 0.85rem; }
+  .toc a { text-decoration: none; border: 1px solid var(--line);
+        background: var(--surface); border-radius: 999px; padding: 4px 12px;
+        color: var(--text); }
+  .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px; margin: 1.4em 0; }
+  .meta-grid > div { background: var(--surface); border: 1px solid var(--line);
+        border-radius: 8px; padding: 10px 14px; font-size: 0.88rem; }
+  .meta-grid .k { font-size: 0.7rem; text-transform: uppercase;
+        letter-spacing: 0.1em; color: var(--muted); display: block; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<main>
+  <span class="kicker">BIG EMOTION — big-emotion.com</span>
+  <h1>Playground<br>Visual Spec v1</h1>
+  <p class="lede">The living gallery of interactive experiences built around the B!G EMOTION 3D logo.
+  Goal: <strong>brand &amp; virality</strong> — play <em>is</em> the agency's message. No sales CTA.
+  This document is the visual contract: every element carries a stable <span class="pg">PG-xx</span> ID
+  referenced by the Confluence spec (REQ-037…043, DEC-030…035, ARCH-019) and the SWBE Jira tickets.</p>
+
+  <div class="meta-grid">
+    <div><span class="k">Status</span> <span class="status-draft">Draft — pending owner validation</span></div>
+    <div><span class="k">Launch scope (v1)</span> 3 effects: POIDS LOURD + BIG BANG + LUMIERE. MATIERES and REACTIF ship later as publishable drops.</div>
+    <div><span class="k">Hard rules</span> Mobile first-class · brand tokens only · SSG · zero JS added to marketing pages</div>
+    <div><span class="k">Display face</span> Frames use a BBH Hegarty proxy. Production uses <code>--font-display</code>. Display-slot copy is ASCII-only (DEC-023).</div>
+  </div>
+
+  <ul class="toc">
+    <li><a href="#ia">1 Routes</a></li><li><a href="#gallery">2 Gallery</a></li>
+    <li><a href="#frame">3 Effect frame</a></li><li><a href="#poids">4 POIDS LOURD</a></li>
+    <li><a href="#bigbang">5 BIG BANG</a></li><li><a href="#lumiere">6 LUMIERE</a></li>
+    <li><a href="#ludique">7 Playful hooks</a></li><li><a href="#share">8 Share loop</a></li>
+    <li><a href="#states">9 States</a></li><li><a href="#contracts">10 Contracts</a></li>
+    <li><a href="#budgets">11 Budgets</a></li><li><a href="#trace">12 Traceability</a></li>
+  </ul>
+
+  <!-- ============================================================ -->
+  <h2 id="ia">1 — Information architecture &amp; routes</h2>
+  <p>Three localized SSG routes under <code>[locale]</code>. Slugs are <strong>locale-invariant brand names</strong>
+  (the repo's nav-parity test compares hrefs across locales — labels may differ, hrefs may not).
+  Effect names are treated as invariant brand names in both languages.</p>
+<pre>
+/playground/                    FR gallery          <b>/en/playground/</b>          EN gallery
+/playground/poids-lourd/        physics effect      /en/playground/poids-lourd/
+/playground/big-bang/           destruction effect  /en/playground/big-bang/
+/playground/lumiere/            light inspection    /en/playground/lumiere/
+/api/playground/counter         GET total · POST batched increments (runtime, rate-limited)
+</pre>
+  <p><span class="pg">PG-04</span> <strong>Nav entry.</strong> One entry appended to <code>nav</code> in both locales of
+  <code>src/content/site.ts</code>: label <code>"Playground"</code> (identical FR/EN, ASCII-safe), href <code>"/playground"</code>.
+  Position: after <code>Blog</code>, before <code>Contact</code>.</p>
+
+  <!-- ============================================================ -->
+  <h2 id="gallery">2 — Gallery page <code>/playground/</code></h2>
+  <div class="frameset">
+    <div class="phone">
+      <div class="screen">
+        <span class="anno" style="top:6px; left:6px;">PG-01</span>
+        <div class="f-header">
+          <span class="f-logo">B!G EMOTION</span>
+          <div class="f-burger"></div>
+        </div>
+        <div style="padding:16px 14px 8px; position:relative;">
+          <span class="anno" style="top:4px; right:8px;">PG-02</span>
+          <div class="f-title" style="font-size:34px;">PLAYGROUND</div>
+          <div class="f-body" style="margin-top:6px;">Notre logo est un jouet.<br>Jouez avec. Cassez-le. Il adore.</div>
+          <div style="margin-top:10px; position:relative;">
+            <span class="anno" style="top:-6px; right:0;">PG-09</span>
+            <span class="f-chip">12 431 logos maltraités</span>
+          </div>
+        </div>
+        <div style="padding:10px 14px; display:flex; flex-direction:column; gap:12px;">
+          <div class="f-card" style="position:relative;">
+            <span class="anno" style="top:-7px; right:-4px;">PG-03</span>
+            <div class="f-logo3d" style="font-size:30px;">B!G</div>
+            <div class="f-title" style="font-size:18px; margin-top:8px;">POIDS LOURD</div>
+            <div class="f-body" style="margin-top:4px;">Attrapez-le. Lancez-le. Il revient toujours.</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+              <span class="f-chip orange" style="font-size:9px;">1 secret</span>
+              <span class="f-btn">Jouer</span>
+            </div>
+          </div>
+          <div class="f-card">
+            <div class="f-logo3d" style="font-size:30px; letter-spacing:4px;">B·!·G</div>
+            <div class="f-title" style="font-size:18px; margin-top:8px;">BIG BANG</div>
+            <div class="f-body" style="margin-top:4px;">Un tap. Mille morceaux. Zéro remords.</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+              <span class="f-chip orange" style="font-size:9px;">1 secret</span>
+              <span class="f-btn">Jouer</span>
+            </div>
+          </div>
+          <div class="f-card">
+            <div class="f-logo3d" style="font-size:30px; text-shadow:2px 2px 0 #7a7a7a, 4px 4px 0 #4a4a4a, 0 0 16px rgba(255,255,255,0.6);">B!G</div>
+            <div class="f-title" style="font-size:18px; margin-top:8px;">LUMIERE</div>
+            <div class="f-body" style="margin-top:4px;">Faites-le tourner. La lumière fait le reste.</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+              <span class="f-chip orange" style="font-size:9px;">1 secret</span>
+              <span class="f-btn">Jouer</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="framecap"><span class="pg">PG-01</span> Mobile 390px — 3 cards stacked, one column (third clipped: the page scrolls)</div>
+    </div>
+    <div class="desktop">
+      <div class="screen">
+        <span class="anno" style="top:6px; left:6px;">PG-23</span>
+        <div class="f-header">
+          <span class="f-logo">B!G EMOTION</span>
+          <nav class="f-nav"><span>Approche</span><span>References</span><span>Culture</span><span>Blog</span><span class="on">Playground</span><span>Contact</span></nav>
+        </div>
+        <div style="padding:22px 26px 6px; display:flex; justify-content:space-between; align-items:flex-end;">
+          <div>
+            <div class="f-title" style="font-size:44px;">PLAYGROUND</div>
+            <div class="f-body" style="margin-top:4px;">Notre logo est un jouet. Jouez avec. Cassez-le. Il adore.</div>
+          </div>
+          <span class="f-chip">12 431 logos maltraités</span>
+        </div>
+        <div style="padding:14px 26px; display:grid; grid-template-columns:repeat(3, 1fr); gap:14px;">
+          <div class="f-card" style="min-height:110px;">
+            <div class="f-logo3d" style="font-size:26px;">B!G</div>
+            <div class="f-title" style="font-size:16px; margin-top:8px;">POIDS LOURD</div>
+            <div style="display:flex; justify-content:space-between; margin-top:10px;">
+              <span class="f-chip orange" style="font-size:8.5px;">1 secret</span><span class="f-btn">Jouer</span>
+            </div>
+          </div>
+          <div class="f-card" style="min-height:110px;">
+            <div class="f-logo3d" style="font-size:26px; letter-spacing:4px;">B·!·G</div>
+            <div class="f-title" style="font-size:16px; margin-top:8px;">BIG BANG</div>
+            <div style="display:flex; justify-content:space-between; margin-top:10px;">
+              <span class="f-chip orange" style="font-size:8.5px;">1 secret</span><span class="f-btn">Jouer</span>
+            </div>
+          </div>
+          <div class="f-card" style="min-height:110px;">
+            <div class="f-logo3d" style="font-size:26px; text-shadow:2px 2px 0 #7a7a7a, 0 0 14px rgba(255,255,255,0.6);">B!G</div>
+            <div class="f-title" style="font-size:16px; margin-top:8px;">LUMIERE</div>
+            <div style="display:flex; justify-content:space-between; margin-top:10px;">
+              <span class="f-chip orange" style="font-size:8.5px;">1 secret</span><span class="f-btn">Jouer</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="framecap"><span class="pg">PG-23</span> Desktop ≥1200px — 3-up grid; wraps as the catalogue grows</div>
+    </div>
+  </div>
+
+  <div class="tablewrap"><table>
+    <tr><th>ID</th><th>Element</th><th>Contract</th></tr>
+    <tr><td><span class="pg">PG-01</span></td><td>Gallery page</td><td>SSG, mobile-first single column at 320–430px, gutters 20px; cards from the effect registry (§9), never hardcoded. Lyon canvas, ink header (REQ-036 ledger applies).</td></tr>
+    <tr><td><span class="pg">PG-02</span></td><td>Gallery header</td><td>Display H1 "PLAYGROUND" (ASCII), 2-line manifesto in body face (accents allowed), collective counter chip PG-09.</td></tr>
+    <tr><td><span class="pg">PG-03</span></td><td>Effect card</td><td>Preview visual (static image or CSS composition — no 3D in the gallery), display-face name (ASCII), 1-line hook (body face), tangerine "1 secret" chip (challenge teaser), lemon "Jouer" button (min-height 44px). Whole card is the link.</td></tr>
+    <tr><td><span class="pg">PG-09</span></td><td>Counter chip</td><td>Lemon chip, ink text, 2px ink border, hard shadow, −1.2deg rotation (thesis-sticker vocabulary from Direction B). Value from <code>GET /api/playground/counter</code>, rendered client-side after hydration; skeleton "— logos maltraités" until loaded; hidden if the fetch fails.</td></tr>
+  </table></div>
+
+  <!-- ============================================================ -->
+  <h2 id="frame">3 — Effect page frame <code>/playground/&lt;slug&gt;/</code></h2>
+  <p>The effect page is a full-viewport stage with a minimal HUD. Everything except the stage
+  is server-rendered; the stage mounts client-side behind a dynamic import (SceneMount pattern).</p>
+  <div class="frameset">
+    <div class="phone">
+      <div class="screen">
+        <span class="anno" style="top:6px; left:6px;">PG-05</span>
+        <div class="f-header" style="position:relative;">
+          <span class="anno" style="top:-2px; right:40px;">PG-07</span>
+          <span style="display:flex; align-items:center; gap:8px;">
+            <span style="color:var(--lemon); font-weight:900;">←</span>
+            <span class="f-title" style="font-size:14px;">POIDS LOURD</span>
+          </span>
+          <div class="f-burger"></div>
+        </div>
+        <div style="flex:1; position:relative;">
+          <span class="anno" style="top:8px; right:8px;">PG-06</span>
+          <div class="b-mark" style="top:38%; left:50%; transform:translate(-50%,-50%) rotate(-6deg); font-size:44px;">B!G</div>
+          <div class="f-body" style="position:absolute; bottom:84px; width:100%; text-align:center; opacity:0.85;">Attrapez le logo</div>
+          <div style="position:absolute; bottom:44px; left:0; right:0; display:flex; justify-content:center; gap:8px;">
+            <span class="anno" style="top:-14px; left:16px;">PG-08</span>
+            <span class="f-btn ghost">Reset</span>
+            <span class="f-btn">Partager</span>
+          </div>
+          <div style="position:absolute; bottom:12px; left:0; right:0; display:flex; justify-content:space-between; padding:0 12px; align-items:center;">
+            <span class="f-chip" style="font-size:8.5px;">12 431</span>
+            <span style="position:relative;">
+              <span class="anno" style="top:-14px; right:0;">PG-10</span>
+              <span class="f-chip orange" style="font-size:8.5px; opacity:0.55;">🔒 secret</span>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="framecap"><span class="pg">PG-05</span> Effect page, mobile — stage fills the viewport under the header</div>
+    </div>
+    <div style="flex:1 1 380px; min-width:300px;">
+      <div class="tablewrap"><table>
+        <tr><th>ID</th><th>Element</th><th>Contract</th></tr>
+        <tr><td><span class="pg">PG-05</span></td><td>Effect page</td><td>SSG shell + client stage. <code>generateStaticParams</code> = registry slugs × locales. Per-effect metadata via the repo's <code>urls.ts</code> helpers + per-effect OG (PG-17).</td></tr>
+        <tr><td><span class="pg">PG-06</span></td><td>Stage</td><td>Full-viewport canvas (<code>100dvh</code> minus header). Pointer Events only (mouse+touch unified). <code>touch-action: none</code> on the canvas — page scroll never fights the play gesture.</td></tr>
+        <tr><td><span class="pg">PG-07</span></td><td>HUD top</td><td>Ink bar: back link (locale-aware Link to gallery) + effect name in display face. Height 56px, always visible.</td></tr>
+        <tr><td><span class="pg">PG-08</span></td><td>HUD actions</td><td>"Partager" (lemon, primary — PG-16) + "Reset" (ghost). Both min 44×44px, ≥8px apart, bottom-centered thumb zone.</td></tr>
+        <tr><td><span class="pg">PG-10</span></td><td>Challenge badge</td><td>Locked: tangerine chip at 55% opacity, lock glyph + "secret". Unlocked: full opacity, badge name (ASCII). State in <code>localStorage</code> key <code>pg:challenge:&lt;slug&gt;</code>.</td></tr>
+        <tr><td><span class="pg">PG-11</span></td><td>Coach line</td><td>One-line instruction ("Attrapez le logo" / "Touchez le logo"), body face, fades out after first successful interaction, never returns.</td></tr>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <div class="callout">
+    <strong>Cross-effect rule — one logo, one core <span class="pg">PG-26</span>.</strong> Every effect mounts
+    the same GLB through the shared studio rig (§6): model bbox-centered on its core, holder normalizing scale
+    and cancelling the baked 45°, one spin group as the sole interaction target. Every action — grab, throw,
+    impact, tap, drag — applies its torque about that core, so the logo always turns naturally on itself.
+  </div>
+
+  <h2 id="poids">4 — Effect 1: POIDS LOURD (physics) <span class="pg">PG-12</span></h2>
+  <p>The logo is a rigid body with weight. Grab it, throw it, bounce it off the viewport walls.
+  Identical capability with mouse and finger. Device tilt is a progressive enhancement, never a requirement.</p>
+  <div class="board">
+    <div class="panel">
+      <div class="screen">
+        <div class="b-mark" style="top:40%; left:50%; transform:translate(-50%,-50%);">B!G</div>
+        <div class="b-arrow" style="top:52%; left:58%;">↖</div>
+        <div style="position:absolute; bottom:10px; width:100%; text-align:center; color:#e8ecff; font-size:9px;">pointer down = grab</div>
+      </div>
+      <div class="cap"><b>S1 — Grab.</b> Pointer down on the logo attaches a spring joint to the grab point. Cursor/finger drags it with visible lag (spring, not teleport).</div>
+    </div>
+    <div class="panel">
+      <div class="screen">
+        <div class="b-mark" style="top:22%; left:14%; transform:rotate(-18deg);">B!G</div>
+        <div class="b-arrow" style="top:36%; left:52%;">↗</div>
+        <div class="b-dot w" style="top:60%; left:38%;"></div>
+        <div class="b-dot w" style="top:52%; left:44%;"></div>
+        <div class="b-dot w" style="top:44%; left:50%;"></div>
+      </div>
+      <div class="cap"><b>S2 — Throw.</b> Release applies the pointer velocity (average of the last 90ms of samples). The off-center impulse becomes a torque about the logo's core — it tumbles on itself, never about an arbitrary pivot.</div>
+    </div>
+    <div class="panel">
+      <div class="screen">
+        <div class="b-mark" style="top:8%; left:40%; transform:rotate(14deg);">B!G</div>
+        <div class="b-arrow" style="top:6%; left:24%;">⤢</div>
+        <div style="position:absolute; inset:4px; border:2px dashed rgba(242,255,38,0.5); border-radius:8px;"></div>
+      </div>
+      <div class="cap"><b>S3 — Bounce.</b> Viewport edges are elastic walls (restitution 0.72). Impact flashes the wall edge lemon for 120ms. Each wall hit counts one interaction (PG-22).</div>
+    </div>
+    <div class="panel">
+      <div class="screen">
+        <div class="b-mark" style="bottom:12%; left:50%; transform:translate(-50%,0) rotate(-2deg);">B!G</div>
+        <div style="position:absolute; bottom:8%; left:20%; right:20%; border-bottom:2px solid rgba(255,255,255,0.5);"></div>
+      </div>
+      <div class="cap"><b>S4 — Settle.</b> Gravity pulls it down; it rests on the floor, slightly tilted, gently breathing (idle micro-motion). Double-tap empty space = Reset.</div>
+    </div>
+    <div class="panel">
+      <div class="screen">
+        <div class="b-toast" style="top:14px;">GROS BRAS<br><span style="font-weight:600;">Secret debloque</span></div>
+        <div class="b-mark" style="top:45%; left:50%; transform:translate(-50%,-50%) rotate(-8deg);">B!G</div>
+        <div class="b-dot" style="top:30%; left:30%;"></div><div class="b-dot" style="top:26%; left:64%;"></div>
+        <div class="b-dot o" style="top:38%; left:74%;"></div><div class="b-dot o" style="top:52%; left:22%;"></div>
+      </div>
+      <div class="cap"><b>Hidden challenge "GROS BRAS".</b> One throw whose release speed exceeds the threshold (tuned so ~1 in 15 natural throws lands it) → celebration PG-15.</div>
+    </div>
+  </div>
+
+  <h3><span class="pg">PG-13</span> Tilt enhancement (mobile only)</h3>
+  <div class="frameset">
+    <div class="phone" style="width:220px;">
+      <div class="screen" style="width:220px; height:300px;">
+        <div class="f-card" style="position:absolute; left:12px; right:12px; bottom:12px;">
+          <div class="f-title" style="font-size:13px;">PENCHEZ VOTRE TELEPHONE</div>
+          <div class="f-body" style="margin-top:4px; font-size:10px;">Inclinez l'écran : la gravité suit. Autorisation requise sur iPhone.</div>
+          <div style="display:flex; gap:8px; margin-top:8px;">
+            <span class="f-btn">Activer</span><span class="f-btn ghost">Plus tard</span>
+          </div>
+        </div>
+      </div>
+      <div class="framecap"><span class="pg">PG-13</span> Opt-in card</div>
+    </div>
+    <div style="flex:1 1 380px; min-width:300px;">
+      <p><strong>Rules.</strong> The card appears once, after the first successful throw (never on load).
+      "Activer" calls <code>DeviceOrientationEvent.requestPermission()</code> inside the tap handler
+      (iOS ≥13 requires a user gesture; HTTPS only). Granted → device tilt (beta/gamma) rotates the gravity
+      vector; a small gyro glyph appears in the HUD. Denied or "Plus tard" → card never returns
+      (<code>localStorage pg:tilt:dismissed</code>), effect stays fully playable with straight-down gravity.
+      Android Chrome: no permission call needed (<code>requestPermission</code> is absent — its presence IS the
+      iOS detector), listener attaches directly. Desktop: card never shows.
+      <strong>Silent-failure guard:</strong> on iOS, listeners can attach and simply never fire — if no
+      orientation event arrives within 1s of "granted", revert to straight-down gravity and hide the gyro glyph.</p>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="bigbang">5 — Effect 2: BIG BANG (destruction) <span class="pg">PG-14</span></h2>
+  <p>Tap the logo: it shatters into particles from the impact point, drifts, then reassembles itself.
+  The transgressive joy of breaking the brand — and watching it come back.</p>
+  <div class="board">
+    <div class="panel">
+      <div class="screen">
+        <div class="b-mark" style="top:42%; left:50%; transform:translate(-50%,-50%);">B!G</div>
+        <div style="position:absolute; bottom:10px; width:100%; text-align:center; color:#e8ecff; font-size:9px;">tap / click the logo</div>
+      </div>
+      <div class="cap"><b>S1 — Idle.</b> The logo floats with a slow idle rotation, faintly pulsing — it looks tappable. Coach line: "Touchez le logo".</div>
+    </div>
+    <div class="panel">
+      <div class="screen">
+        <div class="b-dot" style="top:30%; left:36%;"></div><div class="b-dot" style="top:24%; left:56%;"></div>
+        <div class="b-dot o" style="top:44%; left:24%;"></div><div class="b-dot w" style="top:50%; left:70%;"></div>
+        <div class="b-dot" style="top:60%; left:44%;"></div><div class="b-dot w" style="top:38%; left:62%;"></div>
+        <div class="b-dot o" style="top:66%; left:60%;"></div><div class="b-dot" style="top:56%; left:30%;"></div>
+        <div class="b-dot w" style="top:20%; left:44%;"></div><div class="b-dot o" style="top:32%; left:76%;"></div>
+      </div>
+      <div class="cap"><b>S2 — Explode.</b> Radial impulse from the tap point; particles inherit mesh-surface positions and colors (brutal/lemon/tangerine mix). Haptic tick where supported (<code>navigator.vibrate(35)</code> — silently absent on iOS).</div>
+    </div>
+    <div class="panel">
+      <div class="screen">
+        <div class="b-dot" style="top:16%; left:20%;"></div><div class="b-dot w" style="top:12%; left:70%;"></div>
+        <div class="b-dot o" style="top:28%; left:84%;"></div><div class="b-dot" style="top:76%; left:14%;"></div>
+        <div class="b-dot w" style="top:84%; left:60%;"></div><div class="b-dot o" style="top:70%; left:80%;"></div>
+      </div>
+      <div class="cap"><b>S3 — Drift.</b> Particles float outward with damping, slight turbulence, 1.2s. A second tap here re-explodes from the new point (chainable chaos).</div>
+    </div>
+    <div class="panel">
+      <div class="screen">
+        <div class="b-dot" style="top:36%; left:40%;"></div><div class="b-dot w" style="top:34%; left:52%;"></div>
+        <div class="b-dot o" style="top:44%; left:46%;"></div><div class="b-dot" style="top:40%; left:58%;"></div>
+        <div class="b-mark" style="top:42%; left:50%; transform:translate(-50%,-50%); opacity:0.35;">B!G</div>
+      </div>
+      <div class="cap"><b>S4 — Reassemble.</b> After 1.2s of drift, particles ease back to their mesh positions over 1.6s (staggered, outermost last). The logo "heals" and resumes idle, carrying a slight natural spin about its core from the tap torque.</div>
+    </div>
+    <div class="panel">
+      <div class="screen">
+        <div class="b-toast" style="top:14px;">TIMING PARFAIT<br><span style="font-weight:600;">Secret debloque</span></div>
+        <div class="b-mark" style="top:45%; left:50%; transform:translate(-50%,-50%);">B!G</div>
+        <div class="b-dot" style="top:28%; left:28%;"></div><div class="b-dot o" style="top:24%; left:68%;"></div>
+      </div>
+      <div class="cap"><b>Hidden challenge "TIMING PARFAIT".</b> Re-tap within the final 400ms of reassembly (≥90% healed) → celebration PG-15.</div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="lumiere">6 — Effect 3: LUMIERE (inspect the chrome) <span class="pg">PG-25</span></h2>
+  <p>The home hero's magic, handed over: rotate the logo directly and watch the studio light streaks
+  sweep across the chrome. The camera never orbits — <strong>the object turns on its core</strong>,
+  which is exactly the home page's grammar (scroll rotates the model, the camera stays fixed).</p>
+  <div class="board">
+    <div class="panel">
+      <div class="screen">
+        <div class="b-streak" style="left:28%;"></div>
+        <div class="b-mark" style="top:42%; left:50%; transform:translate(-50%,-50%);">B!G</div>
+        <div style="position:absolute; bottom:10px; width:100%; text-align:center; color:#e8ecff; font-size:9px;">drag to rotate</div>
+      </div>
+      <div class="cap"><b>S1 — Idle.</b> Slow ambient rotation (~0.05 rad/s) so the streaks already travel. Coach line: "Faites tourner le logo".</div>
+    </div>
+    <div class="panel">
+      <div class="screen">
+        <div class="b-streak" style="left:52%;"></div>
+        <div class="b-mark" style="top:42%; left:50%; transform:translate(-50%,-50%) rotate(10deg);">B!G</div>
+        <div class="b-arrow" style="top:18%; left:40%;">⟳</div>
+      </div>
+      <div class="cap"><b>S2 — Spin.</b> Drag = trackball: pointer motion maps to angular velocity about the core; horizontal drag yaws, vertical drag pitches. It follows the finger 1:1 while held.</div>
+    </div>
+    <div class="panel">
+      <div class="screen">
+        <div class="b-streak" style="left:74%;"></div>
+        <div class="b-mark" style="top:42%; left:50%; transform:translate(-50%,-50%) rotate(-14deg);">B!G</div>
+      </div>
+      <div class="cap"><b>S3 — Release.</b> Momentum keeps it spinning, exponentially damped (half-life ≈ 1.2s) down to the idle drift — never a dead stop. The traveling streaks do the show.</div>
+    </div>
+    <div class="panel">
+      <div class="screen">
+        <div class="b-streak" style="left:60%; width:22px;"></div>
+        <div class="b-mark" style="top:46%; left:50%; transform:translate(-50%,-50%); font-size:74px;">B!</div>
+      </div>
+      <div class="cap"><b>S4 — Zoom.</b> Pinch / wheel dollies the camera, clamped 1.4–4.2 (home distance: 2.6). Framing stays centered on the core.</div>
+    </div>
+    <div class="panel">
+      <div class="screen">
+        <div class="b-toast" style="top:14px;">PLEIN SOLEIL<br><span style="font-weight:600;">Secret debloque</span></div>
+        <div class="b-mark" style="top:46%; left:50%; transform:translate(-50%,-50%);">B!G</div>
+        <div class="b-streak" style="left:44%; width:30px; opacity:0.9;"></div>
+      </div>
+      <div class="cap"><b>Hidden challenge "PLEIN SOLEIL".</b> Hold the logo's lit face within ~6° of the key-light axis for 800ms → a flare glint blooms, celebration PG-15.</div>
+    </div>
+  </div>
+
+  <h3><span class="pg">PG-26</span> The studio rig — interpreted from the home, shared by every effect</h3>
+  <p>Read from <code>scene-canvas.tsx</code>; extracted into a shared module (move-only refactor,
+  home tests stay green — DEC-035) consumed by the hero and all three effects:</p>
+  <div class="tablewrap"><table>
+    <tr><th>Piece</th><th>Exact home values (reused verbatim)</th></tr>
+    <tr><td>Environment</td><td>Procedural scene on grey <code>0x565b64</code>, PMREM-baked (blur 0.02): top softbox 14×10 ×5.0; two vertical strips (left 1.6×16 ×9.0, right 1.2×16 ×8.0) — <strong>the signature traveling streaks</strong>; floor bounce 16×3 ×3.0; cool back fill 20×20 ×0.9 tinted RGB(0.55, 0.6, 0.72).</td></tr>
+    <tr><td>Lights</td><td>Key directional 1.6 @ (3,4,5) · rim 1.0 @ (−4,2,−3) · hemisphere 0.5.</td></tr>
+    <tr><td>Render</td><td>ACESFilmic tone mapping, antialias, alpha, DPR ≤ 2. Camera fov 42, distance 2.6.</td></tr>
+    <tr><td>Material</td><td>Every mesh forced to metalness 1.0 · roughness 0.22 · envMapIntensity 1.15 · white base.</td></tr>
+    <tr><td>Rig hierarchy</td><td>model (bbox-centered at origin = <strong>the core</strong>) → holder (scale 1/maxDim; <code>rotation.y = −π/4</code> cancels the GLB's baked 45°) → spin group = the sole interaction target. Every torque in every effect applies about the spin origin.</td></tr>
+  </table></div>
+
+  <!-- ============================================================ -->
+  <h2 id="ludique">7 — Playful hooks: challenge celebration &amp; collective counter</h2>
+  <h3><span class="pg">PG-15</span> Challenge celebration</h3>
+  <p>On unlock: a lemon thesis-sticker toast drops from the top (spring ease, −1.2deg),
+  displaying the badge name in the display face (ASCII: <code>GROS BRAS</code>, <code>TIMING PARFAIT</code>, <code>PLEIN SOLEIL</code>)
+  over "Secret debloque"; a 1s lemon/tangerine confetti burst inside the stage (particles from the
+  effect's own system — no new library); PG-10 flips to unlocked. The toast auto-dismisses after 3.5s.
+  <code>prefers-reduced-motion</code>: toast appears without drop animation, no confetti.
+  Unlocks are client-local only (<code>localStorage</code>) — no account, no server write, and the
+  challenge names are the shareable brag ("t'as trouvé le secret ?").</p>
+
+  <h3><span class="pg">PG-09</span> Collective counter behavior</h3>
+  <p>One number, aggregated across all visitors: total interactions ("logos maltraités" — throws, wall
+  hits, explosions). Client batches counts and flushes every 15s and on <code>visibilitychange→hidden</code>
+  via <code>navigator.sendBeacon</code>; the chip optimistically adds local counts between server refreshes.
+  The number never blocks play: fetch failure hides the chip, play continues. Anonymous by construction —
+  no identifier, no cookie, no fingerprint; per-IP rate limiting only (server-side, in-memory).</p>
+
+  <!-- ============================================================ -->
+  <h2 id="share">8 — Share loop <span class="pg">PG-16</span> &amp; OG card <span class="pg">PG-17</span></h2>
+  <div class="frameset">
+    <div class="phone" style="width:220px;">
+      <div class="screen" style="width:220px; height:300px;">
+        <div class="b-mark" style="top:26%; left:50%; transform:translate(-50%,-50%); font-size:26px;">B!G</div>
+        <div style="position:absolute; bottom:0; left:0; right:0; background:var(--paper); border-radius:10px 10px 0 0; padding:10px; color:var(--ink); font-size:9px;">
+          <b>Partager</b>
+          <div style="display:flex; gap:8px; margin-top:6px;">
+            <span style="background:var(--brutal); border-radius:6px; padding:6px 8px;">Messages</span>
+            <span style="background:var(--brutal); border-radius:6px; padding:6px 8px;">WhatsApp</span>
+            <span style="background:var(--brutal); border-radius:6px; padding:6px 8px;">Copier</span>
+          </div>
+        </div>
+      </div>
+      <div class="framecap"><span class="pg">PG-16</span> Native sheet (mobile)</div>
+    </div>
+    <div style="flex:1 1 400px; min-width:300px;">
+      <p><strong>Contract.</strong> "Partager" calls <code>navigator.share({ title, text, url })</code> when available
+      (all mobile browsers; Safari/Chrome desktop). Fallback (Firefox desktop, older browsers):
+      copy the URL via <code>navigator.clipboard.writeText</code> + confirmation toast "Lien copié !".
+      Feature-detect with <code>'share' in navigator</code> — never UA-sniff.</p>
+      <p><strong>Share payload per effect</strong> (from the content module, per locale — text carries the
+      challenge state):</p>
+<pre>url:   https://big-emotion.com/playground/poids-lourd/
+title: POIDS LOURD — Playground BIG EMOTION
+text (default):  "Le logo BIG EMOTION est un jouet. Viens le maltraiter."
+text (unlocked): "J'ai trouve le secret GROS BRAS. A ton tour."</pre>
+      <div class="og-card">
+        <span class="anno" style="top:6px; left:6px;">PG-17</span>
+        <div>
+          <div style="color:var(--paper); font-size:11px; text-transform:uppercase; letter-spacing:0.14em; font-weight:700;">Playground</div>
+          <div class="f-title" style="font-size:clamp(24px, 6vw, 44px); margin-top:6px;">POIDS LOURD</div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+          <div class="f-logo3d" style="font-size:clamp(30px, 8vw, 56px); transform:rotate(-8deg);">B!G</div>
+          <div class="f-logo" style="font-size:14px;">B!G EMOTION</div>
+        </div>
+      </div>
+      <p class="framecap"><span class="pg">PG-17</span> OG card 1200×630 — generated per effect with the repo's existing
+      <code>next/og</code> ImageResponse pattern (<code>opengraph-image.tsx</code>, <code>force-static</code>,
+      BBH Hegarty WOFF1 already committed for satori). Lyon ground, lemon display name, tilted mark.</p>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="states">9 — States, fallbacks &amp; quality tiers</h2>
+  <div class="frameset">
+    <div class="phone" style="width:200px;">
+      <div class="screen" style="width:200px; height:280px;">
+        <span class="anno" style="top:6px; left:6px;">PG-18</span>
+        <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:10px;">
+          <div class="f-logo3d" style="font-size:24px; opacity:0.3;">B!G</div>
+          <div style="width:80px; height:4px; background:rgba(255,255,255,0.2); border-radius:2px;">
+            <div style="width:55%; height:100%; background:var(--lemon); border-radius:2px;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="framecap"><span class="pg">PG-18</span> Loading — ghost mark + lemon progress; engine + GLB load in parallel</div>
+    </div>
+    <div class="phone" style="width:200px;">
+      <div class="screen" style="width:200px; height:280px;">
+        <span class="anno" style="top:6px; left:6px;">PG-19</span>
+        <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:10px; padding:16px; text-align:center;">
+          <div class="f-title" style="font-size:26px;">B!G</div>
+          <div class="f-body" style="font-size:10px;">Ce terrain de jeu demande WebGL.<br>Les autres pages, non — promis.</div>
+        </div>
+      </div>
+      <div class="framecap"><span class="pg">PG-19</span> Fallback — no WebGL or reduced-motion: static flat wordmark + honest line; share + counter still work</div>
+    </div>
+    <div style="flex:1 1 380px; min-width:300px;">
+      <h3 style="margin-top:0;"><span class="pg">PG-20</span> Quality tier ladder</h3>
+      <div class="tablewrap"><table>
+        <tr><th>Tier</th><th>Entry heuristic (static signals, no new dep)</th><th>Big Bang particles</th><th>DPR cap</th></tr>
+        <tr><td>T3 high</td><td>desktop, or ≥8 cores &amp; <code>deviceMemory</code> ≥8</td><td class="num">40 000</td><td class="num">2.0</td></tr>
+        <tr><td>T2 mid</td><td>default mobile (researched range: 20–50k @30fps on 2022-24 Android mid-tier)</td><td class="num">20 000</td><td class="num">1.5</td></tr>
+        <tr><td>T1 low</td><td>≤4 cores or <code>deviceMemory</code> ≤4, or watchdog demotion</td><td class="num">6 000</td><td class="num">1.0</td></tr>
+      </table></div>
+      <p style="font-size:0.9rem;"><strong>Watchdog:</strong> averaged FPS over a rolling ≥20-frame / 3s window;
+      below 30 → demote <em>DPR first, particle count second</em> (in debounced steps — DPR changes
+      reallocate render targets), with hysteresis; after 3 flip-flops, pin the low preset. Never promotes
+      back within the session. Sprites: small <code>gl_PointSize</code> with distance attenuation,
+      <code>depthWrite:false</code>, mediump fragment — fill-rate, not count, is the mobile killer.
+      POIDS LOURD and LUMIERE are tier-insensitive (one chrome mesh) except DPR.
+      <strong>Reduced-motion</strong> is not a tier: it renders PG-19 (no simulation at all), per REQ-008.</p>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="contracts">10 — Code contracts</h2>
+  <h3><span class="pg">PG-21</span> Effect registry — <code>src/components/playground/effects.ts</code></h3>
+<pre>export type EffectSlug = "poids-lourd" | "big-bang" | "lumiere";
+
+export type EffectDefinition = {
+  slug: EffectSlug;
+  challengeId: "gros-bras" | "timing-parfait" | "plein-soleil";
+  /** Lazy chunk — the ONLY place an effect's deps enter the bundle. */
+  load: () =&gt; Promise&lt;{ mount: EffectMountFn }&gt;;
+};
+
+export type EffectContext = {
+  glbUrl: "/models/scene.glb";      // shared hero asset (Draco, 45KB)
+  dracoPath: "/draco/";             // self-hosted decoder (REQ-012)
+  qualityTier: 1 | 2 | 3;           // PG-20
+  reportInteraction: (n?: number) =&gt; void;  // feeds the counter batcher
+  reportChallenge: () =&gt; void;              // fires PG-15 once
+};
+
+export type EffectHandle = {
+  reset: () =&gt; void;
+  setQualityTier: (tier: 1 | 2 | 3) =&gt; void; // watchdog demotion
+  dispose: () =&gt; void;              // full GL teardown — no leaked contexts
+};
+
+export type EffectMountFn = (canvas: HTMLCanvasElement, ctx: EffectContext) =&gt; Promise&lt;EffectHandle&gt;;
+
+export const EFFECTS: readonly EffectDefinition[];  // order = gallery order</pre>
+  <p>Copy (names, hooks, share text, challenge names) lives in
+  <code>content[locale].playground</code> in <code>src/content/site.ts</code>, keyed by slug —
+  <code>site.test.ts</code> parity extends to it (matching slugs across locales, ASCII display slots).
+  Adding effect #4 = one registry entry + one effect module + one content block + one OG file. Nothing else.
+  Every effect mounts the model through the shared studio rig (PG-26): centered core, normalized holder,
+  one spin group — the structural guarantee that any action turns the logo on itself.</p>
+
+  <h3><span class="pg">PG-22</span> Counter API — <code>/api/playground/counter</code></h3>
+<pre>GET  → 200 { total: number }                    Cache-Control: no-store
+POST { effect: EffectSlug, hits: number }       hits clamped to 1..50 per call
+     → 200 { total: number }
+     → 429 (rate limit: checkRateLimit(ip, { limit: 12, windowMs: 60_000 }))
+     → 400 (unknown slug / bad payload — zod)
+
+Store: src/lib/playground-counter.ts
+  - authoritative in-memory total, debounced flush (5s) to
+    PLAYGROUND_DATA_DIR/counter.json  (atomic: tmp + rename)
+  - loads the file at boot → survives deploys and restarts
+  - PLAYGROUND_DATA_DIR unset (dev): memory-only, warn once
+  - deploy: named volume mounted at /data/playground (first volume in
+    deploy/docker-compose.yml — none exists today; env in deploy/env.template)
+Route follows the handler.ts DI pattern (injected store + rate limiter),
+tested like api/contact/handler.test.ts. No cookie, no IP stored — the IP
+touches only the in-memory rate limiter. Nothing personal is ever persisted.</pre>
+
+  <!-- ============================================================ -->
+  <h2 id="budgets">11 — Performance budgets &amp; gates</h2>
+  <div class="tablewrap"><table>
+    <tr><th>Gate</th><th>Budget</th><th>Where it's enforced</th></tr>
+    <tr><td>Marketing pages untouched</td><td class="num">+0 KB</td><td>No import path from marketing routes into <code>src/components/playground/</code>; physics/effect deps appear only in effect lazy chunks (build assertion in CI).</td></tr>
+    <tr><td>Gallery page JS</td><td class="num">≤ site baseline + 10 KB gz</td><td>Gallery renders server-side; only the counter chip hydrates.</td></tr>
+    <tr><td>Effect page added deps (beyond the three.js chunk the home already ships)</td><td class="num">v1: 0 KB · ceiling ≤ 100 KB gz</td><td>v1 adds no runtime dependency: physics is hand-rolled (~200 lines, DEC-031), particles are a three.js shader (DEC-032). The 100 KB ceiling is the envelope budget future effects must fit (DEC-030).</td></tr>
+    <tr><td>Frame rate</td><td class="num">≥ 30 fps sustained on T2 mobile; 60 fps target desktop</td><td>PG-20 watchdog + manual device pass before an effect ships (the "mobile first-class" gate: no convincing touch version → it does not ship).</td></tr>
+    <tr><td>Stage interactive</td><td class="num">≤ 3 s on 4G mid-tier</td><td>Engine + GLB fetched in parallel on effect-page load, not on gallery.</td></tr>
+    <tr><td>A11y floor</td><td>—</td><td>Reduced-motion → PG-19; all HUD controls keyboard-reachable; canvas has <code>aria-label</code> + the coach line as text; contrast per REQ-036 ledger.</td></tr>
+  </table></div>
+
+  <!-- ============================================================ -->
+  <h2 id="trace">12 — Traceability <span class="pg">PG-24</span></h2>
+  <div class="tablewrap"><table>
+    <tr><th>Spec section</th><th>Elements</th><th>Confluence</th><th>Jira story</th></tr>
+    <tr><td>Routes, nav, gallery</td><td>PG-01..04, PG-23</td><td>REQ-037 · ARCH-019</td><td>Shell story</td></tr>
+    <tr><td>Effect page, OG, share</td><td>PG-05..08, PG-11, PG-16, PG-17</td><td>REQ-038 · DEC-034</td><td>Effect-frame story</td></tr>
+    <tr><td>POIDS LOURD</td><td>PG-12, PG-13</td><td>REQ-039 · DEC-031</td><td>Physics story</td></tr>
+    <tr><td>BIG BANG</td><td>PG-14</td><td>REQ-040 · DEC-032</td><td>Destruction story</td></tr>
+    <tr><td>LUMIERE + shared rig</td><td>PG-25, PG-26</td><td>REQ-041 · DEC-035</td><td>Lumiere story</td></tr>
+    <tr><td>Counter</td><td>PG-09, PG-22</td><td>REQ-042 · DEC-033</td><td>Counter story</td></tr>
+    <tr><td>Challenges</td><td>PG-10, PG-15</td><td>REQ-043</td><td>Challenges story</td></tr>
+    <tr><td>Envelope, tiers, budgets</td><td>PG-18..21</td><td>DEC-030 · ARCH-019</td><td>All</td></tr>
+  </table></div>
+
+  <p class="muted" style="margin-top:3em; font-size:0.85rem;">BIG EMOTION — Playground visual spec v1 ·
+  Frames depict the product with brand tokens (lemon #f2ff26 · tangerine #ff5200 · lyon #0024cc ·
+  brutal #dbdbdb · ink #000 · paper #fff) · Display face shown as proxy; production = BBH Hegarty ·
+  Copy inside frames is FR product copy; annotations are the spec.</p>
+</main>

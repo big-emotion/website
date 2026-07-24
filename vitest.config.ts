@@ -33,6 +33,10 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./vitest.setup.ts"],
+    // A git worktree parked under .claude/ is a second checkout of this same repo. Its
+    // tests would run here too — resolving `@` back to *this* src, so they grade the
+    // wrong tree and fail on any change made outside them.
+    exclude: ["node_modules/**", "dist/**", ".next/**", ".claude/**"],
     // next-intl ships ESM whose `react-server` export condition Vitest would otherwise
     // resolve; inlining it makes `createNavigation` and the client hooks load as the
     // browser build the jsdom tests actually render against.

@@ -1,6 +1,8 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
+import fr from "../../../messages/fr.json";
 import { EffectHud } from "./hud";
 
 const copy = {
@@ -18,14 +20,17 @@ vi.mock("./share", () => ({ shareEffect: (...args: unknown[]) => shareEffect(...
 
 function renderHud(children?: ReactNode) {
   return render(
-    <EffectHud
-      title="Mock effect"
-      backHref="/playground"
-      shareUrl="https://big-emotion.com/playground/mock/"
-      copy={copy}
-    >
-      {children}
-    </EffectHud>,
+    <NextIntlClientProvider locale="fr" messages={fr}>
+      <EffectHud
+        title="Mock effect"
+        backHref="/playground"
+        shareUrl="https://big-emotion.com/playground/mock/"
+        copy={copy}
+        stage={<div data-testid="stage" />}
+      >
+        {children}
+      </EffectHud>
+    </NextIntlClientProvider>,
   );
 }
 
@@ -40,6 +45,18 @@ describe("EffectHud", () => {
     renderHud();
 
     expect(screen.getByRole("link", { name: copy.back })).toHaveAttribute("href", "/playground");
+  });
+
+  // The stage is framed by the HUD rather than rendered beside it: that is what puts the
+  // share action below the effect, in the thumb zone, instead of in the top bar where it
+  // collided with the site header's own controls.
+  it("frames the effect between the title bar and the share action", () => {
+    const { container } = renderHud();
+
+    const order = Array.from(
+      container.querySelectorAll("h1, [data-testid='stage'], button"),
+    ).map((el) => el.tagName.toLowerCase());
+    expect(order).toEqual(["h1", "div", "button"]);
   });
 
   it("renders the badge and counter-chip slots when passed", () => {

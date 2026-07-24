@@ -97,10 +97,16 @@ export default function PoidsLourdEffect() {
         aria-label={strings.ariaLabel}
         className="h-full w-full touch-none"
       />
+      {/* Pointer-device gestures, so they are addressed to pointer-device viewports only
+          — and pinned to the top of the stage, where the logo never rests: gravity keeps
+          it at the bottom, which is also where the reset control lives. */}
+      <p className="absolute top-4 left-5 hidden text-xs uppercase tracking-wide text-ink/70 md:left-8 md:block">
+        {strings.gestures}
+      </p>
       <button
         type="button"
         onClick={() => engineRef.current?.reset()}
-        className="font-display bg-ink text-lemon absolute top-5 right-5 px-4 py-2 text-sm uppercase tracking-wide"
+        className="font-display absolute right-5 bottom-5 min-h-11 bg-ink px-4 text-sm uppercase tracking-wide text-lemon transition-opacity hover:opacity-80"
       >
         {strings.reset}
       </button>

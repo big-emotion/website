@@ -71,6 +71,9 @@ describe("SiteFooter", () => {
     ["/cases/", "bg-tangerine"],
     ["/culture/", "bg-lyon"],
     ["/contact/", "bg-ink"],
+    ["/playground/", "bg-brutal"],
+    // Effect pages hang off the gallery, so they close on the same grey band.
+    ["/playground/big-bang/", "bg-brutal"],
   ])("takes the current page's hero surface (%s → %s)", (pathname, surface) => {
     usePathname.mockReturnValue(pathname);
     const { container } = render(<SiteFooter locale="fr" />);

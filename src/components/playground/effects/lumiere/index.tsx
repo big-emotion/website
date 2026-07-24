@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-import { Wordmark } from "@/components/wordmark";
+import { Logo } from "@/components/logo";
 import { CAMERA } from "@/components/scene/states";
 import { buildStudioEnvironment, loadStudioRig } from "@/components/scene/studio-rig";
 import { applyDamping } from "./damping";
@@ -67,6 +67,12 @@ export default function Lumiere() {
     const key = new THREE.DirectionalLight(0xffffff, 1.6);
     key.position.set(...KEY_LIGHT_POSITION);
     scene.add(key);
+    // The home rig's rim (PG-26), which this effect was missing: without it the chrome's
+    // far edge goes unlit and the mark flattens into the backdrop as you turn it — the
+    // opposite of what an inspection effect is for.
+    const rim = new THREE.DirectionalLight(0xffffff, 1.0);
+    rim.position.set(-4, 2, -3);
+    scene.add(rim);
     scene.add(new THREE.HemisphereLight(0xffffff, 0x6a6f78, 0.5));
 
     const spin = new THREE.Group();
@@ -173,8 +179,10 @@ export default function Lumiere() {
   return (
     <div className="relative h-[70vh] min-h-[420px] w-full md:h-[80vh]">
       {status === "error" ? (
-        <div className="flex h-full items-center justify-center">
-          <Wordmark className="text-[18vw] leading-none opacity-90" />
+        // The mark is the whole content on this path, so unlike the header and footer
+        // lockups it has to carry a name of its own rather than stay decorative.
+        <div role="img" aria-label="BIG EMOTION" className="flex h-full items-center justify-center">
+          <Logo className="w-[60%] opacity-90" />
         </div>
       ) : (
         <div ref={containerRef} data-testid="lumiere-canvas" className="h-full w-full" />
