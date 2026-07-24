@@ -171,9 +171,10 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
       scene.add(key);
       scene.add(new THREE.HemisphereLight(0xffffff, 0x6a6f78, 0.5));
 
-      const clock = new THREE.Clock();
+      const timer = new THREE.Timer();
       const render = () => {
-        const dt = Math.min(clock.getDelta(), 0.05);
+        timer.update();
+        const dt = Math.min(timer.getDelta(), 0.05);
         tick(dt);
         renderer?.render(scene, camera);
       };
