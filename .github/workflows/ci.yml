@@ -16,6 +16,27 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  gitleaks:
+    # Secret scan as its own job: it needs no toolchain install, so it reports in
+    # seconds and a leaked credential fails the PR even when the build is broken.
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Scan contract: this is a per-PR gate, so it scans the working tree at the
+      # PR's HEAD (--no-git) rather than the full history. Secrets in already-
+      # removed commits are a one-time audit and rotation concern, not a
+      # recurring per-PR signal; --no-git keeps the gate fast and deterministic.
+      # Image pinned by digest for supply-chain integrity (gitleaks v8.21.2).
+      - name: Run gitleaks
+        run: >
+          docker run --rm -v "${{ github.workspace }}:/repo" -w /repo
+          zricethezav/gitleaks@sha256:0e99e8821643ea5b235718642b93bb32486af9c8162c8b8731f7cbdc951a7f46
+          detect --source . --no-git --config .gitleaks.toml --redact --no-banner
+
   build:
     runs-on: ubuntu-latest
     permissions:
@@ -33,7 +54,31 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # ESLint and Prettier both cache per-file results, but their default
+      # `metadata` strategy keys on mtime — useless in CI, where a fresh checkout
+      # gives every file a new mtime. Both scripts pass `--cache-strategy content`
+      # so the restored cache actually hits. The key hashes the lockfile and both
+      # tool configs, because their own caches invalidate on file content but NOT
+      # on a plugin, version or rule-config bump.
+      - name: Restore linter caches
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules/.cache/eslint
+            node_modules/.cache/prettier
+          key: linters-${{ hashFiles('pnpm-lock.yaml', 'eslint.config.mjs', '.prettierrc.json', '.prettierignore') }}-${{ github.sha }}
+          restore-keys: |
+            linters-${{ hashFiles('pnpm-lock.yaml', 'eslint.config.mjs', '.prettierrc.json', '.prettierignore') }}-
+
       - run: pnpm lint
+
+      # `typecheck` runs `next typegen` first: tsconfig.json includes
+      # next-env.d.ts and .next/types, which are generated and gitignored, so a
+      # bare `tsc --noEmit` on a fresh checkout cannot resolve image imports or
+      # route types.
+      - run: pnpm typecheck
+
+      - run: pnpm format:check
 
       - run: pnpm test
 
@@ -57,3 +102,36 @@ jobs:
         env:
           PRISMIC_REPOSITORY_NAME: ${{ vars.PRISMIC_REPOSITORY_NAME }}
           PRISMIC_ACCESS_TOKEN: ${{ secrets.PRISMIC_ACCESS_TOKEN }}
+
+      # Content-model drift is caused by an editor touching the Prismic dashboard,
+      # not by the diff under review, so running this on every PR would paint
+      # feature branches red for something their author never did. Gating it on the
+      # release path (develop -> main) means drift blocks a deploy, never daily
+      # work. These are steps rather than a separate job on purpose: a job skipped
+      # by `if:` reports a neutral check, which branch protection and the Ferry
+      # merger's `gh pr checks` both misread as "not green".
+      #
+      # Fails loud rather than skipping when the token is absent: a gate that
+      # quietly passes without its credential reads as "no drift" to whoever is
+      # cutting the release, which is the one moment it exists to protect.
+      - name: Check Prismic content models for drift
+        if: github.base_ref == 'main'
+        env:
+          PRISMIC_REPOSITORY_NAME: ${{ vars.PRISMIC_REPOSITORY_NAME }}
+          PRISMIC_CUSTOM_TYPES_API_TOKEN: ${{ secrets.PRISMIC_CUSTOM_TYPES_API_TOKEN }}
+        run: |
+          if [ -z "${PRISMIC_CUSTOM_TYPES_API_TOKEN}" ]; then
+            echo "::error::PRISMIC_CUSTOM_TYPES_API_TOKEN is not set. Mint one in the Prismic dashboard (Settings -> API & Security -> Custom Types API) and add it as a repository secret, otherwise this release PR cannot verify content-model drift."
+            exit 1
+          fi
+          pnpm prismic:check
+
+      # BBH Hegarty has an ASCII-only cmap (DEC-023): an accented character in a
+      # font-display slot silently falls back to a mismatched face. site.test.ts
+      # guards that rule for site.ts copy but cannot reach Prismic — this can.
+      - name: Check Prismic display-slot copy stays ASCII
+        if: github.base_ref == 'main'
+        env:
+          PRISMIC_REPOSITORY_NAME: ${{ vars.PRISMIC_REPOSITORY_NAME }}
+          PRISMIC_ACCESS_TOKEN: ${{ secrets.PRISMIC_ACCESS_TOKEN }}
+        run: pnpm prismic:check-display
