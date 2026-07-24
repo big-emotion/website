@@ -78,7 +78,9 @@ describe("PipelineBoard — motion allowed", () => {
     stubIntersectionObserver();
     renderSlice();
 
-    expect(screen.getByText("A card slides lane to lane until the PR is reviewed.")).toBeInTheDocument();
+    expect(
+      screen.getByText("A card slides lane to lane until the PR is reviewed."),
+    ).toBeInTheDocument();
     expect(screen.getByText("To do")).toBeInTheDocument();
     expect(screen.getByText("In review")).toBeInTheDocument();
     expect(screen.getByText("Done")).toBeInTheDocument();

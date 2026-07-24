@@ -31,17 +31,17 @@ describe("ClientWall", () => {
     renderWall();
     const [row, ...extra] = announcedRows();
     expect(extra).toHaveLength(0);
-    expect(within(row).getAllByRole("listitem").map((li) => li.textContent)).toEqual([
-      ...clients,
-    ]);
+    expect(
+      within(row)
+        .getAllByRole("listitem")
+        .map((li) => li.textContent),
+    ).toEqual([...clients]);
   });
 
   it("carries the full roster in every row, so no row is narrower than a wide viewport", () => {
     renderWall();
     for (const list of screen.getAllByRole("list", { hidden: true })) {
-      expect(within(list).getAllByRole("listitem", { hidden: true })).toHaveLength(
-        clients.length,
-      );
+      expect(within(list).getAllByRole("listitem", { hidden: true })).toHaveLength(clients.length);
     }
   });
 

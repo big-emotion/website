@@ -39,7 +39,7 @@ describe("incrementCounter", () => {
       filePath,
     );
     expect(state.total).toBe(7);
-    expect(state.byEffect).toEqual({ "lumiere": 3, "other-effect": 4 });
+    expect(state.byEffect).toEqual({ lumiere: 3, "other-effect": 4 });
   });
 
   it("clamps a single increment to the sane max instead of rejecting it", async () => {

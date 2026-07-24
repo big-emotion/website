@@ -38,9 +38,9 @@ function tenantId(): string | undefined {
 function graphConfigured(): boolean {
   return Boolean(
     tenantId() &&
-      process.env.GRAPH_CLIENT_ID &&
-      process.env.GRAPH_CLIENT_SECRET &&
-      process.env.MAIL_SENDER,
+    process.env.GRAPH_CLIENT_ID &&
+    process.env.GRAPH_CLIENT_SECRET &&
+    process.env.MAIL_SENDER,
   );
 }
 
@@ -67,23 +67,18 @@ async function getAccessToken(): Promise<string> {
     return cachedToken.value;
   }
 
-  const response = await fetch(
-    `https://login.microsoftonline.com/${tenant}/oauth2/v2.0/token`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        client_id: clientId,
-        client_secret: clientSecret,
-        scope: "https://graph.microsoft.com/.default",
-        grant_type: "client_credentials",
-      }),
-    },
-  );
+  const response = await fetch(`https://login.microsoftonline.com/${tenant}/oauth2/v2.0/token`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      client_id: clientId,
+      client_secret: clientSecret,
+      scope: "https://graph.microsoft.com/.default",
+      grant_type: "client_credentials",
+    }),
+  });
   if (!response.ok) {
-    throw new Error(
-      `Graph token request failed: ${response.status} ${await response.text()}`,
-    );
+    throw new Error(`Graph token request failed: ${response.status} ${await response.text()}`);
   }
   const json = (await response.json()) as { access_token: string; expires_in: number };
   cachedToken = { value: json.access_token, expiresAt: Date.now() + json.expires_in * 1000 };
@@ -127,18 +122,14 @@ async function sendViaGraph(message: MailMessage): Promise<void> {
     },
   );
   if (!response.ok) {
-    throw new Error(
-      `Graph sendMail failed: ${response.status} ${await response.text()}`,
-    );
+    throw new Error(`Graph sendMail failed: ${response.status} ${await response.text()}`);
   }
 }
 
 export async function sendMail(message: MailMessage): Promise<void> {
   if (!graphConfigured()) {
     if (process.env.NODE_ENV !== "production") {
-      console.info(
-        `[mail:stub] to=${message.to} subject=${JSON.stringify(message.subject)}`,
-      );
+      console.info(`[mail:stub] to=${message.to} subject=${JSON.stringify(message.subject)}`);
       return;
     }
     throw new Error(

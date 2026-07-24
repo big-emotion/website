@@ -35,9 +35,7 @@ export function SiteFooter({
   const subpage = subpageFromPathname(usePathname());
   const surface = subpage ? SUBPAGE_ACCENTS[subpage].surface : DEFAULT_SURFACE;
 
-  const privacyHref = legalLinks.find(
-    (link) => link.uid === "politique-de-confidentialite",
-  )?.href;
+  const privacyHref = legalLinks.find((link) => link.uid === "politique-de-confidentialite")?.href;
 
   return (
     <footer className={surface}>

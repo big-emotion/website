@@ -40,10 +40,7 @@ export function encodeSessionToken(
   return `${data}.${signature}`;
 }
 
-export function decodeSessionToken(
-  token: string,
-  secret: string,
-): SessionPayload | null {
+export function decodeSessionToken(token: string, secret: string): SessionPayload | null {
   const parts = token.split(".");
   if (parts.length !== 2) return null;
   const [data, signature] = parts;

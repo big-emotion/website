@@ -59,50 +59,48 @@ export default async function OpengraphImage({ params }: Props) {
   const displayFamily = bbhHegarty ? { fontFamily: "BBH Hegarty" } : {};
 
   return new ImageResponse(
-    (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        background: "#000",
+        padding: "0 90px",
+      }}
+    >
       <div
         style={{
-          width: "100%",
-          height: "100%",
+          ...displayFamily,
+          // satori requires an explicit display on any node with more than one
+          // child — `{site.name} — Playground` is two text children, not one.
           display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          background: "#000",
-          padding: "0 90px",
+          fontWeight: 400,
+          fontSize: 40,
+          letterSpacing: "-0.02em",
+          color: "#fff",
+          opacity: 0.7,
         }}
       >
-        <div
-          style={{
-            ...displayFamily,
-            // satori requires an explicit display on any node with more than one
-            // child — `{site.name} — Playground` is two text children, not one.
-            display: "flex",
-            fontWeight: 400,
-            fontSize: 40,
-            letterSpacing: "-0.02em",
-            color: "#fff",
-            opacity: 0.7,
-          }}
-        >
-          {`${site.name} — Playground`}
-        </div>
-        <div
-          style={{
-            ...displayFamily,
-            // BBH Hegarty ships a single static weight (400); satori only resolves
-            // a custom face when the requested weight matches a registered one.
-            fontWeight: 400,
-            fontSize: 128,
-            lineHeight: 1,
-            marginTop: 28,
-            letterSpacing: "-0.04em",
-            color: LEMON,
-          }}
-        >
-          {effect.title[locale]}
-        </div>
+        {`${site.name} — Playground`}
       </div>
-    ),
+      <div
+        style={{
+          ...displayFamily,
+          // BBH Hegarty ships a single static weight (400); satori only resolves
+          // a custom face when the requested weight matches a registered one.
+          fontWeight: 400,
+          fontSize: 128,
+          lineHeight: 1,
+          marginTop: 28,
+          letterSpacing: "-0.04em",
+          color: LEMON,
+        }}
+      >
+        {effect.title[locale]}
+      </div>
+    </div>,
     {
       ...size,
       ...(bbhHegarty

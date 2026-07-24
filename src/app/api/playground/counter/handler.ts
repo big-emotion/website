@@ -41,7 +41,10 @@ export async function handleGetCounter(deps: CounterDeps = {}): Promise<Response
 // The counter must never block play: any failure here answers with a plain status
 // code and never throws, so a slow disk or a bad payload can't take the playground
 // down with it. counter-client.ts also treats every non-2xx as fire-and-forget.
-export async function handlePostCounter(request: Request, deps: CounterDeps = {}): Promise<Response> {
+export async function handlePostCounter(
+  request: Request,
+  deps: CounterDeps = {},
+): Promise<Response> {
   const rateLimiter = deps.rateLimiter ?? counterRateLimiter;
   const increment = deps.incrementCounter ?? incrementCounter;
 

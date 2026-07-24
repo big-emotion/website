@@ -84,8 +84,7 @@ const contactEmail = "hello@big-emotion.com";
 const fr: Record<LegalUid, LegalDocument> = {
   "mentions-legales": {
     title: "Mentions légales",
-    summary:
-      "Informations légales relatives à l'éditeur et à l'hébergeur du site big-emotion.com.",
+    summary: "Informations légales relatives à l'éditeur et à l'hébergeur du site big-emotion.com.",
     sections: [
       {
         heading: "Éditeur du site",

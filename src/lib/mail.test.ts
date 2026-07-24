@@ -37,9 +37,9 @@ describe("sendMail — stub when Graph is unconfigured", () => {
 
   it("rejects in production when no transport is configured", async () => {
     vi.stubEnv("NODE_ENV", "production");
-    await expect(
-      sendMail({ to: "a@acme.com", subject: "Hi", text: "body" }),
-    ).rejects.toThrow(/not configured/i);
+    await expect(sendMail({ to: "a@acme.com", subject: "Hi", text: "body" })).rejects.toThrow(
+      /not configured/i,
+    );
   });
 });
 
@@ -114,9 +114,7 @@ describe("sendMail — Microsoft Graph transport", () => {
     });
 
     const [mailUrl] = fetchMock.mock.calls[1];
-    expect(mailUrl).toBe(
-      "https://graph.microsoft.com/v1.0/users/hello%40big-emotion.com/sendMail",
-    );
+    expect(mailUrl).toBe("https://graph.microsoft.com/v1.0/users/hello%40big-emotion.com/sendMail");
     const payload = JSON.parse(fetchMock.mock.calls[1][1].body);
     expect(payload.message.from.emailAddress.address).toBe("hello@big-emotion.com");
   });

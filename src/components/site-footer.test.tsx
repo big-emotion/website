@@ -118,9 +118,7 @@ describe("SiteFooter", () => {
       renderFooter();
 
       expect(screen.getByRole("button", { name: "Gestion des cookies" })).toBeInTheDocument();
-      expect(
-        screen.queryByRole("link", { name: "Gestion des cookies" }),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: "Gestion des cookies" })).not.toBeInTheDocument();
     });
 
     it("groups the row as a named landmark", () => {

@@ -69,10 +69,7 @@ describe("SubpageHero photo slot", () => {
     const { container } = renderHero();
 
     const slots = [...container.querySelectorAll("[data-subpage-slot]")];
-    expect(slots.map((slot) => slot.getAttribute("data-subpage-slot"))).toEqual([
-      "text",
-      "photo",
-    ]);
+    expect(slots.map((slot) => slot.getAttribute("data-subpage-slot"))).toEqual(["text", "photo"]);
   });
 
   // The map is four near-identical lines, so wiring one page to another's import is an

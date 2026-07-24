@@ -193,7 +193,12 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
       // there's no gravity/wall integration to run — only the torque below still ticks.
     } else {
       const tilt = getTiltBias();
-      const stepped = stepMotion(position, velocity, { x: tilt.x * 4, y: GRAVITY + tilt.y * 4 }, dt);
+      const stepped = stepMotion(
+        position,
+        velocity,
+        { x: tilt.x * 4, y: GRAVITY + tilt.y * 4 },
+        dt,
+      );
       const reflected = reflectOffWalls(
         stepped.position,
         stepped.velocity,

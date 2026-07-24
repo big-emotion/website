@@ -76,7 +76,11 @@ export function TiltPermissionCard({
   onGranted: () => void;
   onUnavailable: () => void;
 }) {
-  const visible = useSyncExternalStore(subscribeToDecision, getVisibleSnapshot, getServerVisibleSnapshot);
+  const visible = useSyncExternalStore(
+    subscribeToDecision,
+    getVisibleSnapshot,
+    getServerVisibleSnapshot,
+  );
 
   useEffect(() => {
     const level = getSupportLevel();

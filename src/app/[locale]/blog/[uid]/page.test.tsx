@@ -41,11 +41,7 @@ getByID.mockImplementation(async (id: string) => {
   return doc;
 });
 
-const {
-  default: ArticlePage,
-  generateStaticParams,
-  generateMetadata,
-} = await import("./page");
+const { default: ArticlePage, generateStaticParams, generateMetadata } = await import("./page");
 
 function article(
   uid: string,

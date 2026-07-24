@@ -10,7 +10,13 @@ import { legalNavLinks } from "@/content/legal";
 import { content, site } from "@/content/site";
 import type { Locale } from "@/i18n/locales";
 import { routing } from "@/i18n/routing";
-import { alternateLanguages, localePath, localeUrl, openGraphLocales, SITE_ORIGIN } from "@/i18n/urls";
+import {
+  alternateLanguages,
+  localePath,
+  localeUrl,
+  openGraphLocales,
+  SITE_ORIGIN,
+} from "@/i18n/urls";
 import { DocumentShell } from "../document-shell";
 
 // Both locales are known at build time, so the marketing tree stays fully SSG.

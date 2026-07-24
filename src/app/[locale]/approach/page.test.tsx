@@ -55,29 +55,27 @@ describe("/approach metadata", () => {
 
 describe("/approach hero", () => {
   it("crowns the page with the accent hero, which owns the only h1", async () => {
-    const { container } = render(
-      await ApproachPage({ params: Promise.resolve({ locale: "fr" }) }),
-    );
+    const { container } = render(await ApproachPage({ params: Promise.resolve({ locale: "fr" }) }));
 
-    expect(screen.getByRole("heading", { level: 1 })).toHaveAccessibleName("L'agence qui fait dire wow");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveAccessibleName(
+      "L'agence qui fait dire wow",
+    );
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
     expect(container.querySelector("section")).toHaveClass("bg-lemon");
   });
 
   it("introduces the page with its lead and its decorative photo", async () => {
-    const { container } = render(
-      await ApproachPage({ params: Promise.resolve({ locale: "fr" }) }),
-    );
+    const { container } = render(await ApproachPage({ params: Promise.resolve({ locale: "fr" }) }));
 
     expect(screen.getByText(new RegExp("On part de la réaction"))).toBeInTheDocument();
     expect(container.querySelector("img")).toHaveAttribute("alt", "");
   });
 
   it("titles the hero in English on the English route", async () => {
-    render(
-      await ApproachPage({ params: Promise.resolve({ locale: "en" }) }),
-    );
+    render(await ApproachPage({ params: Promise.resolve({ locale: "en" }) }));
 
-    expect(screen.getByRole("heading", { level: 1 })).toHaveAccessibleName("The agency that gives a wow");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveAccessibleName(
+      "The agency that gives a wow",
+    );
   });
 });

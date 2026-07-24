@@ -65,7 +65,9 @@ describe("/culture hero", () => {
       </NextIntlClientProvider>,
     );
 
-    expect(screen.getByRole("heading", { level: 1 })).toHaveAccessibleName("Digital first, emotion toujours");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveAccessibleName(
+      "Digital first, emotion toujours",
+    );
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
     expect(container.querySelector("section")).toHaveClass("bg-lyon");
   });
@@ -88,6 +90,8 @@ describe("/culture hero", () => {
       </NextIntlClientProvider>,
     );
 
-    expect(screen.getByRole("heading", { level: 1 })).toHaveAccessibleName("Digital first emotion, always");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveAccessibleName(
+      "Digital first emotion, always",
+    );
   });
 });

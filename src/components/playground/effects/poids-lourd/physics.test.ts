@@ -23,12 +23,7 @@ import {
 
 describe("stepMotion", () => {
   it("integrates gravity into velocity, then velocity into position (semi-implicit Euler)", () => {
-    const result = stepMotion(
-      { x: 0, y: 0 },
-      { x: 0, y: 0 },
-      { x: 0, y: 10 },
-      1,
-    );
+    const result = stepMotion({ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 10 }, 1);
     // v' = v + a*dt = (0, 10); p' = p + v'*dt = (0, 10)
     expect(result.velocity).toEqual({ x: 0, y: 10 });
     expect(result.position).toEqual({ x: 0, y: 10 });
@@ -197,9 +192,7 @@ describe("clampCameraDistance", () => {
 
 describe("stepCameraDistance", () => {
   it("brings the camera closer on the way in, further on the way out", () => {
-    expect(stepCameraDistance(CAMERA_DISTANCE_DEFAULT, "in")).toBeLessThan(
-      CAMERA_DISTANCE_DEFAULT,
-    );
+    expect(stepCameraDistance(CAMERA_DISTANCE_DEFAULT, "in")).toBeLessThan(CAMERA_DISTANCE_DEFAULT);
     expect(stepCameraDistance(CAMERA_DISTANCE_DEFAULT, "out")).toBeGreaterThan(
       CAMERA_DISTANCE_DEFAULT,
     );

@@ -21,13 +21,18 @@ function article({ uid = "a", lang = "fr-fr", title = "Titre", headings = [] } =
 
 describe("accentedDisplayCopy", () => {
   it("passes an article whose display slots are pure ASCII", () => {
-    const doc = article({ title: "Le jugement ne se reproduit pas", headings: ["Un refuge qui mange sa fondation"] });
+    const doc = article({
+      title: "Le jugement ne se reproduit pas",
+      headings: ["Un refuge qui mange sa fondation"],
+    });
     expect(accentedDisplayCopy(doc)).toEqual([]);
   });
 
   it("flags an accented title", () => {
     const doc = article({ uid: "x", title: "Rendez-vous réussi" });
-    expect(accentedDisplayCopy(doc)).toEqual([{ uid: "x", lang: "fr-fr", slot: "title", text: "Rendez-vous réussi" }]);
+    expect(accentedDisplayCopy(doc)).toEqual([
+      { uid: "x", lang: "fr-fr", slot: "title", text: "Rendez-vous réussi" },
+    ]);
   });
 
   // The bug this script exists for: `.article-prose :where(h2, h3, h4)` resolves to

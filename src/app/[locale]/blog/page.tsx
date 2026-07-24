@@ -73,41 +73,41 @@ export default async function BlogPage({ params }: RouteProps) {
           collapses straight through this section, dragging it down the page and leaving
           a band of the white body background under the hero. */}
       <section className="bg-[var(--blog-surface)] px-5 pt-14 pb-20 text-[var(--blog-ink)] md:px-8 md:pt-20 md:pb-32">
-      {articles.length === 0 ? (
-        <p className="max-w-prose text-lg leading-relaxed opacity-70">{blog.emptyState}</p>
-      ) : (
-        <>
-          <FeaturedArticle
-            href={`/blog/${featured.uid}`}
-            label={blog.featuredLabel}
-            title={featured.data.title ?? ""}
-            excerpt={asText(featured.data.excerpt)}
-            date={
-              featured.data.publish_date
-                ? formatArticleDate(locale, featured.data.publish_date)
-                : ""
-            }
-            readMore={blog.readMore}
-          />
+        {articles.length === 0 ? (
+          <p className="max-w-prose text-lg leading-relaxed opacity-70">{blog.emptyState}</p>
+        ) : (
+          <>
+            <FeaturedArticle
+              href={`/blog/${featured.uid}`}
+              label={blog.featuredLabel}
+              title={featured.data.title ?? ""}
+              excerpt={asText(featured.data.excerpt)}
+              date={
+                featured.data.publish_date
+                  ? formatArticleDate(locale, featured.data.publish_date)
+                  : ""
+              }
+              readMore={blog.readMore}
+            />
 
-          {rest.length > 0 && (
-            <div className="mt-14 grid gap-x-8 gap-y-10 md:mt-20 md:grid-cols-2 xl:grid-cols-3">
-              {rest.map((article) => (
-                <ArticleCard
-                  key={article.id}
-                  href={`/blog/${article.uid}`}
-                  title={article.data.title ?? ""}
-                  date={
-                    article.data.publish_date
-                      ? formatArticleDate(locale, article.data.publish_date)
-                      : ""
-                  }
-                />
-              ))}
-            </div>
-          )}
-        </>
-      )}
+            {rest.length > 0 && (
+              <div className="mt-14 grid gap-x-8 gap-y-10 md:mt-20 md:grid-cols-2 xl:grid-cols-3">
+                {rest.map((article) => (
+                  <ArticleCard
+                    key={article.id}
+                    href={`/blog/${article.uid}`}
+                    title={article.data.title ?? ""}
+                    date={
+                      article.data.publish_date
+                        ? formatArticleDate(locale, article.data.publish_date)
+                        : ""
+                    }
+                  />
+                ))}
+              </div>
+            )}
+          </>
+        )}
       </section>
     </>
   );

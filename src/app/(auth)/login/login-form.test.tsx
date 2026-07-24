@@ -26,9 +26,7 @@ describe("LoginForm", () => {
     render(<LoginForm />);
     fillAndSubmit("contact@big-emotion.com");
 
-    expect(await screen.findByRole("status")).toHaveTextContent(
-      NEUTRAL_MESSAGE,
-    );
+    expect(await screen.findByRole("status")).toHaveTextContent(NEUTRAL_MESSAGE);
   });
 
   it("shows the identical neutral message for an unknown email", async () => {
@@ -40,9 +38,7 @@ describe("LoginForm", () => {
     render(<LoginForm />);
     fillAndSubmit("nobody@example.com");
 
-    expect(await screen.findByRole("status")).toHaveTextContent(
-      NEUTRAL_MESSAGE,
-    );
+    expect(await screen.findByRole("status")).toHaveTextContent(NEUTRAL_MESSAGE);
   });
 
   it("falls back to a generic message when the request fails outright", async () => {
@@ -51,9 +47,7 @@ describe("LoginForm", () => {
     render(<LoginForm />);
     fillAndSubmit("contact@big-emotion.com");
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      /réessaie/i,
-    );
+    expect(await screen.findByRole("alert")).toHaveTextContent(/réessaie/i);
   });
 
   it("posts the trimmed email as JSON to /api/auth/request-link", async () => {

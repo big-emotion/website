@@ -76,7 +76,9 @@ describe("French copy speaks to one visitor, not to a committee", () => {
   it("the playground zoom control addresses the reader as tu", () => {
     render(<ZoomControls locale="fr" onZoom={() => {}} />);
 
-    const onScreen = screen.getAllByRole("button").map((button) => button.getAttribute("aria-label") ?? "");
+    const onScreen = screen
+      .getAllByRole("button")
+      .map((button) => button.getAttribute("aria-label") ?? "");
     onScreen.push(document.body.textContent ?? "");
 
     expect(offendersAmong(onScreen)).toEqual([]);

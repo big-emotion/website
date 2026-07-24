@@ -53,7 +53,13 @@ function homePage(lang: "fr-fr" | "en-us"): Content.PageDocument {
     sceneId: string,
     variation: "default" | "introHero",
     primary: Record<string, unknown>,
-  ) => ({ slice_type: "home_scene", slice_label: null, variation, primary: { scene_id: sceneId, ...primary }, items: [] });
+  ) => ({
+    slice_type: "home_scene",
+    slice_label: null,
+    variation,
+    primary: { scene_id: sceneId, ...primary },
+    items: [],
+  });
 
   return {
     id: "home",

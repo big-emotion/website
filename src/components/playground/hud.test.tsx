@@ -71,9 +71,9 @@ describe("EffectHud", () => {
   it("frames the effect between the title bar and the share action", () => {
     const { container } = renderHud();
 
-    const order = Array.from(
-      container.querySelectorAll("h1, [data-testid='stage'], button"),
-    ).map((el) => el.tagName.toLowerCase());
+    const order = Array.from(container.querySelectorAll("h1, [data-testid='stage'], button")).map(
+      (el) => el.tagName.toLowerCase(),
+    );
     expect(order).toEqual(["h1", "div", "button"]);
   });
 
@@ -150,7 +150,10 @@ describe("EffectHud", () => {
     shareEffect.mockResolvedValue("shared");
     unlockChallenge("mock-effect");
 
-    renderHud(undefined, { effectId: "mock-effect", unlockedShareText: "I just unlocked PLEIN SOLEIL!" });
+    renderHud(undefined, {
+      effectId: "mock-effect",
+      unlockedShareText: "I just unlocked PLEIN SOLEIL!",
+    });
     fireEvent.click(screen.getByRole("button", { name: copy.share.button }));
 
     await waitFor(() => {

@@ -26,8 +26,8 @@ vi.mock("@/prismicio", async (importOriginal) => ({
   createClient: () => ({ getAllByType }),
 }));
 
-getAllByType.mockImplementation(async (_type: string, params: { lang: string }) =>
-  caseStudiesByLang.value[params.lang] ?? [],
+getAllByType.mockImplementation(
+  async (_type: string, params: { lang: string }) => caseStudiesByLang.value[params.lang] ?? [],
 );
 
 const { default: CasesPage, generateMetadata } = await import("./page");

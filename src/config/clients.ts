@@ -22,18 +22,14 @@ export function validateClientRegistry(clients: ClientConfig[]): void {
     }
 
     if (client.emails.length === 0) {
-      throw new Error(
-        `clients registry: client "${client.clientId}" has no provisioned emails`,
-      );
+      throw new Error(`clients registry: client "${client.clientId}" has no provisioned emails`);
     }
 
     for (const email of client.emails) {
       const normalized = normalizeEmail(email);
 
       if (!normalized) {
-        throw new Error(
-          `clients registry: client "${client.clientId}" has a blank email`,
-        );
+        throw new Error(`clients registry: client "${client.clientId}" has a blank email`);
       }
 
       if (seenEmails.has(normalized)) {
@@ -61,9 +57,7 @@ validateClientRegistry(clients);
 
 const emailToClientId = new Map<string, string>(
   clients.flatMap((client) =>
-    client.emails.map(
-      (email) => [normalizeEmail(email), client.clientId] as const,
-    ),
+    client.emails.map((email) => [normalizeEmail(email), client.clientId] as const),
   ),
 );
 

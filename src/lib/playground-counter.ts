@@ -26,13 +26,20 @@ const EMPTY_STATE: CounterState = { total: 0, byEffect: {} };
 export const MAX_INCREMENT = 50;
 
 function defaultFilePath(): string {
-  return process.env.PLAYGROUND_COUNTER_FILE ?? path.join(process.cwd(), ".data", "playground-counter.json");
+  return (
+    process.env.PLAYGROUND_COUNTER_FILE ??
+    path.join(process.cwd(), ".data", "playground-counter.json")
+  );
 }
 
 function isCounterState(value: unknown): value is CounterState {
   if (typeof value !== "object" || value === null) return false;
   const candidate = value as Partial<CounterState>;
-  return typeof candidate.total === "number" && typeof candidate.byEffect === "object" && candidate.byEffect !== null;
+  return (
+    typeof candidate.total === "number" &&
+    typeof candidate.byEffect === "object" &&
+    candidate.byEffect !== null
+  );
 }
 
 async function readState(filePath: string): Promise<CounterState> {

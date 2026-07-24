@@ -21,6 +21,7 @@ const mockEffect: PlaygroundEffect = {
   slug: "mock-ripple",
   title: { fr: "Ondulation", en: "Ripple" },
   description: { fr: "Un effet d'onde.", en: "A ripple effect." },
+  preview: "orient",
   component: lazy(() => Promise.resolve({ default: () => <div data-testid="mock-effect" /> })),
 };
 

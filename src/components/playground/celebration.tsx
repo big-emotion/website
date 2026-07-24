@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  CHALLENGE_UNLOCKED_EVENT,
-  type ChallengeUnlockedDetail,
-} from "./challenges";
+import { CHALLENGE_UNLOCKED_EVENT, type ChallengeUnlockedDetail } from "./challenges";
 
 const MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 const CONFETTI_COUNT = 24;
@@ -16,7 +13,13 @@ const CONFETTI_COLORS = ["var(--color-lemon)", "var(--color-tangerine)", "var(--
  * `prefers-reduced-motion` the toast still announces the unlock, but no confetti
  * renders — the message lands, nothing moves.
  */
-export function ChallengeCelebration({ effectId, message }: { effectId: string; message?: string }) {
+export function ChallengeCelebration({
+  effectId,
+  message,
+}: {
+  effectId: string;
+  message?: string;
+}) {
   const [visible, setVisible] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
 

@@ -17,7 +17,5 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     clientId: consumed.clientId,
   });
 
-  return NextResponse.redirect(
-    new URL(`/espace/${consumed.clientId}`, request.url),
-  );
+  return NextResponse.redirect(new URL(`/espace/${consumed.clientId}`, request.url));
 }

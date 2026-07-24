@@ -41,12 +41,7 @@ export function CookieSettingsButton({
   }
 
   return (
-    <button
-      type="button"
-      onClick={openCookieSettings}
-      aria-busy={isLoading}
-      className={className}
-    >
+    <button type="button" onClick={openCookieSettings} aria-busy={isLoading} className={className}>
       {t("manageCookies")}
     </button>
   );

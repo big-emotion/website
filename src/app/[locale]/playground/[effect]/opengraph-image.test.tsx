@@ -20,6 +20,7 @@ const mockEffect: PlaygroundEffect = {
   slug: "mock-ripple",
   title: { fr: "Ondulation", en: "Ripple" },
   description: { fr: "Un effet d'onde.", en: "A ripple effect." },
+  preview: "orient",
   component: null as unknown as PlaygroundEffect["component"],
 };
 
@@ -27,9 +28,12 @@ vi.mock("@/components/playground/effects", () => ({
   playgroundEffects: [mockEffect],
 }));
 
-const { default: OpengraphImage, generateStaticParams, size, contentType } = await import(
-  "./opengraph-image"
-);
+const {
+  default: OpengraphImage,
+  generateStaticParams,
+  size,
+  contentType,
+} = await import("./opengraph-image");
 
 describe("playground effect opengraph-image", () => {
   it("declares the standard OG image dimensions and content type", () => {

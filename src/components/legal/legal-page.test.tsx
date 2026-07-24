@@ -34,8 +34,7 @@ function publishedDocument(title: string, bodyText: string) {
   };
 }
 
-const renderPage = async (props: Parameters<typeof LegalPage>[0]) =>
-  render(await LegalPage(props));
+const renderPage = async (props: Parameters<typeof LegalPage>[0]) => render(await LegalPage(props));
 
 describe("LegalPage", () => {
   it("renders the wording an editor published in Prismic", async () => {

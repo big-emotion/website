@@ -16,9 +16,9 @@ describe("consent parameters", () => {
       expect(cookieSection).toContain(CONSENT_COOKIE_NAME);
     }
 
-    expect(consentParameters("https://big-emotion.com/politique-de-confidentialite/")).toMatchObject(
-      { cookieName: CONSENT_COOKIE_NAME },
-    );
+    expect(
+      consentParameters("https://big-emotion.com/politique-de-confidentialite/"),
+    ).toMatchObject({ cookieName: CONSENT_COOKIE_NAME });
   });
 
   it("makes refusing exactly as available as accepting", () => {

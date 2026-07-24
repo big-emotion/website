@@ -7,11 +7,11 @@
 
 ADR 0004 set the production deploy to fire on every push to `main`, reasoning
 that a trunk-based one-page site gains nothing from a tag ceremony. ADR 0005
-(standalone Docker) reworked *how* the deploy runs — build a Docker image, ship
+(standalone Docker) reworked _how_ the deploy runs — build a Docker image, ship
 the tarball, restart the container — but explicitly kept ADR 0004's
 `push: branches: [main]` trigger.
 
-In practice the owner wants an explicit release gesture to control *when*
+In practice the owner wants an explicit release gesture to control _when_
 production changes. Under the push-to-main trigger, every merged PR ships to
 visitors immediately; there is no way to land work on `main` without deploying
 it. The `bigemotion-release` skill already produces an annotated `v<semver>`

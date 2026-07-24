@@ -36,9 +36,7 @@ export interface ConsumedMagicLinkToken {
 
 // Single-use: the token is removed unconditionally on first lookup, so a
 // replay of the same token — expired or not — always fails afterwards.
-export function consumeMagicLinkToken(
-  token: string,
-): ConsumedMagicLinkToken | null {
+export function consumeMagicLinkToken(token: string): ConsumedMagicLinkToken | null {
   const record = tokenStore.get(token);
   tokenStore.delete(token);
 

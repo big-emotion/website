@@ -12,6 +12,7 @@ Docker, but kept the static-export + Apache/PHP serving model. Owner decision
 planned espace client (SWBE-27..30) requires API routes and SSR.
 
 Constraints that pushed the switch now:
+
 - `/espace` routes need server-side auth, session handling, and data fetching.
 - `contact.php` (PHP running in `php:8.3-apache`) is the last PHP dependency;
   its replacement is a Next.js API route (SWBE-31).

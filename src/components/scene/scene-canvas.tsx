@@ -249,7 +249,11 @@ export function SceneCanvas() {
       <div className="scene-stage fixed inset-0" />
       {/* Between stage and canvas so the 3D mark renders on top of it — DOM order is
           the paint order inside this underlay. GSAP fades it in on the final beat. */}
-      <div ref={finalMarkRef} data-testid="scene-finalmark" className="scene-finalmark fixed inset-0" />
+      <div
+        ref={finalMarkRef}
+        data-testid="scene-finalmark"
+        className="scene-finalmark fixed inset-0"
+      />
 
       {effectiveStatus === "fallback" ? (
         <div

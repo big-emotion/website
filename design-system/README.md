@@ -30,7 +30,7 @@ pnpm build-storybook     # static build -> storybook-static/ (gitignored)
 `@storybook/addon-vitest` is configured (`vitest.storybook.config.ts`) so stories
 can run as component tests in a real Playwright browser — deliberately **not**
 wired into `pnpm test` (the CI gate), per this ticket's scope: the design-system
-*shape*, not the full drift-gate battery chancellerie runs. Run it locally once
+_shape_, not the full drift-gate battery chancellerie runs. Run it locally once
 browsers are installed:
 
 ```bash

@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  clientIdForEmail,
-  isAllowedEmail,
-  validateClientRegistry,
-} from "./clients";
+import { clientIdForEmail, isAllowedEmail, validateClientRegistry } from "./clients";
 
 describe("clients registry", () => {
   describe("isAllowedEmail / clientIdForEmail", () => {
@@ -36,15 +32,13 @@ describe("clients registry", () => {
     });
 
     it("rejects an empty clientId", () => {
-      expect(() =>
-        validateClientRegistry([{ clientId: "  ", emails: ["a@acme.com"] }]),
-      ).toThrow(/clientId/i);
+      expect(() => validateClientRegistry([{ clientId: "  ", emails: ["a@acme.com"] }])).toThrow(
+        /clientId/i,
+      );
     });
 
     it("rejects a client with no emails", () => {
-      expect(() =>
-        validateClientRegistry([{ clientId: "acme", emails: [] }]),
-      ).toThrow(/email/i);
+      expect(() => validateClientRegistry([{ clientId: "acme", emails: [] }])).toThrow(/email/i);
     });
 
     it("rejects duplicate emails across clients (case-insensitive)", () => {
@@ -68,9 +62,9 @@ describe("clients registry", () => {
     });
 
     it("rejects an empty/blank email entry", () => {
-      expect(() =>
-        validateClientRegistry([{ clientId: "acme", emails: ["  "] }]),
-      ).toThrow(/email/i);
+      expect(() => validateClientRegistry([{ clientId: "acme", emails: ["  "] }])).toThrow(
+        /email/i,
+      );
     });
   });
 });

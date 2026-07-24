@@ -24,9 +24,7 @@ describe("GET /(auth)/verify", () => {
     });
     const { GET } = await import("./route");
 
-    const res = await GET(
-      getRequest("http://localhost:3000/verify?token=tok_abc123"),
-    );
+    const res = await GET(getRequest("http://localhost:3000/verify?token=tok_abc123"));
 
     expect(consumeMagicLinkToken).toHaveBeenCalledWith("tok_abc123");
     expect(createSession).toHaveBeenCalledWith({
@@ -34,24 +32,18 @@ describe("GET /(auth)/verify", () => {
       clientId: "chancellerie",
     });
     expect(res.status).toBe(307);
-    expect(res.headers.get("location")).toBe(
-      "http://localhost:3000/espace/chancellerie",
-    );
+    expect(res.headers.get("location")).toBe("http://localhost:3000/espace/chancellerie");
   });
 
   it("redirects to a neutral error state for an invalid/expired/consumed token", async () => {
     consumeMagicLinkToken.mockReturnValue(null);
     const { GET } = await import("./route");
 
-    const res = await GET(
-      getRequest("http://localhost:3000/verify?token=tok_bad"),
-    );
+    const res = await GET(getRequest("http://localhost:3000/verify?token=tok_bad"));
 
     expect(createSession).not.toHaveBeenCalled();
     expect(res.status).toBe(307);
-    expect(res.headers.get("location")).toBe(
-      "http://localhost:3000/login?error=invalid",
-    );
+    expect(res.headers.get("location")).toBe("http://localhost:3000/login?error=invalid");
   });
 
   it("redirects to the same neutral error state when no token is present", async () => {
@@ -61,8 +53,6 @@ describe("GET /(auth)/verify", () => {
 
     expect(consumeMagicLinkToken).not.toHaveBeenCalled();
     expect(res.status).toBe(307);
-    expect(res.headers.get("location")).toBe(
-      "http://localhost:3000/login?error=invalid",
-    );
+    expect(res.headers.get("location")).toBe("http://localhost:3000/login?error=invalid");
   });
 });

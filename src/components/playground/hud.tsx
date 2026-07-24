@@ -53,7 +53,9 @@ export function EffectHud({
   async function handleShare() {
     const unlocked = effectId !== undefined && isChallengeUnlocked(effectId);
     const text = resolveShareText(unlockedShareText, unlocked);
-    const result = await shareEffect(text ? { url: shareUrl, title, text } : { url: shareUrl, title });
+    const result = await shareEffect(
+      text ? { url: shareUrl, title, text } : { url: shareUrl, title },
+    );
     setOutcome(result);
   }
 

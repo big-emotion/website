@@ -41,7 +41,9 @@ let sharedRig: Promise<THREE.Group> | null = null;
 /** Decodes the branded GLB once for the whole gallery; every card clones the result. */
 function loadSharedRig(): Promise<THREE.Group> {
   sharedRig ??= new Promise<THREE.Group>((resolve, reject) => {
-    loadStudioRig(resolve, () => reject(new Error("Playground preview: studio rig failed to load")));
+    loadStudioRig(resolve, () =>
+      reject(new Error("Playground preview: studio rig failed to load")),
+    );
   });
   return sharedRig;
 }

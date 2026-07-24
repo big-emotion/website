@@ -6,7 +6,7 @@ Inputs: [`2026-07-brand-alignment-backlog.md`](./2026-07-brand-alignment-backlog
 
 ## Why this document exists
 
-The backlog was drafted from the brand sources (Brand Guidelines V1.0, the scroll storyboard, the Netlify preview). The Confluence engineering tree was **seeded on 2026-07-18 from the same sources**, and the `SWBE` project already carries an 89-issue tree with several *open* revamp tickets. So most backlog drafts do not describe new spec — they re-describe requirements/decisions/architecture that already exist, and in three places they contradict a decision the tree already records.
+The backlog was drafted from the brand sources (Brand Guidelines V1.0, the scroll storyboard, the Netlify preview). The Confluence engineering tree was **seeded on 2026-07-18 from the same sources**, and the `SWBE` project already carries an 89-issue tree with several _open_ revamp tickets. So most backlog drafts do not describe new spec — they re-describe requirements/decisions/architecture that already exist, and in three places they contradict a decision the tree already records.
 
 Running `/bigemotion-spec` to "publish 19 REQ/DEC + 19 tickets" would therefore mint parallel IDs, duplicate open tickets, and leave two contradictory decisions in the tree. This document is the reconciliation the owner reviews before any publish.
 
@@ -26,23 +26,23 @@ Running `/bigemotion-spec` to "publish 19 REQ/DEC + 19 tickets" would therefore 
 
 Verdict legend: **NEW** = no existing coverage · **FOLD** = duplicate of an open ticket, attach work there · **RESOLVE** = updates/answers an existing `Pending` section · **CONFLICT** = contradicts an existing decision.
 
-| Draft | Intent | Existing coverage | Verdict | Blocker |
-|---|---|---|---|---|
-| **A1** | BBH display face, retire Archivo | REQ-016 (BBH width signature); **DEC-008 = OPEN arbitration** (BBH vs libre vs Archivo); SWBE-43 (Done, chose Archivo interim) | **RESOLVE** DEC-008 (new DEC supersedes it, records BBH-on-Google-Fonts verified 2026-07-20) + impl ticket. Do **not** mint a new REQ. | — unblocked |
-| **A2** | Official logo block + B! monogram | none | **NEW** | Vector logo (SVG/AI) does not exist |
-| **A3** | Centered hero + clickable SCROLL pill | REQ-010 / ARCH-009 (scroll hero); open SWBE-21, SWBE-78 | **FOLD** impl into SWBE-21/78; optional focused REQ-029 for the clickable-pill + single-cue contract | — unblocked |
-| **A4** | Load screen wavy B!G loop | none | **NEW** | Depends A2 (vector logo) |
-| **A5** | Ship the real 45 KB Draco GLB | **open SWBE-78**; bug SWBE-77; REQ-010/013, ARCH-008 (holder cancels baked 45° Y already recorded) | **FOLD into SWBE-78** | — unblocked (asset in `audit-2026-07/`) |
-| **A6** | Footer social-icons row | none | **NEW** | Social profile URLs owed |
-| **B1** | Real routes per nav entry | **open SWBE-21 + SWBE-22**; REQ-015 | **FOLD** | — unblocked |
-| **B2** | FR/EN i18n | **open SWBE-21**; REQ-014 / DEC-010 / ARCH-010 | **FOLD + CONFLICT #1** | — |
-| **B3** | Prismic CMS | **open epic SWBE-79 → 80/81/82** + SWBE-24; REQ-026/027, DEC-020/021, ARCH-016 | **FOLD + CONFLICT #2** | Prismic account/token (owner) |
-| **B4** | Brand personality slider | none | **NEW** | ~unblocked (confirm dot positions with designer before merge) |
-| **B6** | Brand-compliant photo set | none | **NEW** | unblocked (v1 = designer prototype photos) |
-| **C1** | `hello@` replaces `contact@` | REQ-004/020/024, DEC-015, ARCH-014 (name `contact@` recipient, `espace@` sender) | **NEW decision + CONFLICT #3** | `hello@` mailbox creation (owner) |
-| **C2** | `b2b@` + `b2b.big-emotion.com` | none (owner arbitration only) | **NEW decision**, cross-repo | Support repo URL, DNS, M365 (owner) |
-| **D1–D5** | Word/email-sig/PPT/card/asset-cleanup | none | **NEW but not website spec** (local files, no deploy, no REQ/DEC/ARCH impact) | All blocked on the vector logo |
-| **E1** | Keep `AGENTS.md` true | none | Fold as Definition-of-Done on each ticket (as the backlog itself states) — no standalone ticket | — |
+| Draft     | Intent                                | Existing coverage                                                                                                              | Verdict                                                                                                                                | Blocker                                                       |
+| --------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| **A1**    | BBH display face, retire Archivo      | REQ-016 (BBH width signature); **DEC-008 = OPEN arbitration** (BBH vs libre vs Archivo); SWBE-43 (Done, chose Archivo interim) | **RESOLVE** DEC-008 (new DEC supersedes it, records BBH-on-Google-Fonts verified 2026-07-20) + impl ticket. Do **not** mint a new REQ. | — unblocked                                                   |
+| **A2**    | Official logo block + B! monogram     | none                                                                                                                           | **NEW**                                                                                                                                | Vector logo (SVG/AI) does not exist                           |
+| **A3**    | Centered hero + clickable SCROLL pill | REQ-010 / ARCH-009 (scroll hero); open SWBE-21, SWBE-78                                                                        | **FOLD** impl into SWBE-21/78; optional focused REQ-029 for the clickable-pill + single-cue contract                                   | — unblocked                                                   |
+| **A4**    | Load screen wavy B!G loop             | none                                                                                                                           | **NEW**                                                                                                                                | Depends A2 (vector logo)                                      |
+| **A5**    | Ship the real 45 KB Draco GLB         | **open SWBE-78**; bug SWBE-77; REQ-010/013, ARCH-008 (holder cancels baked 45° Y already recorded)                             | **FOLD into SWBE-78**                                                                                                                  | — unblocked (asset in `audit-2026-07/`)                       |
+| **A6**    | Footer social-icons row               | none                                                                                                                           | **NEW**                                                                                                                                | Social profile URLs owed                                      |
+| **B1**    | Real routes per nav entry             | **open SWBE-21 + SWBE-22**; REQ-015                                                                                            | **FOLD**                                                                                                                               | — unblocked                                                   |
+| **B2**    | FR/EN i18n                            | **open SWBE-21**; REQ-014 / DEC-010 / ARCH-010                                                                                 | **FOLD + CONFLICT #1**                                                                                                                 | —                                                             |
+| **B3**    | Prismic CMS                           | **open epic SWBE-79 → 80/81/82** + SWBE-24; REQ-026/027, DEC-020/021, ARCH-016                                                 | **FOLD + CONFLICT #2**                                                                                                                 | Prismic account/token (owner)                                 |
+| **B4**    | Brand personality slider              | none                                                                                                                           | **NEW**                                                                                                                                | ~unblocked (confirm dot positions with designer before merge) |
+| **B6**    | Brand-compliant photo set             | none                                                                                                                           | **NEW**                                                                                                                                | unblocked (v1 = designer prototype photos)                    |
+| **C1**    | `hello@` replaces `contact@`          | REQ-004/020/024, DEC-015, ARCH-014 (name `contact@` recipient, `espace@` sender)                                               | **NEW decision + CONFLICT #3**                                                                                                         | `hello@` mailbox creation (owner)                             |
+| **C2**    | `b2b@` + `b2b.big-emotion.com`        | none (owner arbitration only)                                                                                                  | **NEW decision**, cross-repo                                                                                                           | Support repo URL, DNS, M365 (owner)                           |
+| **D1–D5** | Word/email-sig/PPT/card/asset-cleanup | none                                                                                                                           | **NEW but not website spec** (local files, no deploy, no REQ/DEC/ARCH impact)                                                          | All blocked on the vector logo                                |
+| **E1**    | Keep `AGENTS.md` true                 | none                                                                                                                           | Fold as Definition-of-Done on each ticket (as the backlog itself states) — no standalone ticket                                        | —                                                             |
 
 ## Three conflicts — RESOLVED by the owner 2026-07-20
 
@@ -77,7 +77,7 @@ Only a small subset is genuinely new, unblocked, non-conflicting, and in-scope f
 - **B4** — personality slider → new REQ-029 (or fold under Culture) + one Story. Confirm dot positions with the designer before merge.
 - **B6** — photo set → no REQ/DEC/ARCH (asset task); one Task, v1 = designer prototype photos.
 - **A1** — BBH adoption → new **DEC-023 superseding DEC-008** (records BBH-on-Google-Fonts verified 2026-07-20, satisfies REQ-016) + one Story. Optionally a note that SWBE-43's "Archivo interim" is retired.
-- *(optional)* **A3** — clickable-pill contract → focused **REQ-029** + fold impl into SWBE-21/78.
+- _(optional)_ **A3** — clickable-pill contract → focused **REQ-029** + fold impl into SWBE-21/78.
 
 Everything else is **fold** (A5→SWBE-78; B1→SWBE-21/22; B2→SWBE-21 after conflict #1; B3→SWBE-79/80/81), **hold-until-unblocked** (A2, A4, A6, C1, C2, D1–D5), or **conflict-gated** (B2, B3, C1).
 
@@ -89,15 +89,16 @@ The `/bigemotion-spec` skill is one-description-per-invocation; this backlog is 
 
 **2026-07-21 — A1, B4, B6 published** (the clean, unblocked, non-conflicting subset), all Confluence sections at status `Pending` for owner review:
 
-| Item | Confluence | Jira |
-|---|---|---|
-| A1 | `DEC-023` NEW (Decisions, supersedes `DEC-008`); `DEC-008` retirement entry on the Obsolete page; `REQ-016` satisfied (untouched) | Story **SWBE-90** |
-| B4 | `REQ-029` NEW (Requirements) — note this consumed REQ-029, so the optional A3 contract above would be the next free REQ | Story **SWBE-92** |
-| B6 | none (asset task) | Task **SWBE-91** |
+| Item | Confluence                                                                                                                        | Jira              |
+| ---- | --------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| A1   | `DEC-023` NEW (Decisions, supersedes `DEC-008`); `DEC-008` retirement entry on the Obsolete page; `REQ-016` satisfied (untouched) | Story **SWBE-90** |
+| B4   | `REQ-029` NEW (Requirements) — note this consumed REQ-029, so the optional A3 contract above would be the next free REQ           | Story **SWBE-92** |
+| B6   | none (asset task)                                                                                                                 | Task **SWBE-91**  |
 
 **B2 (i18n FR-default) also published 2026-07-21** — spec-only reversal, no new ticket, folded onto SWBE-21: `DEC-024` (Decisions, supersedes `DEC-010`), `REQ-030` (Requirements, supersedes `REQ-014`), `ARCH-017` (Architecture, supersedes `ARCH-010`), each linking SWBE-21; the three retired sections received Obsolete-page entries. **Two follow-ups on approval:** (1) `ARCH-016` still text-references the retired `ARCH-010` in its body — repoint it to `ARCH-017`; (2) SWBE-21's description still reads "routed FR/EN (next-intl)" with no direction — the implementer must follow REQ-030/DEC-024/ARCH-017 (FR-default). Neither was auto-edited (append-only + no editing existing tickets).
 
 **C1, C2, A6 also published 2026-07-21** as tracked tickets with owner preconditions documented in each ticket:
+
 - **C1** → `DEC-025` + `REQ-031` (Requirements; `REQ-031` **supersedes `REQ-024`**, retired to Obsolete) + Story **SWBE-93**. Precondition: create the `hello@` mailbox/alias in M365.
 - **C2** → `DEC-026` + `REQ-032` + Story **SWBE-94** (cross-repo). Preconditions: support-portal repo URL, M365 `support@`→`b2b@`, `b2b.` DNS.
 - **A6** → `REQ-033` + Story **SWBE-95**. Precondition: confirmed social profile URLs.

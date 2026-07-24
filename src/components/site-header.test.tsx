@@ -167,9 +167,7 @@ describe("SiteHeader mobile drawer", () => {
 
     const drawer = openDrawer("fr");
     expect(toggle).toHaveAttribute("aria-expanded", "true");
-    expect(
-      within(drawer).getByRole("link", { name: content.fr.nav[0].label }),
-    ).toBeInTheDocument();
+    expect(within(drawer).getByRole("link", { name: content.fr.nav[0].label })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: frMessages.header.closeMenu }));
     expect(

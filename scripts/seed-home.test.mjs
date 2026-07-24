@@ -50,7 +50,10 @@ describe("toDocument", () => {
 
     expect(document).toMatchObject({ type: "page", uid: "home", lang: "fr-fr" });
     expect(document.data.slices).toHaveLength(6);
-    expect(document.data.slices[0]).toMatchObject({ slice_type: "home_scene", variation: "introHero" });
+    expect(document.data.slices[0]).toMatchObject({
+      slice_type: "home_scene",
+      variation: "introHero",
+    });
   });
 
   it("carries the heading lines as a Group of one line per item", () => {

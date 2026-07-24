@@ -8,7 +8,14 @@ function mockEffect() {
   const loader = vi.fn(() =>
     Promise.resolve({ default: () => <div data-testid="mock-effect">Loaded</div> }),
   );
-  const effect: PlaygroundEffect = { id: "mock", slug: "mock", component: lazy(loader) };
+  const effect: PlaygroundEffect = {
+    id: "mock",
+    slug: "mock",
+    title: { fr: "MOCK", en: "MOCK" },
+    description: { fr: "Effet de test.", en: "Test effect." },
+    preview: "orient",
+    component: lazy(loader),
+  };
   return { effect, loader };
 }
 

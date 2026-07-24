@@ -4,19 +4,21 @@ import { hasPreviewSession } from "./preview-session";
 // The cookie Prismic sets on the site's domain when an editor starts a preview. Its
 // value is a URL-encoded JSON object keyed by repository endpoint.
 const previewCookie = (repository: string) =>
-  encodeURIComponent(JSON.stringify({ [`https://${repository}.prismic.io/api/v2`]: { preview: "ref" } }));
+  encodeURIComponent(
+    JSON.stringify({ [`https://${repository}.prismic.io/api/v2`]: { preview: "ref" } }),
+  );
 
 describe("hasPreviewSession", () => {
   it("recognises a preview session for this repository", () => {
-    expect(hasPreviewSession(`io.prismic.preview=${previewCookie("big-emotion")}`, "big-emotion")).toBe(
-      true,
-    );
+    expect(
+      hasPreviewSession(`io.prismic.preview=${previewCookie("big-emotion")}`, "big-emotion"),
+    ).toBe(true);
   });
 
   it("ignores a session belonging to another repository", () => {
-    expect(hasPreviewSession(`io.prismic.preview=${previewCookie("some-other-repo")}`, "big-emotion")).toBe(
-      false,
-    );
+    expect(
+      hasPreviewSession(`io.prismic.preview=${previewCookie("some-other-repo")}`, "big-emotion"),
+    ).toBe(false);
   });
 
   it("reports no session for an ordinary visitor", () => {
