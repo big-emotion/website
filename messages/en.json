@@ -1,6 +1,7 @@
 {
   "layout": {
-    "skipToContent": "Skip to content"
+    "skipToContent": "Skip to content",
+    "legalNav": "Legal"
   },
   "header": {
     "home": "BIG EMOTION — home",
@@ -30,5 +31,8 @@
     "personalityTitle": "Brand personality",
     "axisBalanced": "{start} to {end}: balanced",
     "axisLeans": "{start} to {end}: leans {pole}"
+  },
+  "consent": {
+    "manageCookies": "Cookie settings"
   }
 }

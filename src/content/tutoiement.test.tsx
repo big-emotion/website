@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { copy as poidsLourdCopy } from "@/components/playground/effects/poids-lourd/copy";
 import { playgroundEffects } from "@/components/playground/effects";
 import { ZoomControls } from "@/components/playground/zoom-controls";
+import { legalChrome, legalContent } from "@/content/legal";
 import { content } from "@/content/site";
 import frMessages from "../../messages/fr.json";
 
@@ -47,6 +48,11 @@ function vouvoiementIn(sentence: string): string[] {
 const FRENCH_COPY: Record<string, unknown> = {
   "content.fr": content.fr,
   "messages/fr.json": frMessages,
+  // The legal pages are the easiest place for the register to slip: legal French is
+  // vouvoiement by convention, so "Vous disposez d'un droit d'accès" writes itself. The
+  // charter does not carve out an exception, and a site that says "Ton nom" on the
+  // contact form and "vos données" one click away is the split this test exists to catch.
+  "content/legal.ts fr": { pages: legalContent.fr, chrome: legalChrome.fr },
   "playgroundEffects[].fr": playgroundEffects.map((effect) => ({
     title: effect.title.fr,
     description: effect.description.fr,
