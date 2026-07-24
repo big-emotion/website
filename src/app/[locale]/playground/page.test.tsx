@@ -28,7 +28,9 @@ describe("/playground", () => {
       </NextIntlClientProvider>,
     );
 
-    expect(screen.getByText(/espace vivant/)).toBeInTheDocument();
+    // The lead sends visitors here off the home hero they just scrolled through, so it
+    // names that logo rather than describing the gallery to itself.
+    expect(screen.getByText(/logo de la page d’accueil/)).toBeInTheDocument();
     // Cards are named after the effect, not its URL segment — the slug was never copy.
     expect(screen.getByRole("link", { name: "LUMIERE" })).toHaveAttribute(
       "href",

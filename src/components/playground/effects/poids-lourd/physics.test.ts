@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
+import { ZOOM_RATIO } from "@/components/playground/camera-framing";
 import {
+  BODY_RADIUS,
+  CAMERA_BODY_FLOOR,
   CAMERA_DISTANCE_DEFAULT,
   CAMERA_DISTANCE_MAX,
   CAMERA_DISTANCE_MIN,
-  CAMERA_DISTANCE_STEP,
+  cameraFraming,
   clampCameraDistance,
   stepCameraDistance,
   frameDelta,
@@ -14,6 +17,8 @@ import {
   sampleVelocity,
   stepMotion,
   stepTorque,
+  visibleHalfHeight,
+  wallHalfExtent,
 } from "./physics";
 
 describe("stepMotion", () => {
@@ -171,8 +176,8 @@ describe("clampCameraDistance", () => {
     expect(clampCameraDistance(CAMERA_DISTANCE_DEFAULT)).toBe(CAMERA_DISTANCE_DEFAULT);
   });
 
-  it("stops the visitor dollying through the logo", () => {
-    expect(clampCameraDistance(0.2)).toBe(CAMERA_DISTANCE_MIN);
+  it("stops the visitor closing in past the tightest framing", () => {
+    expect(clampCameraDistance(0.05)).toBe(CAMERA_DISTANCE_MIN);
     expect(clampCameraDistance(-40)).toBe(CAMERA_DISTANCE_MIN);
   });
 
@@ -182,14 +187,11 @@ describe("clampCameraDistance", () => {
 
   it("frames the logo larger than the range it shipped with", () => {
     // It shipped at distance 4 with a 50° field of view; the rig it now shares with the
-    // home hero is 42° at 2.6 (PG-26), and half of the visible height is what decides
-    // how much of the frame the unit-scaled logo fills.
-    const visibleHalfHeight = (distance: number, fovDegrees: number) =>
-      distance * Math.tan((fovDegrees * Math.PI) / 360);
+    // home hero is 42° at 3 (PG-26), and half of the visible height is what decides how
+    // much of the frame the unit-scaled logo fills.
+    const asShipped = 4 * Math.tan((50 * Math.PI) / 360);
 
-    expect(visibleHalfHeight(CAMERA_DISTANCE_DEFAULT, 42)).toBeLessThan(
-      visibleHalfHeight(4, 50),
-    );
+    expect(visibleHalfHeight(CAMERA_DISTANCE_DEFAULT)).toBeLessThan(asShipped);
   });
 });
 
@@ -212,8 +214,60 @@ describe("stepCameraDistance", () => {
   // is sized against the whole travel rather than picked in the abstract.
   it("crosses the full range in a handful of presses", () => {
     expect(
-      Math.ceil((CAMERA_DISTANCE_MAX - CAMERA_DISTANCE_MIN) / CAMERA_DISTANCE_STEP),
+      Math.ceil(Math.log(CAMERA_DISTANCE_MAX / CAMERA_DISTANCE_MIN) / Math.log(ZOOM_RATIO)),
     ).toBeLessThanOrEqual(10);
+  });
+});
+
+describe("the closest framing a visitor can reach", () => {
+  it("magnifies three times past the last position the camera itself can travel to", () => {
+    expect(CAMERA_BODY_FLOOR / CAMERA_DISTANCE_MIN).toBeCloseTo(3, 6);
+  });
+
+  it("holds the camera on its floor rather than reversing into the toy", () => {
+    expect(cameraFraming(CAMERA_DISTANCE_MIN).distance).toBe(CAMERA_BODY_FLOOR);
+  });
+});
+
+// The walls are the frame's own edges, which is what makes the toy feel like it lives
+// in the viewport — but only while the frame is bigger than the toy.
+describe("wallHalfExtent", () => {
+  it("tracks the frame at every framing the toy still fits inside", () => {
+    expect(wallHalfExtent(visibleHalfHeight(CAMERA_DISTANCE_DEFAULT))).toBeCloseTo(
+      visibleHalfHeight(CAMERA_DISTANCE_DEFAULT),
+      6,
+    );
+  });
+
+  it("stops following the frame before the walls can close inside the toy", () => {
+    // Zoomed all the way in the frame is narrower than the body itself. Walls that kept
+    // tracking it would inset past each other, and `reflectOffWalls` would mirror the
+    // body between two crossed edges forever instead of letting it fall.
+    expect(wallHalfExtent(visibleHalfHeight(CAMERA_DISTANCE_MIN))).toBeGreaterThan(BODY_RADIUS);
+  });
+
+  it("always leaves the body somewhere to travel", () => {
+    for (const framing of [CAMERA_DISTANCE_MIN, 1, CAMERA_DISTANCE_DEFAULT, CAMERA_DISTANCE_MAX]) {
+      expect(wallHalfExtent(visibleHalfHeight(framing)) - BODY_RADIUS).toBeGreaterThan(0);
+    }
+  });
+
+  it("still bounces a body back inside the frame, zoomed all the way in", () => {
+    const halfExtent = wallHalfExtent(visibleHalfHeight(CAMERA_DISTANCE_MIN));
+    const bounds = { minX: -halfExtent, maxX: halfExtent, minY: -halfExtent, maxY: halfExtent };
+    const edge = halfExtent - BODY_RADIUS;
+
+    const hit = reflectOffWalls(
+      { x: edge + 0.05, y: 0 },
+      { x: 4, y: 0 },
+      bounds,
+      BODY_RADIUS,
+      0.65,
+    );
+
+    expect(hit.bounced).toBe(true);
+    expect(hit.velocity.x).toBeLessThan(0);
+    expect(Math.abs(hit.position.x)).toBeLessThanOrEqual(edge);
   });
 });
 

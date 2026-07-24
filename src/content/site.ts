@@ -236,7 +236,7 @@ const fr: LocaleContent = {
     postCount: { one: "article", other: "articles" },
   },
   playground: {
-    lead: "Un espace vivant où on teste les effets avant qu’ils passent en production. Les cartes arrivent projet par projet.",
+    lead: "On sait que le logo de la page d’accueil vous a plu. Ici, il est à vous : attrapez-le, lancez-le, zoomez dedans.",
     emptyState: "Aucune expérience pour le moment. Revenez bientôt.",
     play: "Jouer",
     back: "Retour au Playground",
@@ -367,7 +367,7 @@ const en: LocaleContent = {
     postCount: { one: "post", other: "posts" },
   },
   playground: {
-    lead: "A living space where we test effects before they ship in production. Cards land project by project.",
+    lead: "We know the homepage logo got you. Here it is yours: grab it, throw it, zoom right in.",
     emptyState: "No experiments yet. Check back soon.",
     play: "Play",
     back: "Back to Playground",

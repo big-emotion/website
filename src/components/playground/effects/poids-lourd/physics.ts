@@ -3,21 +3,56 @@
 // Every function here is pure and canvas-free so it's unit-testable without a
 // renderer; `engine.ts` is the only caller, driving these each animation frame.
 
+import {
+  resolveFraming,
+  stepFraming,
+  type CameraFraming,
+} from "@/components/playground/camera-framing";
+import type { ZoomDirection } from "@/components/playground/zoom-controls";
+import { CAMERA } from "@/components/scene/states";
+
 export type Vec2 = { x: number; y: number };
 
 export type Bounds = { minX: number; maxX: number; minY: number; maxY: number };
 
 export type PointerSample = { x: number; y: number; t: number };
 
+/** Collision radius of the toy — the unit-scaled wordmark, half an axis wide. Lives here
+ *  rather than in the engine because the walls have to be sized against it. */
+export const BODY_RADIUS = 0.5;
+
 /**
  * Camera framing. The toy shipped at 50° / distance 4, which is not the studio rig the
  * home hero and the other two effects use — the logo landed at roughly a quarter of the
  * frame and read as a thumbnail. These bring it back onto the rig's 42° (PG-26) and
- * closer in, and the wheel dollies between the bounds from there.
+ * closer in, and the wheel scrubs between the bounds from there.
  */
 export const CAMERA_DISTANCE_DEFAULT = 3;
-export const CAMERA_DISTANCE_MIN = 1.8;
+export const CAMERA_DISTANCE_MIN = 0.6;
 export const CAMERA_DISTANCE_MAX = 5.5;
+
+/** Where the camera body stops travelling and the lens takes over (`resolveFraming`).
+ *  Below it a dolly would reverse into the toy, so the last three times' worth of
+ *  magnification is carried by the field of view instead. */
+export const CAMERA_BODY_FLOOR = 1.8;
+
+/** Half the world height the frame covers at a given framing. What decides how much of
+ *  the frame the logo fills — and, above the wall floor below, where the walls sit. */
+export function visibleHalfHeight(framing: number): number {
+  return framing * Math.tan((CAMERA.fov * Math.PI) / 360);
+}
+
+/**
+ * Half-extent of the walls for a frame half that size. The walls are the frame's own
+ * edges, which is what makes the toy feel like it lives in the viewport — but zoomed
+ * right in the frame is narrower than the toy, and walls that kept tracking it would
+ * inset past each other and leave `reflectOffWalls` mirroring the body between two
+ * crossed edges forever. So they stop, a body's width apart at the least, and the
+ * tightest framings become inspection: the toy is free to drift out of frame.
+ */
+export function wallHalfExtent(frameHalf: number): number {
+  return Math.max(frameHalf, BODY_RADIUS * 1.25);
+}
 
 /** Time dilation while the secondary mouse button is held — the "slow it down" gesture,
  *  kept on the mouse itself so the stage needs no on-screen speed control. */
@@ -27,19 +62,19 @@ export const SLOW_MOTION_SCALE = 0.25;
  *  seconds; without the cap the body would tunnel straight through a wall on return. */
 const MAX_FRAME_SECONDS = 0.05;
 
-/** How far one press of the on-screen zoom control travels. Five presses cross the whole
- *  MIN..MAX range, which is the point: the buttons are the only zoom a trackpad or a
- *  touchscreen has, so they cannot be the slow path. */
-export const CAMERA_DISTANCE_STEP = 0.75;
-
-export function clampCameraDistance(distance: number): number {
-  return Math.min(CAMERA_DISTANCE_MAX, Math.max(CAMERA_DISTANCE_MIN, distance));
+export function clampCameraDistance(framing: number): number {
+  return Math.min(CAMERA_DISTANCE_MAX, Math.max(CAMERA_DISTANCE_MIN, framing));
 }
 
-export function stepCameraDistance(distance: number, direction: "in" | "out"): number {
-  return clampCameraDistance(
-    distance + (direction === "in" ? -CAMERA_DISTANCE_STEP : CAMERA_DISTANCE_STEP),
-  );
+/** One press of the on-screen zoom control — the only zoom a trackpad or a touchscreen
+ *  has, so it cannot be the slow path. */
+export function stepCameraDistance(framing: number, direction: ZoomDirection): number {
+  return clampCameraDistance(stepFraming(framing, direction));
+}
+
+/** Where to put the camera, and how wide to open it, for a given framing. */
+export function cameraFraming(framing: number): CameraFraming {
+  return resolveFraming(clampCameraDistance(framing), CAMERA_BODY_FLOOR);
 }
 
 export function frameDelta(elapsedSeconds: number, slowMotion: boolean): number {

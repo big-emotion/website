@@ -1,13 +1,15 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { CAMERA } from "@/components/scene/states";
+import { DOLLY_DEFAULT, DOLLY_MIN, WORDMARK_RADIUS } from "./zoom-clamp";
 
 // Same lightweight three.js stand-in as scene-canvas.test.tsx / studio-rig.test.ts:
 // enough surface for the mount/dispose wiring, no real WebGL context or GPU.
 const { disposeSpy, setAnimationLoopSpy, cameras, canvases } = vi.hoisted(() => ({
   disposeSpy: vi.fn(),
   setAnimationLoopSpy: vi.fn(),
-  cameras: [] as Array<{ position: { z: number } }>,
+  cameras: [] as Array<{ position: { z: number }; fov: number }>,
   canvases: [] as HTMLCanvasElement[],
 }));
 
@@ -55,10 +57,14 @@ vi.mock("three", async () => {
   }
   class PerspectiveCamera extends Object3DMock {
     aspect = 1;
+    fov: number;
     updateProjectionMatrix = vi.fn();
-    constructor() {
+    constructor(fov = 0) {
       super();
-      cameras.push(this as unknown as { position: { z: number } });
+      // The framing is read back off `position.z` and `fov` together: past the body
+      // floor the camera stops moving and only the lens still answers the controls.
+      this.fov = fov;
+      cameras.push(this as unknown as { position: { z: number }; fov: number });
     }
   }
   class WebGLRenderer {
@@ -218,6 +224,30 @@ describe("Lumiere zoom", () => {
 
     expect(camera.position.z).toBe(framing);
     expect(wheel.defaultPrevented).toBe(false);
+  });
+
+  // What "zoom three times further in" actually buys: the presses that land past the
+  // body floor keep magnifying, they just do it with the lens instead of the dolly.
+  it("keeps magnifying once the camera has run out of room to move", () => {
+    loadStudioRigMock.mockImplementation((onReady: (holder: unknown) => void) => onReady({}));
+    renderLumiere();
+    const camera = cameras[cameras.length - 1];
+    const zoomIn = screen.getByRole("button", { name: /zoomer sur le logo/i });
+
+    const magnification = () => 1 / (camera.position.z * Math.tan((camera.fov * Math.PI) / 360));
+    const openedAt = magnification();
+    let previous = openedAt;
+
+    // Enough presses to bottom the range out, so the last few are pure lens.
+    for (let press = 0; press < 12; press += 1) {
+      fireEvent.click(zoomIn);
+      const now = magnification();
+      expect(now).toBeGreaterThanOrEqual(previous);
+      previous = now;
+    }
+
+    expect(camera.position.z).toBeGreaterThan(WORDMARK_RADIUS + CAMERA.near);
+    expect(previous / openedAt).toBeCloseTo(DOLLY_DEFAULT / DOLLY_MIN, 4);
   });
 
   it("keeps the controls out of the way when the rig never loads", () => {
