@@ -138,9 +138,10 @@ export default function Lumiere() {
     window.addEventListener("resize", onResize);
     cleanupFns.push(() => window.removeEventListener("resize", onResize));
 
-    const clock = new THREE.Clock();
+    const timer = new THREE.Timer();
     const render = () => {
-      const dt = Math.min(clock.getDelta(), 0.05);
+      timer.update();
+      const dt = Math.min(timer.getDelta(), 0.05);
 
       if (!drag.active) {
         velocity.yaw = applyDamping(velocity.yaw, dt, DAMPING_HALF_LIFE);

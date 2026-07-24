@@ -34,3 +34,14 @@ export async function shareEffect(payload: ShareEffectPayload): Promise<ShareOut
 
   return "failed";
 }
+
+/**
+ * Share-variant switching (SWBE-217/REQ-043): once a player has unlocked an effect's
+ * hidden challenge, the share sheet brags with that badge's text instead of the
+ * plain effect share — the shareable brag the challenge exists to produce. Returns
+ * `undefined` (no `text` override, `shareEffect` falls back to the title alone)
+ * whenever the challenge isn't unlocked or has no badge text to switch to.
+ */
+export function resolveShareText(unlockedShareText: string | undefined, unlocked: boolean): string | undefined {
+  return unlocked ? unlockedShareText : undefined;
+}

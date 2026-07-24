@@ -221,9 +221,11 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
       scene.add(rim);
       scene.add(new THREE.HemisphereLight(0xffffff, 0x6a6f78, 0.5));
 
-      const clock = new THREE.Clock();
+      const timer = new THREE.Timer();
       const render = () => {
-        tick(frameDelta(clock.getDelta(), slowMotion));
+        timer.update();
+        // `frameDelta` owns both the stall cap and the held-secondary-button slow motion.
+        tick(frameDelta(timer.getDelta(), slowMotion));
         if (camera) renderer?.render(scene, camera);
       };
 

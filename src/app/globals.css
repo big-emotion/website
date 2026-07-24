@@ -522,3 +522,24 @@ body[data-active="5"] {
     opacity: 1;
   }
 }
+
+/* Hidden-challenge celebration confetti (SWBE-217/REQ-043). `ChallengeCelebration`
+   only renders these spans when `prefers-reduced-motion` is off, so no CSS override
+   is needed here for that case. */
+.challenge-confetti {
+  position: absolute;
+  top: 0;
+  width: 8px;
+  height: 8px;
+  animation: challenge-confetti-fall 1.6s ease-in forwards;
+}
+@keyframes challenge-confetti-fall {
+  0% {
+    transform: translateY(-10vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) rotate(360deg);
+    opacity: 0;
+  }
+}

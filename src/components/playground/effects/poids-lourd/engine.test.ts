@@ -1,9 +1,9 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi, type Mock } from "vitest";
 import { PLAYGROUND_INTERACTION_EVENT } from "@/components/playground/report-interaction";
 
 const { renderers, groups } = vi.hoisted(() => ({
-  renderers: [] as Array<{ setPixelRatio: (r: number) => void }>,
-  groups: [] as Array<{ position: { set: (...args: number[]) => void }; rotation: { set: (...args: number[]) => void } }>,
+  renderers: [] as Array<{ setPixelRatio: Mock; setAnimationLoop: Mock }>,
+  groups: [] as Array<{ position: { set: Mock }; rotation: { set: Mock } }>,
 }));
 
 // Same lightweight three.js stand-in used by scene-canvas.test.tsx / studio-rig.test.ts:
@@ -78,9 +78,16 @@ vi.mock("three", async () => {
       return this;
     }
   }
-  class Clock {
+  // Mirrors THREE.Timer's contract: the delta stays 0 until `update()` runs, so a
+  // render loop that forgets to tick the timer freezes rather than quietly passing.
+  class Timer {
+    delta = 0;
+    update() {
+      this.delta = 0.016;
+      return this;
+    }
     getDelta() {
-      return 0.016;
+      return this.delta;
     }
   }
   class PMREMGenerator {
@@ -111,7 +118,7 @@ vi.mock("three", async () => {
     WebGLRenderer,
     Box3,
     Color,
-    Clock,
+    Timer,
     PMREMGenerator,
     Mesh,
     PlaneGeometry,
@@ -175,6 +182,25 @@ describe("createPoidsLourdEngine", () => {
     engine.mount(container);
 
     expect(container.querySelector("canvas")).not.toBeNull();
+    engine.dispose();
+  });
+
+  it("falls under gravity as frames elapse", () => {
+    const container = makeContainer();
+    const engine = createPoidsLourdEngine();
+    engine.mount(container);
+    const renderFrame = renderers[renderers.length - 1].setAnimationLoop.mock.calls[0][0] as () => void;
+    // loadStudioRig resolves synchronously in this mock, so the holder group it
+    // creates (the last one pushed) is the body the engine is animating.
+    const body = groups[groups.length - 1];
+    body.position.set.mockClear();
+
+    renderFrame();
+    renderFrame();
+
+    const [, y] = body.position.set.mock.calls[body.position.set.mock.calls.length - 1];
+    expect(y).toBeLessThan(0);
+
     engine.dispose();
   });
 

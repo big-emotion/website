@@ -73,9 +73,14 @@ vi.mock("three", async () => {
       this.material = material;
     }
   }
-  class Clock {
+  class Timer {
+    delta = 0;
+    update() {
+      this.delta = 0.016;
+      return this;
+    }
     getDelta() {
-      return 0.016;
+      return this.delta;
     }
   }
   class DirectionalLight extends Object3DMock {}
@@ -89,7 +94,7 @@ vi.mock("three", async () => {
     PMREMGenerator,
     SpriteMaterial,
     Sprite,
-    Clock,
+    Timer,
     DirectionalLight,
     HemisphereLight,
     MathUtils: { radToDeg: (rad: number) => (rad * 180) / Math.PI },

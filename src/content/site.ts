@@ -106,6 +106,14 @@ type LocaleContent = {
     /** The collective counter chip (SWBE-216/REQ-042) — same `{count} {noun}` pattern
      *  as `blog.postCount`. Sans-slot chrome, not `font-display`, so it keeps its accents. */
     counter: { one: string; other: string };
+    /** Celebration toast lead-in (SWBE-217/REQ-043), prefixed to the unlocked badge's
+     *  own label — sans-slot chrome, not `font-display`, so it keeps its accents. */
+    challengeUnlockedLead: string;
+    /** One hidden-challenge badge per effect id (from `effects.ts`), SWBE-217/REQ-043.
+     *  `label` lands in a `font-display` slot (`BadgeChip`) — keep unaccented (DEC-023).
+     *  `unlockedShare` is the brag text `resolveShareText` hands to `shareEffect` once
+     *  this browser has unlocked it. */
+    badges: Record<string, { label: string; unlockedShare: string }>;
   };
   services: readonly { title: string; body: string }[];
   impactStats: readonly { value: string; label: string }[];
@@ -240,6 +248,21 @@ const fr: LocaleContent = {
       failedToast: "Impossible de partager pour le moment.",
     },
     counter: { one: "logo maltraité", other: "logos maltraités" },
+    challengeUnlockedLead: "Défi secret débloqué :",
+    badges: {
+      lumiere: {
+        label: "PLEIN SOLEIL",
+        unlockedShare: "J'ai débloqué le badge PLEIN SOLEIL sur le Playground BIG EMOTION !",
+      },
+      "poids-lourd": {
+        label: "GROS BRAS",
+        unlockedShare: "J'ai débloqué le badge GROS BRAS sur le Playground BIG EMOTION !",
+      },
+      "big-bang": {
+        label: "TIMING PARFAIT",
+        unlockedShare: "J'ai débloqué le badge TIMING PARFAIT sur le Playground BIG EMOTION !",
+      },
+    },
   },
   services: [
     {
@@ -358,6 +381,21 @@ const en: LocaleContent = {
       failedToast: "Couldn't share this right now.",
     },
     counter: { one: "logo mistreated", other: "logos mistreated" },
+    challengeUnlockedLead: "Secret challenge unlocked:",
+    badges: {
+      lumiere: {
+        label: "PLEIN SOLEIL",
+        unlockedShare: "I just unlocked the PLEIN SOLEIL badge on the BIG EMOTION Playground!",
+      },
+      "poids-lourd": {
+        label: "GROS BRAS",
+        unlockedShare: "I just unlocked the GROS BRAS badge on the BIG EMOTION Playground!",
+      },
+      "big-bang": {
+        label: "TIMING PARFAIT",
+        unlockedShare: "I just unlocked the TIMING PARFAIT badge on the BIG EMOTION Playground!",
+      },
+    },
   },
   services: [
     {

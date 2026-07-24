@@ -2,7 +2,8 @@
 
 import { useState, type ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
-import { shareEffect, type ShareOutcome } from "./share";
+import { isChallengeUnlocked } from "./challenges";
+import { resolveShareText, shareEffect, type ShareOutcome } from "./share";
 
 type ShareCopy = {
   button: string;
@@ -13,22 +14,26 @@ type ShareCopy = {
 
 /**
  * The chrome frame every effect page mounts (PG-07/PG-08): an ink bar carrying the back
- * link, the effect's own h1 and the counter chip, then the stage, then the share action.
+ * link, the effect's own h1 and the badge slots, then the stage, then the share action.
  *
- * Two things the first cut got wrong. The bar starts below the fixed site header instead
- * of under it — the header is rendered by the layout, outside this tree, so nothing tells
- * it to make room and the back link printed straight over the logo. And the share button
- * moved out of that bar down to the thumb zone under the stage, where it no longer
- * competes with the header's own controls for the top-right corner.
+ * Two things the first cut got wrong. The bar started under the fixed site header — the
+ * header is rendered by the layout, outside this tree, so nothing tells it to make room
+ * and the back link printed straight over the logo. And the share button has moved out of
+ * that bar down to the thumb zone below the stage, where it no longer competes with the
+ * header's own controls for the top-right corner.
  *
- * A cancelled native share leaves the toast empty rather than announcing anything, so
- * dismissing the OS sheet doesn't read as an error.
+ * Share-variant switching (SWBE-217/REQ-043): once this browser has unlocked `effectId`'s
+ * hidden challenge, sharing brags with `unlockedShareText` instead of just the title —
+ * see `resolveShareText` in `share.ts`. A cancelled native share leaves the toast empty
+ * rather than announcing anything, so dismissing the OS sheet doesn't read as an error.
  */
 export function EffectHud({
   title,
   backHref,
   shareUrl,
   copy,
+  effectId,
+  unlockedShareText,
   stage,
   children,
 }: {
@@ -36,15 +41,19 @@ export function EffectHud({
   backHref: string;
   shareUrl: string;
   copy: { back: string; share: ShareCopy };
+  effectId?: string;
+  unlockedShareText?: string;
   /** The effect itself, framed between the title bar and the share action. */
   stage?: ReactNode;
-  /** Badge row beside the title — the counter chip today, the challenge badge later. */
+  /** Badge row beside the title — the counter chip and the challenge badge. */
   children?: ReactNode;
 }) {
   const [outcome, setOutcome] = useState<ShareOutcome | null>(null);
 
   async function handleShare() {
-    const result = await shareEffect({ url: shareUrl, title });
+    const unlocked = effectId !== undefined && isChallengeUnlocked(effectId);
+    const text = resolveShareText(unlockedShareText, unlocked);
+    const result = await shareEffect(text ? { url: shareUrl, title, text } : { url: shareUrl, title });
     setOutcome(result);
   }
 
@@ -77,7 +86,7 @@ export function EffectHud({
 
           <div className="mt-2 flex flex-wrap items-end justify-between gap-4">
             <h1 className="font-display text-[clamp(2.25rem,8vw,6rem)] leading-none">{title}</h1>
-            {children}
+            <div className="flex flex-wrap items-center gap-3">{children}</div>
           </div>
         </div>
       </div>

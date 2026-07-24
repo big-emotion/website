@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { BadgeChip } from "@/components/playground/badge-chip";
+import { ChallengeCelebration } from "@/components/playground/celebration";
 import { CounterChip } from "@/components/playground/counter-chip";
 import { EffectStage } from "@/components/playground/effect-stage";
 import { playgroundEffects, type PlaygroundEffect } from "@/components/playground/effects";
@@ -65,6 +67,7 @@ export default async function PlaygroundEffectPage({ params }: RouteProps) {
   const effect = findEffect(slug);
   const { playground } = content[locale];
   const href = `${ROUTE}/${slug}`;
+  const badge = playground.badges[effect.id];
 
   return (
     // Grey all the way down, like the gallery this page hangs off: the stage used to
@@ -75,6 +78,8 @@ export default async function PlaygroundEffectPage({ params }: RouteProps) {
         backHref={ROUTE}
         shareUrl={localeUrl(locale, href)}
         copy={{ back: playground.back, share: playground.share }}
+        effectId={effect.id}
+        unlockedShareText={badge?.unlockedShare}
         stage={
           <EffectStage
             effect={effect}
@@ -87,8 +92,14 @@ export default async function PlaygroundEffectPage({ params }: RouteProps) {
         }
       >
         <CounterChip locale={locale} copy={playground.counter} />
-        {/* Challenge badge (story 7) slots in here once that story ships. */}
+        <BadgeChip effectId={effect.id} label={badge?.label} />
       </EffectHud>
+
+      {/* An overlay, so it stays outside the HUD's own top-bar / stage / actions stack. */}
+      <ChallengeCelebration
+        effectId={effect.id}
+        message={badge ? `${playground.challengeUnlockedLead} ${badge.label}` : undefined}
+      />
     </article>
   );
 }

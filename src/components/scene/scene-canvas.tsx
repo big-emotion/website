@@ -127,9 +127,10 @@ export function SceneCanvas() {
     window.addEventListener("pointermove", onPointerMove);
     cleanupFns.push(() => window.removeEventListener("pointermove", onPointerMove));
 
-    const clock = new THREE.Clock();
+    const timer = new THREE.Timer();
     const render = () => {
-      const dt = Math.min(clock.getDelta(), 0.05);
+      timer.update();
+      const dt = Math.min(timer.getDelta(), 0.05);
       pointer.x += (pointer.tx - pointer.x) * Math.min(dt * 4, 1);
       pointer.y += (pointer.ty - pointer.y) * Math.min(dt * 4, 1);
       parallax.rotation.y = pointer.x * 0.1;
