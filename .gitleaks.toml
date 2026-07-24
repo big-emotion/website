@@ -26,7 +26,23 @@ paths = [
   # runs with --no-git (so .gitignore is not honoured) and would otherwise grade
   # another branch's tree, including its own vendored decoder copy.
   '''(^|/)\.claude/''',
-  # Next.js build cache: absent from CI checkouts, but --no-git means a local
-  # run of the same command would flag it.
+  # Next.js build cache and installed dependencies: both absent from the CI
+  # checkout (the gitleaks job installs nothing), but --no-git does not honour
+  # .gitignore, so a developer running the same command locally would drown in
+  # third-party findings without these.
   '''(^|/)\.next/''',
+  '''(^|/)node_modules/''',
+]
+
+# Matched against the finding itself, never a file path, so a real credential
+# added to the same file is still caught.
+regexTarget = "match"
+regexes = [
+  # The Ferry-generated Jira automation rule exports carry the Jira Cloud
+  # instance id. It is a UUID identifying the site, not a credential, and its
+  # entropy trips the generic-api-key rule. The Authorization headers in those
+  # same exports are placeholders — Jira stores the real value as a secret and
+  # never writes it into an export.
+  # No leading quote: gitleaks reports the match starting at the key name.
+  '''clientKey"\s*:\s*"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"''',
 ]
