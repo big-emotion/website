@@ -163,6 +163,18 @@ describe("SiteHeader locale switcher", () => {
 });
 
 describe("SiteHeader mobile drawer", () => {
+  it("reduces the mobile navigation typography by fifteen percent", () => {
+    renderHeader("fr");
+    const drawer = openDrawer("fr");
+
+    expect(within(drawer).getByRole("link", { name: content.fr.nav[0].label })).toHaveClass(
+      "text-[2.55rem]",
+    );
+    expect(within(drawer).getByRole("link", { name: content.fr.espaceB2bLabel })).toHaveClass(
+      "text-[1.59375rem]",
+    );
+  });
+
   it("opens on the burger and closes on the same button", () => {
     renderHeader("fr");
     const toggle = screen.getByRole("button", { name: frMessages.header.openMenu });

@@ -143,7 +143,7 @@ export function SiteHeader({ locale }: { locale: Locale }) {
               href={item.href}
               onClick={close}
               aria-current={isCurrent(item.href) ? "page" : undefined}
-              className="font-display text-5xl uppercase leading-none hover:text-lemon aria-[current=page]:opacity-40"
+              className="font-display text-[2.55rem] uppercase leading-none hover:text-lemon aria-[current=page]:opacity-40"
             >
               {item.label}
             </Link>
@@ -156,7 +156,7 @@ export function SiteHeader({ locale }: { locale: Locale }) {
             target="_blank"
             rel="noopener noreferrer"
             onClick={close}
-            className="font-display mt-6 w-fit border-2 border-current px-6 py-3 text-3xl uppercase leading-none hover:text-lemon"
+            className="font-display mt-6 w-fit border-2 border-current px-6 py-3 text-[1.59375rem] uppercase leading-none hover:text-lemon"
           >
             {espaceB2bLabel}
           </a>
