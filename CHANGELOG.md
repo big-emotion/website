@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.3] - 2026-07-26
+
+### Changed
+
+- Mobile drawer navigation typography is fifteen percent smaller, including the
+  B2B call-to-action, so long labels fit the narrow viewport with more breathing
+  room while tablet and desktop navigation remain unchanged.
+
 ## [0.8.2] - 2026-07-24
 
 ### Fixed
@@ -424,7 +432,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   under the Node.js container and its `/api/contact` replacement is not shipped
   (SWBE-31).
 
-[Unreleased]: https://github.com/big-emotion/website/compare/v0.8.2...HEAD
+[Unreleased]: https://github.com/big-emotion/website/compare/v0.8.3...HEAD
+[0.8.3]: https://github.com/big-emotion/website/releases/tag/v0.8.3
 [0.8.2]: https://github.com/big-emotion/website/releases/tag/v0.8.2
 [0.8.1]: https://github.com/big-emotion/website/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/big-emotion/website/compare/v0.7.0...v0.8.0
