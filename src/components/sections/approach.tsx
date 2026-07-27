@@ -8,7 +8,7 @@ export function Approach({ locale }: { locale: Locale }) {
   const { mission, services, stat } = content[locale];
 
   return (
-    <section className="bg-paper px-5 py-20 text-ink md:px-8 md:py-32">
+    <section data-header-ink="text-ink" className="bg-paper px-5 py-20 text-ink md:px-8 md:py-32">
       <h2 className="font-display max-w-5xl text-[clamp(2rem,6.5vw,5.5rem)]">{mission}</h2>
 
       {/* gap-px over an ink backdrop draws hairline dividers — brutalist grid. */}

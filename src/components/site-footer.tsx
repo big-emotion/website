@@ -37,8 +37,10 @@ export function SiteFooter({
 
   const privacyHref = legalLinks.find((link) => link.uid === "politique-de-confidentialite")?.href;
 
+  const headerInk = subpage ? SUBPAGE_ACCENTS[subpage].headerInk : "text-ink";
+
   return (
-    <footer className={surface}>
+    <footer data-header-ink={headerInk} className={surface}>
       <div className="flex flex-col items-center gap-8 px-5 py-10 text-center md:grid md:grid-cols-3 md:items-center md:gap-4 md:px-8 md:text-left">
         {/* Decorative: the brand name is already spelled out in the sign-off, so hide the
             mark from assistive tech. */}

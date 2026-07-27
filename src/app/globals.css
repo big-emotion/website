@@ -1,9 +1,10 @@
 @import "tailwindcss";
 
-/* BIG EMOTION — brand palette (Brand Guidelines v1.0, June 2026).
-   Named after the guideline swatches so design intent stays legible in markup. */
+/* BIG EMOTION — site palette. The lemon value carries the designer-approved July 2026
+   site override recorded in brand/BRAND.md; the other tokens follow Brand Guidelines
+   v1.0 (June 2026). */
 @theme {
-  --color-lemon: #f2ff26; /* Lemon Yellow — signature */
+  --color-lemon: #e9fc55; /* Lemon Yellow — signature, site override */
   --color-tangerine: #ff5200; /* Orange Tangerine */
   --color-lyon: #0024cc; /* Deep Lyon Blue */
   --color-brutal: #dbdbdb; /* Brutal Grey */

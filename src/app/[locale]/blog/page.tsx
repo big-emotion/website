@@ -72,7 +72,10 @@ export default async function BlogPage({ params }: RouteProps) {
       {/* The top padding is load-bearing: without it the first child's top margin
           collapses straight through this section, dragging it down the page and leaving
           a band of the white body background under the hero. */}
-      <section className="bg-[var(--blog-surface)] px-5 pt-14 pb-20 text-[var(--blog-ink)] md:px-8 md:pt-20 md:pb-32">
+      <section
+        data-header-ink="text-[var(--blog-ink)]"
+        className="bg-[var(--blog-surface)] px-5 pt-14 pb-20 text-[var(--blog-ink)] md:px-8 md:pt-20 md:pb-32"
+      >
         {articles.length === 0 ? (
           <p className="max-w-prose text-lg leading-relaxed opacity-70">{blog.emptyState}</p>
         ) : (

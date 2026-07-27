@@ -224,6 +224,7 @@ Recorded so they are decisions, not accidents. Fix, or arbitrate and note the ar
 
 | Charter                          | Site today                                              | Note                                                                                |
 | -------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Lemon `#f2ff26` (`03`)           | `--color-lemon: #e9fc55`                                | Designer-approved site override, July 2026; applied to every visitor-facing asset.  |
 | `@big-emotion on socials` (`14`) | `socialHandle = "@bigemotion"` in `src/content/site.ts` | Open arbitration; the real handles need checking before either is treated as canon. |
 | Looping logo load screen (`12`)  | none                                                    | Weigh against LCP before building it.                                               |
 

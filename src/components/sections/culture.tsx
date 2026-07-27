@@ -9,7 +9,10 @@ export function Culture({ locale }: { locale: Locale }) {
   const { team, values } = content[locale];
 
   return (
-    <section className="overflow-hidden bg-tangerine px-5 py-20 text-ink md:px-8 md:py-32">
+    <section
+      data-header-ink="text-ink"
+      className="overflow-hidden bg-tangerine px-5 py-20 text-ink md:px-8 md:py-32"
+    >
       <TeamMarquee members={team} />
 
       <PersonalitySlider locale={locale} />

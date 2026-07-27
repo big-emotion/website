@@ -23,6 +23,7 @@ export function ScenePanel({
   return (
     <section
       data-scene={index}
+      data-header-ink={headerInkFor(index)}
       data-slice-type={dataSliceType}
       data-slice-variation={dataSliceVariation}
       className={`scene-panel relative flex min-h-[100svh] flex-col px-5 pt-28 pb-28 md:px-10 ${placementFor(index)}`}
@@ -30,6 +31,12 @@ export function ScenePanel({
       <div className={contentFor(index)}>{children}</div>
     </section>
   );
+}
+
+function headerInkFor(index: number): string {
+  const state = STATES[index];
+  if (state.stage === "lyon") return "text-paper";
+  return state.ink === "lemon" ? "text-lemon" : "text-ink";
 }
 
 // The bookend beats mirror the reference composition exactly. Intro: copy tucked

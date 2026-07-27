@@ -74,6 +74,7 @@ export function SubpageHero({
 }) {
   return (
     <section
+      data-header-ink={SUBPAGE_ACCENTS[page].headerInk}
       className={`${SUBPAGE_ACCENTS[page].surface} px-5 pt-28 pb-12 md:px-8 md:pt-36 md:pb-20`}
     >
       <div className="grid items-center gap-7 md:grid-cols-[1.05fr_0.95fr] md:gap-[clamp(1.75rem,5vw,4.75rem)]">

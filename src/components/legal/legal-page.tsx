@@ -31,7 +31,7 @@ export async function LegalPage({ locale, uid }: { locale: Locale; uid: LegalUid
   const updatedAt = (isPublished && legalPage?.data.updated_at) || LEGAL_FALLBACK_UPDATED_AT;
 
   return (
-    <article className="px-5 py-20 md:px-8 md:py-28">
+    <article data-header-ink="text-ink" className="px-5 py-20 md:px-8 md:py-28">
       {/* Body face, not `font-display`: BBH Hegarty is ASCII-only (DEC-023) and these
           titles carry accents that must render correctly. */}
       <h1 className="max-w-[20ch] text-[clamp(2rem,1.6rem+3vw,3rem)] font-bold leading-[1.1] tracking-tight">

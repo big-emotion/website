@@ -10,7 +10,10 @@ export function Contact({ locale }: { locale: Locale }) {
   const { contact } = content[locale];
 
   return (
-    <section className="bg-lemon px-5 pt-20 pb-16 text-ink md:px-8 md:pt-32 md:pb-24">
+    <section
+      data-header-ink="text-ink"
+      className="bg-lemon px-5 pt-20 pb-16 text-ink md:px-8 md:pt-32 md:pb-24"
+    >
       <div className="grid gap-12 md:grid-cols-2 md:gap-16">
         <div className="space-y-8">
           <p className="max-w-sm text-lg md:text-xl">{contact.responseTime}</p>

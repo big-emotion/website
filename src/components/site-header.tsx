@@ -9,24 +9,41 @@ import { LocaleSwitcher } from "./locale-switcher";
 import { Logo } from "./logo";
 import { SUBPAGE_ACCENTS, subpageFromPathname } from "./subpage-accents";
 
+const SURFACE_INKS = new Set(["text-ink", "text-paper", "text-lemon", "text-[var(--blog-ink)]"]);
+
 export function SiteHeader({ locale }: { locale: Locale }) {
   const t = useTranslations("header");
   const { nav, espaceB2bLabel } = content[locale];
   const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [surfaceInk, setSurfaceInk] = useState<string | null>(null);
   const pathname = usePathname();
   const headerRef = useRef<HTMLElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
 
-  // Solid bar once scrolled off the hero. We drive legibility with a real background
-  // and a fixed text colour instead of mix-blend-difference, which was unreadable over
-  // the tangerine section and forced a per-frame repaint on scroll.
+  // The header stays transparent and takes the explicit ink of the surface crossing
+  // beneath its midpoint. This avoids both a permanent bar and mix-blend-difference:
+  // every colour change remains one of the brand's reviewed pairings.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    const updateSurfaceInk = () => {
+      const sampleY = (headerRef.current?.getBoundingClientRect().height ?? 64) / 2;
+      const surfaces = Array.from(
+        document.querySelectorAll<HTMLElement>("[data-header-ink]"),
+      ).filter((surface) => {
+        const rect = surface.getBoundingClientRect();
+        return rect.top <= sampleY && rect.bottom > sampleY;
+      });
+      const declaredInk = surfaces[surfaces.length - 1]?.dataset.headerInk;
+      setSurfaceInk(declaredInk && SURFACE_INKS.has(declaredInk) ? declaredInk : null);
+    };
+
+    updateSurfaceInk();
+    window.addEventListener("scroll", updateSurfaceInk, { passive: true });
+    window.addEventListener("resize", updateSurfaceInk);
+    return () => {
+      window.removeEventListener("scroll", updateSurfaceInk);
+      window.removeEventListener("resize", updateSurfaceInk);
+    };
+  }, [pathname]);
 
   // Treat the open mobile menu as a modal: Escape closes it, focus moves in on open and
   // back to the toggle on close, and Tab is trapped within the header (the overlay
@@ -82,13 +99,12 @@ export function SiteHeader({ locale }: { locale: Locale }) {
   // section, resolved from the path, so any route under it (`/cases/[uid]`) still marks
   // its parent. Home resolves to null, so nothing is marked there.
   const isCurrent = (href: string) => subpage !== null && href === `/${subpage}`;
-  const textColor = scrolled || open ? "text-paper" : restingInk;
-  const background = scrolled && !open ? "bg-ink" : "";
+  const textColor = open ? "text-paper" : (surfaceInk ?? restingInk);
 
   return (
     <header
       ref={headerRef}
-      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${textColor} ${background}`}
+      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${textColor}`}
     >
       <div className="relative z-50 flex items-center justify-between px-5 py-4 md:px-8 md:py-5">
         <Link href="/" aria-label={t("home")} onClick={close}>
@@ -101,19 +117,19 @@ export function SiteHeader({ locale }: { locale: Locale }) {
               key={item.href}
               href={item.href}
               aria-current={isCurrent(item.href) ? "page" : undefined}
-              className="font-display text-sm uppercase tracking-wide hover:opacity-60 aria-[current=page]:opacity-40"
+              className="font-body text-xs font-medium uppercase tracking-[0.08em] hover:opacity-60 aria-[current=page]:opacity-40"
             >
               {item.label}
             </Link>
           ))}
           <LocaleSwitcher locale={locale} />
-          {/* External app (opens in a new tab); border-current keeps it legible on
-              both the transparent and the scrolled solid bar. */}
+          {/* External app (opens in a new tab), kept typographically equal to the
+              destinations so it does not turn the transparent menu into a toolbar. */}
           <a
             href={espaceB2bHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-display border-2 border-current px-4 py-2 text-sm uppercase tracking-wide hover:opacity-60"
+            className="font-body text-xs font-medium uppercase tracking-[0.08em] hover:opacity-60"
           >
             {espaceB2bLabel}
           </a>
@@ -122,7 +138,7 @@ export function SiteHeader({ locale }: { locale: Locale }) {
         <button
           ref={toggleRef}
           type="button"
-          className="font-display -m-2 inline-flex min-h-11 min-w-11 items-center justify-end p-2 text-sm uppercase tracking-wide md:hidden"
+          className="font-body -m-2 inline-flex min-h-11 min-w-11 items-center justify-end p-2 text-sm font-medium uppercase tracking-[0.08em] md:hidden"
           aria-expanded={open}
           aria-controls="mobile-nav"
           onClick={() => setOpen((v) => !v)}
@@ -143,7 +159,7 @@ export function SiteHeader({ locale }: { locale: Locale }) {
               href={item.href}
               onClick={close}
               aria-current={isCurrent(item.href) ? "page" : undefined}
-              className="font-display text-[2.55rem] uppercase leading-none hover:text-lemon aria-[current=page]:opacity-40"
+              className="font-body text-3xl font-medium uppercase leading-tight tracking-[0.04em] hover:text-lemon aria-[current=page]:opacity-40"
             >
               {item.label}
             </Link>
@@ -156,7 +172,7 @@ export function SiteHeader({ locale }: { locale: Locale }) {
             target="_blank"
             rel="noopener noreferrer"
             onClick={close}
-            className="font-display mt-6 w-fit border-2 border-current px-6 py-3 text-[1.59375rem] uppercase leading-none hover:text-lemon"
+            className="font-body mt-6 w-fit text-xl font-medium uppercase leading-none tracking-[0.04em] hover:text-lemon"
           >
             {espaceB2bLabel}
           </a>

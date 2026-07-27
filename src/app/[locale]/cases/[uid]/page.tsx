@@ -69,7 +69,10 @@ export default async function CaseStudyPage({ params }: RouteProps) {
   const { title, client, kind, summary, cover, body } = caseStudy.data;
 
   return (
-    <article className="bg-lyon px-5 py-20 text-paper md:px-8 md:py-32">
+    <article
+      data-header-ink="text-paper"
+      className="bg-lyon px-5 py-20 text-paper md:px-8 md:py-32"
+    >
       <p className="font-display text-sm uppercase tracking-wide opacity-70">{client || kind}</p>
       <h1 className="font-display mt-2 text-[clamp(2.25rem,9vw,7rem)] text-lemon [overflow-wrap:anywhere]">
         {title}

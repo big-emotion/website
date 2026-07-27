@@ -15,7 +15,7 @@ export const alt = "B!G EMOTION — The B!G agency that gives a wow.";
 // explicitly. Without this the export build aborts in page-data collection.
 export const dynamic = "force-static";
 
-const LEMON = "#f2ff26";
+const LEMON = "#e9fc55";
 
 // satori (the engine behind next/og) only parses TrueType/OTF/WOFF1 — it throws
 // "Unsupported OpenType signature" on a WOFF2 file, and under `output: export` that

@@ -1,7 +1,7 @@
 // @req REQ-003
 // @req REQ-036
 
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { describe, expect, it, vi } from "vitest";
 import enMessages from "../../messages/en.json";
@@ -85,6 +85,18 @@ describe("SiteHeader navigation", () => {
     expect(cta).toHaveAttribute("target", "_blank");
     expect(cta).toHaveAttribute("rel", "noopener noreferrer");
   });
+
+  it("uses the lighter Bricolage menu treatment without a boxed CTA", () => {
+    renderHeader("fr");
+
+    const firstDestination = screen.getByRole("link", { name: content.fr.nav[0].label });
+    const cta = screen.getByRole("link", { name: content.fr.espaceB2bLabel });
+
+    expect(firstDestination).toHaveClass("font-body", "font-medium");
+    expect(firstDestination).not.toHaveClass("font-display");
+    expect(cta).toHaveClass("font-body", "font-medium");
+    expect(cta).not.toHaveClass("border-2");
+  });
 });
 
 // The maquette dims the link of the page you are already on ("you are here"). The dim is
@@ -163,15 +175,17 @@ describe("SiteHeader locale switcher", () => {
 });
 
 describe("SiteHeader mobile drawer", () => {
-  it("reduces the mobile navigation typography by fifteen percent", () => {
+  it("uses a compact Bricolage treatment in the mobile drawer", () => {
     renderHeader("fr");
     const drawer = openDrawer("fr");
 
     expect(within(drawer).getByRole("link", { name: content.fr.nav[0].label })).toHaveClass(
-      "text-[2.55rem]",
+      "font-body",
+      "text-3xl",
     );
     expect(within(drawer).getByRole("link", { name: content.fr.espaceB2bLabel })).toHaveClass(
-      "text-[1.59375rem]",
+      "font-body",
+      "text-xl",
     );
   });
 
@@ -261,5 +275,37 @@ describe("SiteHeader over a sub-page hero", () => {
 
     expect(header).not.toHaveClass("text-ink");
     expect(header).not.toHaveClass("bg-ink");
+  });
+
+  it("stays transparent after scrolling", () => {
+    const { container } = renderHeader("fr", "/approach/");
+
+    Object.defineProperty(window, "scrollY", { configurable: true, value: 120 });
+    fireEvent.scroll(window);
+
+    expect(container.querySelector("header")).not.toHaveClass("bg-ink");
+    Object.defineProperty(window, "scrollY", { configurable: true, value: 0 });
+  });
+
+  it("takes the ink declared by the surface passing under it", async () => {
+    const surface = document.createElement("section");
+    surface.dataset.headerInk = "text-lemon";
+    vi.spyOn(surface, "getBoundingClientRect").mockReturnValue({
+      bottom: 800,
+      height: 800,
+      left: 0,
+      right: 400,
+      top: 0,
+      width: 400,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+    document.body.append(surface);
+
+    const { container } = renderHeader("fr", "/approach/");
+
+    await waitFor(() => expect(container.querySelector("header")).toHaveClass("text-lemon"));
+    surface.remove();
   });
 });

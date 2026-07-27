@@ -17,7 +17,7 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 export const alt = `${site.name} — Playground`;
 
-const LEMON = "#f2ff26";
+const LEMON = "#e9fc55";
 
 // satori (the engine behind next/og) only parses TrueType/OTF/WOFF1 — it throws
 // "Unsupported OpenType signature" on a WOFF2 file. BBH Hegarty ships both a WOFF2

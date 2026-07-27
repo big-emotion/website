@@ -8,14 +8,14 @@ value (`AGENTS.md`, "Hard constraints").
 
 ## Color
 
-| Token               | Hex       | Guideline name   | Usage                                                        |
-| ------------------- | --------- | ---------------- | ------------------------------------------------------------ |
-| `--color-lemon`     | `#f2ff26` | Lemon Yellow     | Signature accent — the brand's loudest color, used sparingly |
-| `--color-tangerine` | `#ff5200` | Orange Tangerine | Secondary accent                                             |
-| `--color-lyon`      | `#0024cc` | Deep Lyon Blue   | Secondary accent                                             |
-| `--color-brutal`    | `#dbdbdb` | Brutal Grey      | Neutral / structural                                         |
-| `--color-ink`       | `#000000` | Black            | Text, high-contrast surfaces                                 |
-| `--color-paper`     | `#ffffff` | White            | Base background                                              |
+| Token               | Hex       | Guideline name   | Usage                                      |
+| ------------------- | --------- | ---------------- | ------------------------------------------ |
+| `--color-lemon`     | `#e9fc55` | Lemon Yellow     | Signature accent — July 2026 site override |
+| `--color-tangerine` | `#ff5200` | Orange Tangerine | Secondary accent                           |
+| `--color-lyon`      | `#0024cc` | Deep Lyon Blue   | Secondary accent                           |
+| `--color-brutal`    | `#dbdbdb` | Brutal Grey      | Neutral / structural                       |
+| `--color-ink`       | `#000000` | Black            | Text, high-contrast surfaces               |
+| `--color-paper`     | `#ffffff` | White            | Base background                            |
 
 Section-route accents (`src/components/subpage-accents.ts`, SWBE-22) assign one
 of the three accent colors (lemon, tangerine, lyon) per route — never invent a

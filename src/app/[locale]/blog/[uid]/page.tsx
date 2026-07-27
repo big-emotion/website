@@ -87,7 +87,10 @@ export default async function ArticlePage({ params }: RouteProps) {
   const authorDoc = await fetchAuthor(locale, author);
 
   return (
-    <article className="bg-[var(--blog-surface)] px-5 py-20 text-[var(--blog-ink)] md:px-8 md:py-32">
+    <article
+      data-header-ink="text-[var(--blog-ink)]"
+      className="bg-[var(--blog-surface)] px-5 py-20 text-[var(--blog-ink)] md:px-8 md:py-32"
+    >
       {/* First child so the draw lands while the document is still parsing — see
           ArticlePairing. Everything below, plus the header ink and the footer band,
           reads the three properties it sets. */}

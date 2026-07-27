@@ -43,7 +43,7 @@ export default async function PlaygroundPage({ params }: RouteProps) {
     // The surface has to be carried by a full-height wrapper, not by the grid alone:
     // `main` is a flex child that grows to the viewport, so a short page would otherwise
     // end early and reveal the paper-white body underneath it as a stray band.
-    <div className="min-h-dvh bg-brutal text-ink">
+    <div data-header-ink="text-ink" className="min-h-dvh bg-brutal text-ink">
       <SubpageHero
         page="playground"
         title={[title]}
