@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.4] - 2026-07-27
+
+### Changed
+
+- The designer-approved lemon override now reaches every visitor-facing asset,
+  with regression coverage preventing the site palette from drifting back to
+  the original charter value.
+- The transparent header now adopts the reviewed ink colour of the surface
+  beneath it while scrolling, and its desktop and mobile navigation use a
+  lighter Bricolage treatment without a boxed B2B call-to-action.
+
 ## [0.8.3] - 2026-07-26
 
 ### Changed
@@ -432,7 +443,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   under the Node.js container and its `/api/contact` replacement is not shipped
   (SWBE-31).
 
-[Unreleased]: https://github.com/big-emotion/website/compare/v0.8.3...HEAD
+[Unreleased]: https://github.com/big-emotion/website/compare/v0.8.4...HEAD
+[0.8.4]: https://github.com/big-emotion/website/releases/tag/v0.8.4
 [0.8.3]: https://github.com/big-emotion/website/releases/tag/v0.8.3
 [0.8.2]: https://github.com/big-emotion/website/releases/tag/v0.8.2
 [0.8.1]: https://github.com/big-emotion/website/compare/v0.8.0...v0.8.1
