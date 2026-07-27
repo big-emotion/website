@@ -12,6 +12,7 @@ export function Contact({ locale }: { locale: Locale }) {
   return (
     <section
       data-header-ink="text-ink"
+      data-header-surface="bg-lemon"
       className="bg-lemon px-5 pt-20 pb-16 text-ink md:px-8 md:pt-32 md:pb-24"
     >
       <div className="grid gap-12 md:grid-cols-2 md:gap-16">

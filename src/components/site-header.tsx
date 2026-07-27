@@ -10,21 +10,34 @@ import { Logo } from "./logo";
 import { SUBPAGE_ACCENTS, subpageFromPathname } from "./subpage-accents";
 
 const SURFACE_INKS = new Set(["text-ink", "text-paper", "text-lemon", "text-[var(--blog-ink)]"]);
+const SURFACE_BACKGROUNDS = new Set([
+  "bg-lemon",
+  "bg-tangerine",
+  "bg-lyon",
+  "bg-brutal",
+  "bg-ink",
+  "bg-paper",
+  "bg-[var(--blog-surface)]",
+]);
 
 export function SiteHeader({ locale }: { locale: Locale }) {
   const t = useTranslations("header");
   const { nav, espaceB2bLabel } = content[locale];
   const [open, setOpen] = useState(false);
-  const [surfaceInk, setSurfaceInk] = useState<string | null>(null);
+  const [activePairing, setActivePairing] = useState<{
+    ink: string | null;
+    surface: string | null;
+  }>({ ink: null, surface: null });
   const pathname = usePathname();
   const headerRef = useRef<HTMLElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
 
-  // The header stays transparent and takes the explicit ink of the surface crossing
-  // beneath its midpoint. This avoids both a permanent bar and mix-blend-difference:
-  // every colour change remains one of the brand's reviewed pairings.
+  // The fixed header takes the complete pairing of the surface crossing beneath its
+  // midpoint. Its opaque, matching background keeps page copy from showing through,
+  // while avoiding both a generic black bar and mix-blend-difference: every colour
+  // change remains one of the brand's reviewed pairings.
   useEffect(() => {
-    const updateSurfaceInk = () => {
+    const updateSurfacePairing = () => {
       const sampleY = (headerRef.current?.getBoundingClientRect().height ?? 64) / 2;
       const surfaces = Array.from(
         document.querySelectorAll<HTMLElement>("[data-header-ink]"),
@@ -32,16 +45,24 @@ export function SiteHeader({ locale }: { locale: Locale }) {
         const rect = surface.getBoundingClientRect();
         return rect.top <= sampleY && rect.bottom > sampleY;
       });
-      const declaredInk = surfaces[surfaces.length - 1]?.dataset.headerInk;
-      setSurfaceInk(declaredInk && SURFACE_INKS.has(declaredInk) ? declaredInk : null);
+      const activeSurface = surfaces[surfaces.length - 1];
+      const declaredInk = activeSurface?.dataset.headerInk;
+      const declaredBackground = activeSurface?.dataset.headerSurface;
+      setActivePairing({
+        ink: declaredInk && SURFACE_INKS.has(declaredInk) ? declaredInk : null,
+        surface:
+          declaredBackground && SURFACE_BACKGROUNDS.has(declaredBackground)
+            ? declaredBackground
+            : null,
+      });
     };
 
-    updateSurfaceInk();
-    window.addEventListener("scroll", updateSurfaceInk, { passive: true });
-    window.addEventListener("resize", updateSurfaceInk);
+    updateSurfacePairing();
+    window.addEventListener("scroll", updateSurfacePairing, { passive: true });
+    window.addEventListener("resize", updateSurfacePairing);
     return () => {
-      window.removeEventListener("scroll", updateSurfaceInk);
-      window.removeEventListener("resize", updateSurfaceInk);
+      window.removeEventListener("scroll", updateSurfacePairing);
+      window.removeEventListener("resize", updateSurfacePairing);
     };
   }, [pathname]);
 
@@ -95,16 +116,22 @@ export function SiteHeader({ locale }: { locale: Locale }) {
   // ink hero would otherwise render a black header on black.
   const subpage = subpageFromPathname(pathname);
   const restingInk = subpage ? SUBPAGE_ACCENTS[subpage].headerInk : "text-ink";
+  const restingSurface = subpage
+    ? SUBPAGE_ACCENTS[subpage].headerSurface
+    : pathname === "/"
+      ? "bg-lemon"
+      : "bg-paper";
   // Dim the link of the section you're already in ("you are here"). `subpage` is that
   // section, resolved from the path, so any route under it (`/cases/[uid]`) still marks
   // its parent. Home resolves to null, so nothing is marked there.
   const isCurrent = (href: string) => subpage !== null && href === `/${subpage}`;
-  const textColor = open ? "text-paper" : (surfaceInk ?? restingInk);
+  const textColor = open ? "text-paper" : (activePairing.ink ?? restingInk);
+  const backgroundColor = open ? "bg-ink" : (activePairing.surface ?? restingSurface);
 
   return (
     <header
       ref={headerRef}
-      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${textColor}`}
+      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${textColor} ${backgroundColor}`}
     >
       <div className="relative z-50 flex items-center justify-between px-5 py-4 md:px-8 md:py-5">
         <Link href="/" aria-label={t("home")} onClick={close}>

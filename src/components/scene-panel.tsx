@@ -24,6 +24,7 @@ export function ScenePanel({
     <section
       data-scene={index}
       data-header-ink={headerInkFor(index)}
+      data-header-surface={`bg-${STATES[index].stage}`}
       data-slice-type={dataSliceType}
       data-slice-variation={dataSliceVariation}
       className={`scene-panel relative flex min-h-[100svh] flex-col px-5 pt-28 pb-28 md:px-10 ${placementFor(index)}`}

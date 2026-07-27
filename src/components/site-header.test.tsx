@@ -243,53 +243,46 @@ describe("SiteHeader mobile drawer", () => {
 // /contact/'s hero is ink, so the default ink header would be black on black.
 describe("SiteHeader over a sub-page hero", () => {
   it.each([
-    ["/approach/", "text-ink"],
-    ["/cases/", "text-ink"],
-    ["/culture/", "text-paper"],
-    ["/contact/", "text-lemon"],
+    ["/approach/", "text-ink", "bg-lemon"],
+    ["/cases/", "text-ink", "bg-tangerine"],
+    ["/culture/", "text-paper", "bg-lyon"],
+    ["/contact/", "text-lemon", "bg-ink"],
     // The blog is the one section whose ink is not a fixed token: it wears a whole
     // association, drawn per article, so the bar follows the custom property both
     // surfaces set (src/components/blog/brand-pairings.ts).
-    ["/blog/", "text-[var(--blog-ink)]"],
-    ["/blog/some-article/", "text-[var(--blog-ink)]"],
-  ])("takes the hero's ink on %s", (pathname, ink) => {
+    ["/blog/", "text-[var(--blog-ink)]", "bg-[var(--blog-surface)]"],
+    ["/blog/some-article/", "text-[var(--blog-ink)]", "bg-[var(--blog-surface)]"],
+  ])("takes the hero's complete colour pairing on %s", (pathname, ink, surface) => {
     const { container } = renderHeader("fr", pathname);
 
     expect(container.querySelector("header")).toHaveClass(ink);
+    expect(container.querySelector("header")).toHaveClass(surface);
   });
 
-  it("keeps the default ink on the home page, which has no accent hero", () => {
+  it("keeps the opening lemon pairing on the home page", () => {
     const { container } = renderHeader("fr", "/");
 
-    expect(container.querySelector("header")).toHaveClass("text-ink");
+    expect(container.querySelector("header")).toHaveClass("text-ink", "bg-lemon");
   });
 
   // REQ-036: the resting header over the blog must not fall back to the black default,
   // which measured 2.12:1 on the blue the section used to be. Taking the association's
   // own ink settles it for every pair rather than for that one surface — that the ink
   // clears 4.5:1 on its surface is what brand-pairings.test.ts asserts, against the real
-  // palette — so no solid bar is needed at rest.
-  it("meets AA at rest over /blog/ without falling back to a solid bar", () => {
+  // palette. Matching the background as well prevents article copy from showing through
+  // the fixed navigation while preserving the selected pairing.
+  it("meets AA at rest over /blog/ with the article's complete pairing", () => {
     const { container } = renderHeader("fr", "/blog/");
     const header = container.querySelector("header");
 
     expect(header).not.toHaveClass("text-ink");
-    expect(header).not.toHaveClass("bg-ink");
+    expect(header).toHaveClass("bg-[var(--blog-surface)]");
   });
 
-  it("stays transparent after scrolling", () => {
-    const { container } = renderHeader("fr", "/approach/");
-
-    Object.defineProperty(window, "scrollY", { configurable: true, value: 120 });
-    fireEvent.scroll(window);
-
-    expect(container.querySelector("header")).not.toHaveClass("bg-ink");
-    Object.defineProperty(window, "scrollY", { configurable: true, value: 0 });
-  });
-
-  it("takes the ink declared by the surface passing under it", async () => {
+  it("takes the complete pairing declared by the surface passing under it", async () => {
     const surface = document.createElement("section");
     surface.dataset.headerInk = "text-lemon";
+    surface.dataset.headerSurface = "bg-ink";
     vi.spyOn(surface, "getBoundingClientRect").mockReturnValue({
       bottom: 800,
       height: 800,
@@ -305,7 +298,9 @@ describe("SiteHeader over a sub-page hero", () => {
 
     const { container } = renderHeader("fr", "/approach/");
 
-    await waitFor(() => expect(container.querySelector("header")).toHaveClass("text-lemon"));
+    await waitFor(() =>
+      expect(container.querySelector("header")).toHaveClass("text-lemon", "bg-ink"),
+    );
     surface.remove();
   });
 });

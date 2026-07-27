@@ -89,6 +89,7 @@ export default async function ArticlePage({ params }: RouteProps) {
   return (
     <article
       data-header-ink="text-[var(--blog-ink)]"
+      data-header-surface="bg-[var(--blog-surface)]"
       className="bg-[var(--blog-surface)] px-5 py-20 text-[var(--blog-ink)] md:px-8 md:py-32"
     >
       {/* First child so the draw lands while the document is still parsing — see

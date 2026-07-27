@@ -23,6 +23,7 @@ export function Cases({
   return (
     <section
       data-header-ink="text-paper"
+      data-header-surface="bg-lyon"
       className="bg-lyon px-5 py-20 text-paper md:px-8 md:py-32"
     >
       {/* gap-px over a lighter backdrop draws the hairline dividers, same brutalist

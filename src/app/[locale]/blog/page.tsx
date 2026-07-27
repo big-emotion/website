@@ -74,6 +74,7 @@ export default async function BlogPage({ params }: RouteProps) {
           a band of the white body background under the hero. */}
       <section
         data-header-ink="text-[var(--blog-ink)]"
+        data-header-surface="bg-[var(--blog-surface)]"
         className="bg-[var(--blog-surface)] px-5 pt-14 pb-20 text-[var(--blog-ink)] md:px-8 md:pt-20 md:pb-32"
       >
         {articles.length === 0 ? (

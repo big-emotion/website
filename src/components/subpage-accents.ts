@@ -8,6 +8,8 @@ export type HeaderAccentId = SubpageId;
 type Accent = {
   /** Background + ink for the hero band itself. */
   surface: string;
+  /** Background token painted by the fixed header over this band. */
+  headerSurface: string;
   /**
    * Ink for the fixed header while it sits over that band. The header is rendered by the
    * layout, above and outside the page, so it cannot inherit the hero's colour — it has
@@ -19,14 +21,34 @@ type Accent = {
 // Token-mapped from the designer's prototype (`accent-yellow|orange|blue|black`).
 // Tokens only: REQ-002 forbids a raw brand hex in a component.
 export const SUBPAGE_ACCENTS: Record<HeaderAccentId, Accent> = {
-  approach: { surface: "bg-lemon text-ink", headerInk: "text-ink" },
-  cases: { surface: "bg-tangerine text-ink", headerInk: "text-ink" },
-  culture: { surface: "bg-lyon text-paper", headerInk: "text-paper" },
-  contact: { surface: "bg-ink text-lemon", headerInk: "text-lemon" },
+  approach: {
+    surface: "bg-lemon text-ink",
+    headerSurface: "bg-lemon",
+    headerInk: "text-ink",
+  },
+  cases: {
+    surface: "bg-tangerine text-ink",
+    headerSurface: "bg-tangerine",
+    headerInk: "text-ink",
+  },
+  culture: {
+    surface: "bg-lyon text-paper",
+    headerSurface: "bg-lyon",
+    headerInk: "text-paper",
+  },
+  contact: {
+    surface: "bg-ink text-lemon",
+    headerSurface: "bg-ink",
+    headerInk: "text-lemon",
+  },
   // Grey is the studio backdrop the chrome logo is lit against (the rig bakes its
   // environment on 0x565b64), so the Playground keeps brutal on the gallery *and* on
   // every effect stage — the chrome reads as chrome instead of as a flat silhouette.
-  playground: { surface: "bg-brutal text-ink", headerInk: "text-ink" },
+  playground: {
+    surface: "bg-brutal text-ink",
+    headerSurface: "bg-brutal",
+    headerInk: "text-ink",
+  },
   // The one accent that is not a fixed pair of tokens. The blog wears a whole
   // association from the guidelines' board — its own on /blog, one drawn at random on
   // each article (src/components/blog/brand-pairings.ts) — so it names the custom
@@ -35,6 +57,7 @@ export const SUBPAGE_ACCENTS: Record<HeaderAccentId, Accent> = {
   // otherwise keep the index's colours over an article painted in another pair.
   blog: {
     surface: "bg-[var(--blog-surface)] text-[var(--blog-ink)]",
+    headerSurface: "bg-[var(--blog-surface)]",
     headerInk: "text-[var(--blog-ink)]",
   },
 };

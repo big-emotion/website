@@ -11,6 +11,7 @@ export function Culture({ locale }: { locale: Locale }) {
   return (
     <section
       data-header-ink="text-ink"
+      data-header-surface="bg-tangerine"
       className="overflow-hidden bg-tangerine px-5 py-20 text-ink md:px-8 md:py-32"
     >
       <TeamMarquee members={team} />
