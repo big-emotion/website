@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.7] - 2026-07-28
+
+### Fixed
+
+- The home header's B2B link no longer carries a scene-coloured background,
+  keeping its treatment consistent with every other navigation link.
+
 ## [0.8.6] - 2026-07-28
 
 ### Fixed
@@ -461,7 +468,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   under the Node.js container and its `/api/contact` replacement is not shipped
   (SWBE-31).
 
-[Unreleased]: https://github.com/big-emotion/website/compare/v0.8.6...HEAD
+[Unreleased]: https://github.com/big-emotion/website/compare/v0.8.7...HEAD
+[0.8.7]: https://github.com/big-emotion/website/releases/tag/v0.8.7
 [0.8.6]: https://github.com/big-emotion/website/releases/tag/v0.8.6
 [0.8.5]: https://github.com/big-emotion/website/releases/tag/v0.8.5
 [0.8.4]: https://github.com/big-emotion/website/releases/tag/v0.8.4
