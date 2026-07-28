@@ -35,7 +35,7 @@ export function SiteHeader({ locale }: { locale: Locale }) {
   // The fixed header reads the pairing of the surface crossing beneath its midpoint.
   // Sub-pages paint that complete pairing on the bar so their copy cannot show through.
   // Home is the exception: its closing wordmark must remain visible behind the
-  // navigation, so only the B2B CTA carries the scene surface there.
+  // transparent navigation.
   useEffect(() => {
     const updateSurfacePairing = () => {
       const sampleY = (headerRef.current?.getBoundingClientRect().height ?? 64) / 2;
@@ -130,7 +130,6 @@ export function SiteHeader({ locale }: { locale: Locale }) {
   const surfaceBackground = activePairing.surface ?? restingSurface;
   const textColor = open ? "text-paper" : surfaceInk;
   const backgroundColor = open ? "bg-ink" : isHome ? "bg-transparent" : surfaceBackground;
-  const homeCtaBackground = !open && isHome ? surfaceBackground : "";
 
   return (
     <header
@@ -160,7 +159,7 @@ export function SiteHeader({ locale }: { locale: Locale }) {
             href={espaceB2bHref}
             target="_blank"
             rel="noopener noreferrer"
-            className={`font-body text-[15px] font-medium uppercase tracking-[0.08em] transition-colors duration-300 hover:opacity-60 ${homeCtaBackground}`}
+            className="font-body text-[15px] font-medium uppercase tracking-[0.08em] hover:opacity-60"
           >
             {espaceB2bLabel}
           </a>

@@ -274,7 +274,7 @@ describe("SiteHeader over a sub-page hero", () => {
     expect(container.querySelector("header")).toHaveClass(surface);
   });
 
-  it("keeps the home header transparent and carries the active surface on its CTA", async () => {
+  it("keeps the home header and its Espace B2B link transparent", async () => {
     const finalSurface = document.createElement("section");
     finalSurface.dataset.headerInk = "text-ink";
     finalSurface.dataset.headerSurface = "bg-paper";
@@ -296,9 +296,10 @@ describe("SiteHeader over a sub-page hero", () => {
       const header = container.querySelector("header");
       const cta = screen.getByRole("link", { name: content.fr.espaceB2bLabel });
 
-      await waitFor(() => expect(cta).toHaveClass("bg-paper"));
+      await waitFor(() => expect(header).toHaveClass("text-ink"));
       expect(header).toHaveClass("text-ink", "bg-transparent");
       expect(header).not.toHaveClass("bg-paper");
+      expect(cta.className).not.toMatch(/\bbg-/);
     } finally {
       finalSurface.remove();
     }
