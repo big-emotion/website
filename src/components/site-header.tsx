@@ -32,10 +32,10 @@ export function SiteHeader({ locale }: { locale: Locale }) {
   const headerRef = useRef<HTMLElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
 
-  // The fixed header takes the complete pairing of the surface crossing beneath its
-  // midpoint. Its opaque, matching background keeps page copy from showing through,
-  // while avoiding both a generic black bar and mix-blend-difference: every colour
-  // change remains one of the brand's reviewed pairings.
+  // The fixed header reads the pairing of the surface crossing beneath its midpoint.
+  // Sub-pages paint that complete pairing on the bar so their copy cannot show through.
+  // Home is the exception: its closing wordmark must remain visible behind the
+  // navigation, so only the B2B CTA carries the scene surface there.
   useEffect(() => {
     const updateSurfacePairing = () => {
       const sampleY = (headerRef.current?.getBoundingClientRect().height ?? 64) / 2;
@@ -125,8 +125,12 @@ export function SiteHeader({ locale }: { locale: Locale }) {
   // section, resolved from the path, so any route under it (`/cases/[uid]`) still marks
   // its parent. Home resolves to null, so nothing is marked there.
   const isCurrent = (href: string) => subpage !== null && href === `/${subpage}`;
-  const textColor = open ? "text-paper" : (activePairing.ink ?? restingInk);
-  const backgroundColor = open ? "bg-ink" : (activePairing.surface ?? restingSurface);
+  const isHome = pathname === "/";
+  const surfaceInk = activePairing.ink ?? restingInk;
+  const surfaceBackground = activePairing.surface ?? restingSurface;
+  const textColor = open ? "text-paper" : surfaceInk;
+  const backgroundColor = open ? "bg-ink" : isHome ? "bg-transparent" : surfaceBackground;
+  const homeCtaBackground = !open && isHome ? surfaceBackground : "";
 
   return (
     <header
@@ -138,13 +142,13 @@ export function SiteHeader({ locale }: { locale: Locale }) {
           <Logo className="h-10 w-auto md:h-12" />
         </Link>
 
-        <nav className="hidden md:flex md:items-center md:gap-8">
+        <nav className="hidden min-[1200px]:flex min-[1200px]:items-center min-[1200px]:gap-4 min-[1440px]:gap-8">
           {nav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               aria-current={isCurrent(item.href) ? "page" : undefined}
-              className="font-body text-xs font-medium uppercase tracking-[0.08em] hover:opacity-60 aria-[current=page]:opacity-40"
+              className="font-body text-[15px] font-medium uppercase tracking-[0.08em] hover:opacity-60 aria-[current=page]:opacity-40"
             >
               {item.label}
             </Link>
@@ -156,7 +160,7 @@ export function SiteHeader({ locale }: { locale: Locale }) {
             href={espaceB2bHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-body text-xs font-medium uppercase tracking-[0.08em] hover:opacity-60"
+            className={`font-body text-[15px] font-medium uppercase tracking-[0.08em] transition-colors duration-300 hover:opacity-60 ${homeCtaBackground}`}
           >
             {espaceB2bLabel}
           </a>
@@ -165,7 +169,7 @@ export function SiteHeader({ locale }: { locale: Locale }) {
         <button
           ref={toggleRef}
           type="button"
-          className="font-body -m-2 inline-flex min-h-11 min-w-11 items-center justify-end p-2 text-sm font-medium uppercase tracking-[0.08em] md:hidden"
+          className="font-body -m-2 inline-flex min-h-11 min-w-11 items-center justify-end p-2 text-[15px] font-medium uppercase tracking-[0.08em] min-[1200px]:hidden"
           aria-expanded={open}
           aria-controls="mobile-nav"
           onClick={() => setOpen((v) => !v)}
@@ -178,7 +182,7 @@ export function SiteHeader({ locale }: { locale: Locale }) {
         <nav
           id="mobile-nav"
           aria-label={t("mainMenu")}
-          className="fixed inset-0 z-40 flex flex-col justify-center gap-2 bg-ink px-6 text-paper md:hidden"
+          className="fixed inset-0 z-40 flex flex-col justify-center gap-2 bg-ink px-6 text-paper min-[1200px]:hidden"
         >
           {nav.map((item) => (
             <Link
