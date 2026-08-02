@@ -120,8 +120,9 @@ type LocaleContent = {
   services: readonly { title: string; body: string }[];
   /** The offer in plain words (owner ask, Aug 2026): the three `services` cards say
    *  how the agency works, this list names every deliverable someone can actually
-   *  order. Title and items land in `font-display` slots — ASCII only (DEC-023). */
-  expertise: { title: string; items: readonly string[] };
+   *  order. Title and items land in `font-display` slots — ASCII only (DEC-023);
+   *  `lead` is body copy and keeps its accents. */
+  expertise: { title: string; lead: string; items: readonly string[] };
   /** Heading over the scrolling `tools` band on /approach. `font-display` slot. */
   toolboxTitle: string;
   impactStats: readonly { value: string; label: string }[];
@@ -330,16 +331,18 @@ const fr: LocaleContent = {
   ],
   expertise: {
     title: "Ce qu'on fait",
+    lead: "Agence digitale 360 : on fait le lien entre le digital et les humains.",
     items: [
       "Sites web",
       "Applications mobiles",
+      "Applications metier & CRM",
+      "Logiciels sur-mesure",
       "Marketing digital",
       "Communication digitale",
       "Community management",
-      "Visuels",
-      "Videos",
-      "Films",
-      "Photos",
+      "Creation graphique",
+      "Videos & films",
+      "Photographie",
       "Production physique & goodies",
       "Formations",
     ],
@@ -522,16 +525,18 @@ const en: LocaleContent = {
   ],
   expertise: {
     title: "What we do",
+    lead: "A 360 digital agency: we connect the digital and the human.",
     items: [
       "Websites",
       "Mobile apps",
+      "Business apps & CRM",
+      "Custom software",
       "Digital marketing",
       "Digital communication",
       "Community management",
-      "Visuals",
-      "Videos",
-      "Films",
-      "Photos",
+      "Graphic design",
+      "Videos & films",
+      "Photography",
       "Physical production & goodies",
       "Training",
     ],
