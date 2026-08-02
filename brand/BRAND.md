@@ -222,11 +222,12 @@ cover and back cover. Contact block as printed there: `contact@big-emotion.com` 
 
 Recorded so they are decisions, not accidents. Fix, or arbitrate and note the arbitration.
 
-| Charter                          | Site today                                              | Note                                                                                |
-| -------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| Lemon `#f2ff26` (`03`)           | `--color-lemon: #e9fc55`                                | Designer-approved site override, July 2026; applied to every visitor-facing asset.  |
-| `@big-emotion on socials` (`14`) | `socialHandle = "@bigemotion"` in `src/content/site.ts` | Open arbitration; the real handles need checking before either is treated as canon. |
-| Looping logo load screen (`12`)  | none                                                    | Weigh against LCP before building it.                                               |
+| Charter                          | Site today                                                  | Note                                                                                                                                                                                                       |
+| -------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lemon `#f2ff26` (`03`)           | `--color-lemon: #e9fc55`                                    | Designer-approved site override, July 2026; applied to every visitor-facing asset.                                                                                                                         |
+| `@big-emotion on socials` (`14`) | `socialHandle = "@bigemotion"` in `src/content/site.ts`     | Open arbitration; the real handles need checking before either is treated as canon.                                                                                                                        |
+| Looping logo load screen (`12`)  | none                                                        | Weigh against LCP before building it.                                                                                                                                                                      |
+| Personality slider dot positions | `personalityAxes` in `src/content/site.ts`, re-set Aug 2026 | Owner arbitration: the artwork's dots read colder, stiffer and more corporate than the agency is. Now warmer/casual/friendly/simpler and firmly serious; only `detailed-minimal` keeps the measured value. |
 
 Closed:
 

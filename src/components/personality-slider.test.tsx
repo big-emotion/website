@@ -58,7 +58,7 @@ describe("PersonalitySlider", () => {
   it("describes the lean in French for a French visitor", () => {
     renderSlider("fr");
 
-    // Formel/Decontracte sits at 54 — past the middle, so it leans towards the end pole.
+    // Formel/Decontracte sits at 72 — past the middle, so it leans towards the end pole.
     expect(
       screen.getByRole("group", { name: "Formel a Décontracté : penche vers décontracté" }),
     ).toBeInTheDocument();

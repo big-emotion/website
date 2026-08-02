@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 import { locales, type Locale } from "@/i18n/locales";
-import { content, site } from "./site";
+import { content, site, tools } from "./site";
 
 // BBH Hegarty has an ASCII-only cmap: an accent in display type falls back to
 // another face and renders visibly mismatched. These are the strings the
@@ -23,8 +23,19 @@ function displayCopy(locale: Locale) {
     ...copy.team.flatMap((member) => [member.name, member.role]),
     ...copy.values,
     ...Object.values(copy.playground.badges).map((badge) => badge.label),
+    copy.expertise.title,
+    ...copy.expertise.items,
+    copy.toolboxTitle,
   ];
 }
+
+// The tools roster is locale-invariant but lands in the same display face as the
+// client wall, so it obeys the same ASCII rule.
+describe("tools band", () => {
+  it.each([...tools])("renders %s without accented characters", (tool) => {
+    expect(tool).not.toMatch(/[À-ſ]/);
+  });
+});
 
 describe.each(locales)("%s copy", (locale) => {
   it.each(displayCopy(locale))("renders %s without accented characters", (copy) => {
@@ -63,6 +74,11 @@ describe("body copy", () => {
   it("leaves French prose correctly accented", () => {
     const founder = content.fr.team.find((member) => member.name === "Jean-Noe Kollo");
     expect(founder?.bio).toContain("démarre");
+  });
+
+  it("keeps the newcomers' French bios accented too", () => {
+    const alexandra = content.fr.team.find((member) => member.name === "Alexandra Lohourignon");
+    expect(alexandra?.bio).toContain("expérience");
   });
 
   it("keeps the schema.org founder name correctly accented", () => {

@@ -108,6 +108,13 @@ body {
      a comparable px/s. A list of names is read, not glanced at. */
   animation-duration: 60s;
 }
+/* /approach's toolbox. Same wordmark treatment as the client wall, and the two
+   rosters share the same average name length, so the half-width ratio is just the
+   name count: 24 tools vs 15 clients ≈ 1.6x, and 1.6x the wall's 60s lands the band
+   at the same px/s reading pace. */
+.tools-band .marquee-track {
+  animation-duration: 96s;
+}
 @media (prefers-reduced-motion: reduce) {
   .marquee-track {
     animation: none;
@@ -136,6 +143,22 @@ body {
   .client-wall-row .marquee-track > [aria-hidden="true"] {
     display: none;
   }
+  /* The toolbox unwraps the same way: one wrapped printing, loop copy dropped. */
+  .tools-band {
+    margin-inline: 0;
+    overflow: visible;
+  }
+  .tools-band .marquee-track,
+  .tools-band .marquee-track > ul {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .tools-band .marquee-track > ul {
+    row-gap: 0.75rem;
+  }
+  .tools-band .marquee-track > [aria-hidden="true"] {
+    display: none;
+  }
 }
 
 /* ============================================================
@@ -148,11 +171,12 @@ body {
    swell alone is too quiet to read as a pick.
    ============================================================ */
 .team-marquee .marquee-track {
-  /* A half is ~104vw by construction (see TeamMarquee), so this reads as "one
-     screenful per 40s" at every breakpoint rather than a fixed px/s that would
-     crawl on a phone and race on a 4K panel. A founder's card takes about a
-     minute to cross, which is what it costs to actually read the bio. */
-  animation-duration: 40s;
+  /* A half is ~260vw by construction (five members at 52vw — see TeamMarquee), so
+     this holds the band at roughly one screenful per 40s at every breakpoint rather
+     than a fixed px/s that would crawl on a phone and race on a 4K panel. A member's
+     card still takes about a minute to cross, which is what it costs to actually
+     read the bio. Scale this with the roster: it is one half's travel time. */
+  animation-duration: 100s;
 }
 /* Tabbing into the band moves the focused link out from under the cursor unless the
    scroll stops too. The client wall carries no links, hence the narrower selector. */
@@ -194,7 +218,7 @@ body {
 }
 @media (prefers-reduced-motion: reduce) {
   /* Frozen, the band would clip the roster at the viewport edge and the repeats
-     would print the same two people six times. Unwrap it back into the plain
+     would print the same people over and over. Unwrap it back into the plain
      grid the section carried before, and keep the swell off a static card. */
   .team-marquee {
     margin-inline: 0;
@@ -209,8 +233,8 @@ body {
     display: none;
   }
   /* The card width is sized off `vw` to keep the loop seamless; with no loop left to
-     keep, that only pushes two founders onto two rows. Back to the plain two-column
-     read the section carried before the band. */
+     keep, that only pushes the roster onto one oversized card per row. Back to the
+     plain wrapped read the section carried before the band. */
   .team-marquee-member {
     width: min(100%, 34rem);
     padding-inline: 0;
