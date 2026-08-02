@@ -16,11 +16,14 @@ function stubMatchMedia(reducedMotion: boolean) {
   );
 }
 
-const { renderers } = vi.hoisted(() => ({
+const { renderers, tintedHexes } = vi.hoisted(() => ({
   renderers: [] as Array<{
     setAnimationLoop: (fn: unknown) => void;
     setPixelRatio: (r: number) => void;
   }>,
+  // Every Color.set the scene performs — how a logo-colour pick is observed reaching
+  // the rig's material.
+  tintedHexes: [] as string[],
 }));
 
 // Same lightweight three.js stand-in as the other effects' component tests.
@@ -93,6 +96,10 @@ vi.mock("three", async () => {
     setRGB() {
       return this;
     }
+    set(hex: unknown) {
+      tintedHexes.push(String(hex));
+      return this;
+    }
   }
   class Timer {
     delta = 0;
@@ -149,7 +156,13 @@ vi.mock("three/examples/jsm/loaders/GLTFLoader.js", () => ({
   GLTFLoader: class {
     setDRACOLoader() {}
     load(_url: string, onLoad: (gltf: { scene: unknown }) => void) {
-      const fakeScene = { traverse: () => {}, position: { sub: () => {} } };
+      // A visitable mesh, unlike the other suites' inert scene: the tint path
+      // (setLogoColor -> tintStudioRig) must reach a material to be provable.
+      const fakeMesh = { isMesh: true, material: { needsUpdate: false } };
+      const fakeScene = {
+        traverse: (visit: (obj: unknown) => void) => visit(fakeMesh),
+        position: { sub: () => {} },
+      };
       onLoad({ scene: fakeScene });
     }
   },
@@ -162,6 +175,7 @@ vi.mock("three/examples/jsm/loaders/DRACOLoader.js", () => ({
 
 const { default: AttrapeMoiEffect } = await import("./index");
 const { copy } = await import("./copy");
+const { isChallengeUnlocked } = await import("@/components/playground/challenges");
 
 function renderEffect() {
   return render(
@@ -179,6 +193,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
   renderers.length = 0;
+  tintedHexes.length = 0;
   window.localStorage.clear();
 });
 
@@ -250,6 +265,24 @@ describe("AttrapeMoiEffect", () => {
     // pairing: lemon.
     const ball = screen.getByRole("button", { name: copy.fr.ball });
     expect(ball.style.backgroundColor).toBe("var(--color-lemon)");
+
+    // And a logo pick actually reaches the rig material, not just the callback.
+    const logos = within(screen.getByRole("group", { name: "Couleur du logo" }));
+    fireEvent.click(logos.getByRole("button", { name: "Tangerine" }));
+    expect(tintedHexes).toContain("#ff5200");
+  });
+
+  // @req REQ-043
+  it("lets a keyboard user catch the ball from the button itself", () => {
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(
+      {} as unknown as RenderingContext,
+    );
+
+    renderEffect();
+    // fireEvent.click carries detail 0, exactly how a keyboard activation lands.
+    fireEvent.click(screen.getByRole("button", { name: copy.fr.ball }));
+
+    expect(isChallengeUnlocked("attrape-moi")).toBe(true);
   });
 
   // @req REQ-037

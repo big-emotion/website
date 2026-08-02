@@ -14,10 +14,26 @@ import { ZoomControls, type ZoomDirection } from "@/components/playground/zoom-c
 import { copy } from "./copy";
 import { createAttrapeMoiEngine, type AttrapeMoiEngine } from "./engine";
 
+// Positive-only memo: `getSnapshot` runs on every render, and the control overlay
+// re-renders per theme pick — probing WebGL each time mints a real context and walks
+// into Chrome's 16-live-context cap, evicting the toy's own renderer. A browser never
+// gains WebGL mid-session, so one successful probe is final; failures allocate
+// nothing and stay unmemoized.
+let webglProbeSucceeded = false;
+function probeWebgl(): boolean {
+  if (webglProbeSucceeded) return true;
+  const probe = document.createElement("canvas");
+  const context = probe.getContext("webgl") || probe.getContext("webgl2");
+  if (context) {
+    context.getExtension?.("WEBGL_lose_context")?.loseContext();
+    webglProbeSucceeded = true;
+  }
+  return webglProbeSucceeded;
+}
+
 function getSupportsToySnapshot(): boolean {
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
-  const probe = document.createElement("canvas");
-  return !!(probe.getContext("webgl") || probe.getContext("webgl2"));
+  return probeWebgl();
 }
 
 // Assume support on the server so hydration doesn't flash the fallback markup — same

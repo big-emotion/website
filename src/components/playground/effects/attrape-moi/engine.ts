@@ -13,7 +13,7 @@ import {
   loadStudioRig,
   tintStudioRig,
 } from "@/components/scene/studio-rig";
-import { stepFraming } from "@/components/playground/camera-framing";
+import { scrubFraming, stepFraming } from "@/components/playground/camera-framing";
 import { unlockChallenge } from "@/components/playground/challenges";
 import { reportInteraction } from "@/components/playground/report-interaction";
 import type { ZoomDirection } from "@/components/playground/zoom-controls";
@@ -63,6 +63,9 @@ const MAX_FRAME_SECONDS = 0.05;
 const DOLLY_DEFAULT = 3;
 const DOLLY_MIN = 1.2;
 const DOLLY_MAX = 6;
+// A trackpad pinch arrives as a wheel event with deltas an order of magnitude
+// smaller than a wheel notch — same value as the sibling engines.
+const PINCH_SENSITIVITY = 0.0076;
 
 export function createAttrapeMoiEngine(options: AttrapeMoiEngineOptions = {}): AttrapeMoiEngine {
   const effectId = options.effectId ?? "attrape-moi";
@@ -85,6 +88,8 @@ export function createAttrapeMoiEngine(options: AttrapeMoiEngineOptions = {}): A
   let logoHex = "#ffffff";
   let ball: ElasticBall = { ...BALL_SPAWN };
   let heldBall = false;
+  // The one pointer a gesture belongs to — everything else on the stage is noise.
+  let activePointerId: number | null = null;
   let elapsed = 0;
   let wobbleStartedAt = -Infinity;
   let deflected = false;
@@ -133,6 +138,10 @@ export function createAttrapeMoiEngine(options: AttrapeMoiEngineOptions = {}): A
     if (event.button !== 0) return;
     // A caught ball is not the start of a logo drag.
     event.stopPropagation();
+    // The stage's viewport position moves with page scroll without any resize —
+    // refresh at every gesture start or the catch lands offset by the scroll delta.
+    refreshStageRect();
+    activePointerId = event.pointerId;
     heldBall = true;
     ball = { ...ball, ...pointerToBallSpace(event), vx: 0, vy: 0 };
     placeBall();
@@ -141,13 +150,27 @@ export function createAttrapeMoiEngine(options: AttrapeMoiEngineOptions = {}): A
     unlockChallenge(effectId);
   }
 
+  function onBallClick(event: MouseEvent) {
+    // Keyboard activation reaches the button as a click with detail 0; real clicks
+    // (detail >= 1) were already handled on pointerdown. The keyboard catch stops
+    // the ball where it is — carrying stays a pointer gesture.
+    if (event.detail !== 0) return;
+    ball = { ...ball, vx: 0, vy: 0 };
+    reportInteraction(effectId, "grab");
+    unlockChallenge(effectId);
+  }
+
   function onStagePointerDown(event: PointerEvent) {
     if (event.button !== 0) return;
+    refreshStageRect();
+    activePointerId = event.pointerId;
     draggingLogo = true;
     lastPointer = { x: event.clientX, y: event.clientY };
   }
 
   function onPointerMove(event: PointerEvent) {
+    // A second touch resting on the stage must not yank the carried ball around.
+    if (event.pointerId !== activePointerId) return;
     if (heldBall) {
       ball = { ...ball, ...pointerToBallSpace(event) };
       placeBall();
@@ -164,11 +187,29 @@ export function createAttrapeMoiEngine(options: AttrapeMoiEngineOptions = {}): A
     spinVelocityX = dy * DRAG_SENSITIVITY;
   }
 
-  function onPointerUp() {
+  function onPointerUp(event: PointerEvent) {
+    if (event.pointerId !== activePointerId) return;
+    // A mouse's secondary-button release rides the same pointer id: only the primary
+    // button ends a carry — a cancelled gesture always does.
+    if (event.type === "pointerup" && event.button !== 0) return;
+    activePointerId = null;
     // Released wherever it was carried, from rest — the original's feel: the catch
     // absorbs the ball's energy, only Enter (or a wall's own bounce) relaunches it.
     heldBall = false;
     draggingLogo = false;
+  }
+
+  function onWheel(event: WheelEvent) {
+    // Same convention as the sibling stages: a bare wheel belongs to the page; a
+    // pinch — delivered as a ctrl/meta wheel — dollies, so the hint the zoom
+    // controls print stays true here too.
+    if (!event.ctrlKey && !event.metaKey) return;
+    event.preventDefault();
+    framing = Math.min(
+      DOLLY_MAX,
+      Math.max(DOLLY_MIN, scrubFraming(framing, event.deltaY, PINCH_SENSITIVITY)),
+    );
+    if (camera) camera.position.z = framing;
   }
 
   function relaunchBall() {
@@ -343,7 +384,10 @@ export function createAttrapeMoiEngine(options: AttrapeMoiEngineOptions = {}): A
 
       stageEl.addEventListener("pointerdown", onStagePointerDown);
       stageEl.addEventListener("keydown", onKeyDown);
+      // Not passive: the pinch branch owns the wheel over the stage when it fires.
+      stageEl.addEventListener("wheel", onWheel, { passive: false });
       ballElement.addEventListener("pointerdown", onBallPointerDown);
+      ballElement.addEventListener("click", onBallClick);
       window.addEventListener("pointermove", onPointerMove);
       window.addEventListener("pointerup", onPointerUp);
       window.addEventListener("pointercancel", onPointerUp);
@@ -351,7 +395,9 @@ export function createAttrapeMoiEngine(options: AttrapeMoiEngineOptions = {}): A
       cleanupFns.push(() => {
         stageEl.removeEventListener("pointerdown", onStagePointerDown);
         stageEl.removeEventListener("keydown", onKeyDown);
+        stageEl.removeEventListener("wheel", onWheel);
         ballElement.removeEventListener("pointerdown", onBallPointerDown);
+        ballElement.removeEventListener("click", onBallClick);
         window.removeEventListener("pointermove", onPointerMove);
         window.removeEventListener("pointerup", onPointerUp);
         window.removeEventListener("pointercancel", onPointerUp);
@@ -366,6 +412,7 @@ export function createAttrapeMoiEngine(options: AttrapeMoiEngineOptions = {}): A
       ball = { ...BALL_SPAWN };
       heldBall = false;
       draggingLogo = false;
+      activePointerId = null;
       rotationX = 0;
       rotationY = 0;
       spinVelocityX = 0;

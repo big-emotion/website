@@ -67,7 +67,8 @@ export function ZoomControls({
       >
         +
       </button>
-      <p className="hidden text-xs uppercase tracking-wide text-ink/70 md:block">
+      {/* Chipped on bg-paper so it survives every stage-theme backdrop, ink included. */}
+      <p className="hidden bg-paper/80 px-2 py-1 text-xs uppercase tracking-wide text-ink/80 md:block">
         {strings.gestureHint}
       </p>
     </div>

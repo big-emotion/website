@@ -24,10 +24,26 @@ const GRAVITY_PAD = [
   { direction: "right", glyph: "→" },
 ] as const satisfies ReadonlyArray<{ direction: GravityDirection; glyph: string }>;
 
+// Positive-only memo: `getSnapshot` runs on every render, and the control overlay
+// re-renders per slider step — probing WebGL each time mints a real context and walks
+// into Chrome's 16-live-context cap, evicting the toy's own renderer. A browser never
+// gains WebGL mid-session, so one successful probe is final; failures allocate
+// nothing and stay unmemoized.
+let webglProbeSucceeded = false;
+function probeWebgl(): boolean {
+  if (webglProbeSucceeded) return true;
+  const probe = document.createElement("canvas");
+  const context = probe.getContext("webgl") || probe.getContext("webgl2");
+  if (context) {
+    context.getExtension?.("WEBGL_lose_context")?.loseContext();
+    webglProbeSucceeded = true;
+  }
+  return webglProbeSucceeded;
+}
+
 function getSupportsToySnapshot(): boolean {
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
-  const probe = document.createElement("canvas");
-  return !!(probe.getContext("webgl") || probe.getContext("webgl2"));
+  return probeWebgl();
 }
 
 // Assume support on the server so hydration doesn't flash the fallback markup — same
@@ -135,7 +151,8 @@ export default function PoidsLourdEffect() {
       {/* Pointer-device gestures, so they are addressed to pointer-device viewports only
           — and pinned to the top of the stage, away from the bottom corners the zoom and
           reset controls own. */}
-      <p className="absolute top-4 left-5 hidden text-xs uppercase tracking-wide text-ink/70 md:left-8 md:block">
+      {/* Chipped on bg-paper so it survives every stage-theme backdrop, ink included. */}
+      <p className="absolute top-4 left-5 hidden bg-paper/80 px-2 py-1 text-xs uppercase tracking-wide text-ink/80 md:left-8 md:block">
         {strings.gestures}
       </p>
       {/* Physics settings claim the last free corner. The pad and slider talk to the
@@ -158,10 +175,12 @@ export default function PoidsLourdEffect() {
         <div className="flex min-h-11 items-center gap-2">
           <span
             aria-hidden="true"
-            className="hidden text-xs uppercase tracking-wide text-ink/70 md:inline"
+            className="hidden bg-paper/80 px-2 py-1 text-xs uppercase tracking-wide text-ink/80 md:inline"
           >
             {strings.speed.label}
           </span>
+          {/* min-h-11 on the input itself: a range's hit area is its border box, and
+              on mobile this slider is the whole control (the label is md-only). */}
           <input
             type="range"
             min={TIME_SCALE_MIN}
@@ -170,7 +189,7 @@ export default function PoidsLourdEffect() {
             value={timeScale}
             onChange={(event) => setTimeScale(Number(event.target.value))}
             aria-label={strings.speed.label}
-            className="w-28 accent-ink"
+            className="min-h-11 w-28 accent-ink"
           />
         </div>
         <StageThemeControls locale={locale} theme={theme} onThemeChange={setTheme} />

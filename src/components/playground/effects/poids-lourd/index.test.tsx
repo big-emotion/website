@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vitest";
 
@@ -290,6 +290,59 @@ describe("PoidsLourdEffect", () => {
     const set = body.position.set as unknown as Mock;
     const [, y] = set.mock.calls[set.mock.calls.length - 1] as number[];
     expect(y).toBeGreaterThan(0);
+  });
+
+  // @req REQ-039
+  it("re-applies the visitor's settings to the fresh engine after a reduced-motion round-trip", async () => {
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(
+      {} as unknown as RenderingContext,
+    );
+    // Dynamic stub: the shared helper's matchMedia never fires its change listener,
+    // and the remount path only exists through that listener.
+    let reduced = false;
+    const motionListeners: Array<() => void> = [];
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn((query: string) => ({
+        get matches() {
+          return query.includes("prefers-reduced-motion") ? reduced : true;
+        },
+        media: query,
+        addEventListener: (_: string, listener: () => void) => motionListeners.push(listener),
+        removeEventListener: vi.fn(),
+      })),
+    );
+
+    renderEffect();
+    await waitFor(() => expect(groups.length).toBeGreaterThan(0));
+    fireEvent.change(screen.getByRole("slider", { name: copy.fr.speed.label }), {
+      target: { value: "2" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: copy.fr.gravity.up }));
+
+    act(() => {
+      reduced = true;
+      motionListeners.forEach((listener) => listener());
+    });
+    expect(screen.getByText(copy.fr.fallback)).toBeInTheDocument();
+
+    act(() => {
+      reduced = false;
+      motionListeners.forEach((listener) => listener());
+    });
+
+    const renderFrame = (renderers[renderers.length - 1].setAnimationLoop as unknown as Mock).mock
+      .calls[0][0] as () => void;
+    const body = groups[groups.length - 1];
+    (body.position.set as unknown as Mock).mockClear();
+    renderFrame();
+    renderFrame();
+    const set = body.position.set as unknown as Mock;
+    const [, y] = set.mock.calls[set.mock.calls.length - 1] as number[];
+
+    // Up + doubled speed both survived the remount; the engine's defaults would put
+    // the body at about -0.0075 here instead.
+    expect(y).toBeGreaterThan(0.02);
   });
 
   // @req REQ-037

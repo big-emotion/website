@@ -376,15 +376,53 @@ describe("createAttrapeMoiEngine", () => {
   });
 
   // @req REQ-037
-  it("never intercepts the wheel: the page keeps scrolling over the stage", () => {
-    const stage = makeStage();
-    const ballEl = makeBall();
-    const stageAddSpy = vi.spyOn(stage, "addEventListener");
+  it("leaves a plain wheel to the page but dollies on a pinch", () => {
+    const { engine, stage } = mountToy();
+    const camera = cameras[cameras.length - 1];
+    const framing = camera.position.z;
 
-    const engine = createAttrapeMoiEngine();
-    engine.mount(stage, ballEl);
+    const plain = new WheelEvent("wheel", { deltaY: -40, cancelable: true });
+    stage.dispatchEvent(plain);
+    expect(plain.defaultPrevented).toBe(false);
+    expect(camera.position.z).toBe(framing);
 
-    expect(stageAddSpy.mock.calls.map(([type]) => type)).not.toContain("wheel");
+    stage.dispatchEvent(new WheelEvent("wheel", { deltaY: -40, ctrlKey: true, cancelable: true }));
+    expect(camera.position.z).toBeLessThan(framing);
+    engine.dispose();
+  });
+
+  // @req REQ-037
+  it("clamps a dragged ball to the stage walls", () => {
+    const { engine, ballEl } = mountToy();
+
+    ballEl.dispatchEvent(new PointerEvent("pointerdown", { clientX: 144, clientY: 408 }));
+    window.dispatchEvent(new PointerEvent("pointermove", { clientX: 5000, clientY: 408 }));
+
+    // x clamps to 1 - BALL_RADIUS = 0.955 -> 0.955*800 - 22 = 742px; y stays at 0.68.
+    expect(ballEl.style.transform).toBe("translate3d(742px, 386px, 0)");
+    engine.dispose();
+  });
+
+  // @req REQ-037
+  it("ignores moves and releases from a second pointer while the ball is carried", () => {
+    const { engine, ballEl, renderFrame } = mountToy();
+
+    ballEl.dispatchEvent(
+      new PointerEvent("pointerdown", { pointerId: 1, clientX: 144, clientY: 408 }),
+    );
+    const held = ballEl.style.transform;
+
+    // A palm resting on the stage: different pointerId, must neither move nor drop.
+    window.dispatchEvent(
+      new PointerEvent("pointermove", { pointerId: 2, clientX: 600, clientY: 100 }),
+    );
+    expect(ballEl.style.transform).toBe(held);
+
+    window.dispatchEvent(new PointerEvent("pointerup", { pointerId: 2 }));
+    renderFrame();
+    renderFrame();
+    // Still held: the ball did not resume travelling after the foreign release.
+    expect(ballEl.style.transform).toBe(held);
     engine.dispose();
   });
 });

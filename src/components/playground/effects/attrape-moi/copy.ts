@@ -20,7 +20,7 @@ export const copy: Record<Locale, AttrapeMoiCopy> = {
     reset: "Relancer",
     ariaLabel: "Logo en scène avec une balle rebondissante à attraper",
     instructions:
-      "Flèches : faire pivoter le logo. Entrée : relancer la balle. La balle se laisse aussi glisser à la souris.",
+      "Flèches : faire pivoter le logo. Entrée : relancer la balle. Tab jusqu'à la balle puis Entrée : l'attraper. La balle se laisse aussi glisser à la souris.",
     ball: "Attrape-moi",
     fallback: "Cette expérience nécessite un navigateur compatible WebGL, animations activées.",
   },
@@ -28,7 +28,7 @@ export const copy: Record<Locale, AttrapeMoiCopy> = {
     reset: "Reset",
     ariaLabel: "Staged logo with a bouncing ball to catch",
     instructions:
-      "Arrow keys: rotate the logo. Enter: relaunch the ball. The ball can also be dragged.",
+      "Arrow keys: rotate the logo. Enter: relaunch the ball. Tab to the ball, then Enter to catch it. The ball can also be dragged.",
     ball: "Catch me",
     fallback: "This experience needs a WebGL-capable browser with animations enabled.",
   },
