@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-08-02
+
+### Added
+
+- Three new team members join the /culture marquee in both locales — Salif
+  Dembele, Issa Sagna and Alexandra Lohourignon — each with role adjectives,
+  a short bio and links to their profiles.
+- /approach now spells out the offer in plain words: a display-type menu of
+  deliverables (websites, mobile apps, digital marketing and communication,
+  community management, visuals, videos, films, photos, physical production
+  and goodies, training).
+- A scrolling toolbox band on /approach names the software the team ships
+  with, from the agency's own project stacks plus the design and AI bench.
+
+### Changed
+
+- The brand personality sliders were re-set to match the agency's actual
+  temperament: warmer, more casual, more friendly and simpler, firmly on the
+  serious side; the divergence from the guideline artwork is recorded in the
+  brand canon.
+- The team marquee's scroll duration now scales with the roster so five
+  members read at the same pace two founders did.
+
 ## [0.8.7] - 2026-07-28
 
 ### Fixed
@@ -468,7 +491,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   under the Node.js container and its `/api/contact` replacement is not shipped
   (SWBE-31).
 
-[Unreleased]: https://github.com/big-emotion/website/compare/v0.8.7...HEAD
+[Unreleased]: https://github.com/big-emotion/website/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/big-emotion/website/compare/v0.8.7...v0.9.0
 [0.8.7]: https://github.com/big-emotion/website/releases/tag/v0.8.7
 [0.8.6]: https://github.com/big-emotion/website/releases/tag/v0.8.6
 [0.8.5]: https://github.com/big-emotion/website/releases/tag/v0.8.5
