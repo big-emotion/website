@@ -23,12 +23,23 @@ describe("Culture", () => {
     expect(screen.queryByRole("heading", { level: 1 })).toBeNull();
   });
 
-  // The founders now scroll past in a band that prints the roster several times over,
+  // The team scrolls past in a band that prints the roster several times over,
   // so the section has to keep the duplicates out of the reading order.
-  it("introduces each founder exactly once despite the band's repeats", () => {
+  it("introduces each team member exactly once despite the band's repeats", () => {
     renderCulture("fr");
 
-    expect(screen.getAllByRole("heading", { name: /Kollo|Bandith/ })).toHaveLength(2);
+    for (const name of ["Kollo", "Bandith", "Dembele", "Sagna", "Lohourignon"]) {
+      expect(screen.getAllByRole("heading", { name: new RegExp(name) })).toHaveLength(1);
+    }
+  });
+
+  it("links Issa's GitHub under his name", () => {
+    renderCulture("fr");
+
+    expect(screen.getByRole("link", { name: "Issa Sagna sur GitHub" })).toHaveAttribute(
+      "href",
+      "https://github.com/isagnadev",
+    );
   });
 
   it("links Sylvain's own site under his name", () => {

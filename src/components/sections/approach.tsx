@@ -1,3 +1,4 @@
+import { ToolsBand } from "@/components/tools-band";
 import { content } from "@/content/site";
 import type { Locale } from "@/i18n/locales";
 
@@ -5,7 +6,7 @@ import type { Locale } from "@/i18n/locales";
 // (SWBE-22), so the mission opens the section instead of repeating them — it is the
 // agency's own statement of method and appears nowhere else.
 export function Approach({ locale }: { locale: Locale }) {
-  const { mission, services, stat } = content[locale];
+  const { mission, services, expertise, stat } = content[locale];
 
   return (
     <section
@@ -25,6 +26,29 @@ export function Approach({ locale }: { locale: Locale }) {
           </article>
         ))}
       </div>
+
+      {/* The cards above say how the agency works; this list is the offer in plain
+          words, one deliverable per line, big enough that nobody has to guess. */}
+      <div className="mt-16 md:mt-24">
+        <h2
+          id="expertise-title"
+          className="font-display text-sm tracking-[0.2em] opacity-80 md:text-base"
+        >
+          {expertise.title}
+        </h2>
+        <ul aria-labelledby="expertise-title" className="mt-6 border-t border-ink/20">
+          {expertise.items.map((item) => (
+            <li
+              key={item}
+              className="font-display border-b border-ink/20 py-3 text-[clamp(1.75rem,6vw,4rem)] leading-none"
+            >
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <ToolsBand locale={locale} />
 
       <div className="mt-16 md:mt-24">
         <p className="font-display text-[clamp(3.5rem,18vw,13rem)] leading-[0.8]">

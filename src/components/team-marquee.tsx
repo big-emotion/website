@@ -8,19 +8,20 @@ type Member = {
 };
 
 /**
- * The founders as a slow horizontal band: the roster drifts past and the member under
+ * The team as a slow horizontal band: the roster drifts past and the member under
  * the cursor swells.
  *
  * Two things about the card width, which is `max(52vw, …)` rather than a plain size.
  * The loop shifts the track by -50%, so it only stays seamless while one half is wider
- * than the viewport — sizing a card off `vw` makes a half (two founders) 104vw at every
- * breakpoint, which holds that guarantee without printing the roster over and over to
- * pad the track. It also makes the scroll rate viewport-proportional: one duration
- * moves the band by roughly one screenful whatever the screen.
+ * than the viewport — sizing a card off `vw` makes a half (the full roster, 52vw a
+ * member) wider than any screen, which holds that guarantee without printing the
+ * roster over and over to pad the track. It also makes the scroll rate
+ * viewport-proportional: the duration in globals.css is one half's travel time, so it
+ * scales with the roster.
  *
- * The second half is the same two people again, printed for the loop alone — it is
+ * The second half is the same people again, printed for the loop alone — it is
  * inert and out of the accessibility tree, so a screen reader and the Tab key meet each
- * founder once.
+ * member once.
  */
 export function TeamMarquee({ members }: { members: readonly Member[] }) {
   const t = useTranslations("culture");

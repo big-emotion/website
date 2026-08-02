@@ -118,6 +118,12 @@ type LocaleContent = {
     badges: Record<string, { label: string; unlockedShare: string }>;
   };
   services: readonly { title: string; body: string }[];
+  /** The offer in plain words (owner ask, Aug 2026): the three `services` cards say
+   *  how the agency works, this list names every deliverable someone can actually
+   *  order. Title and items land in `font-display` slots — ASCII only (DEC-023). */
+  expertise: { title: string; items: readonly string[] };
+  /** Heading over the scrolling `tools` band on /approach. `font-display` slot. */
+  toolboxTitle: string;
   impactStats: readonly { value: string; label: string }[];
   team: readonly {
     name: string;
@@ -187,22 +193,56 @@ export const clients = [
   "Mamiezi",
 ] as const;
 
+// The software the team actually ships with, rendered as typographic wordmarks for
+// the same reasons as `clients` above. Sourced from the agency's own repos (this
+// site, Ferry, EthniAfrica, the Grande Chancellerie site) plus the design and AI
+// bench. Locale-invariant; lands in display type, so every name stays ASCII (DEC-023).
+export const tools = [
+  "Next.js",
+  "React",
+  "TypeScript",
+  "Node.js",
+  "Tailwind CSS",
+  "Three.js",
+  "GSAP",
+  "Prismic",
+  "Supabase",
+  "Docker",
+  "Azure",
+  "GitHub",
+  "Jira",
+  "Playwright",
+  "Storybook",
+  "Figma",
+  "Photoshop",
+  "Illustrator",
+  "Premiere Pro",
+  "After Effects",
+  "Claude",
+  "ChatGPT",
+  "Gemini",
+  "Higgsfield",
+] as const;
+
 // Brand personality slider (brand book, "Brand personality slider" page).
 // `position` is the brand's static dot placement along each axis, 0 (start
-// pole) to 100 (end pole), measured from the guideline artwork by locating
-// the dot's pixel center relative to the line's endpoints. It is a measurement,
-// not copy, so it stays here while the pole wording is authored per locale under
-// `personalityPoles` — a French visitor reads the axes in French. The ids keep the
-// brand book's own English pole pair, which is how the guideline names them; two of
-// those were corrected from apparent typos in the source ("Coold" -> "Cold",
+// pole) to 100 (end pole). The values were first measured off the guideline
+// artwork; the owner re-set them in Aug 2026 because the artwork read colder,
+// stiffer and more corporate than the agency actually is — only
+// `detailed-minimal` keeps its measured value. BRAND.md's divergence table
+// records the arbitration. It is a positioning call, not copy, so it stays here
+// while the pole wording is authored per locale under `personalityPoles` — a
+// French visitor reads the axes in French. The ids keep the brand book's own
+// English pole pair, which is how the guideline names them; two of those were
+// corrected from apparent typos in the source ("Coold" -> "Cold",
 // "Detalied" -> "Detailed").
 export const personalityAxes = [
-  { id: "formal-casual", position: 54 },
-  { id: "cold-warm", position: 35 },
-  { id: "serious-playful", position: 45 },
+  { id: "formal-casual", position: 72 },
+  { id: "cold-warm", position: 78 },
+  { id: "serious-playful", position: 28 },
   { id: "detailed-minimal", position: 63 },
-  { id: "corporate-friendly", position: 40 },
-  { id: "complex-simple", position: 54 },
+  { id: "corporate-friendly", position: 72 },
+  { id: "complex-simple", position: 72 },
 ] as const;
 
 type PersonalityAxisId = (typeof personalityAxes)[number]["id"];
@@ -288,6 +328,23 @@ const fr: LocaleContent = {
       body: "Le détail qui reste en tête : une transition, une matière, un mouvement. C’est lui qui transforme une visite en souvenir.",
     },
   ],
+  expertise: {
+    title: "Ce qu'on fait",
+    items: [
+      "Sites web",
+      "Applications mobiles",
+      "Marketing digital",
+      "Communication digitale",
+      "Community management",
+      "Visuels",
+      "Videos",
+      "Films",
+      "Photos",
+      "Production physique & goodies",
+      "Formations",
+    ],
+  },
+  toolboxTitle: "Les outils qu'on manie",
   impactStats: [
     { value: "+150 %", label: "Croissance moyenne" },
     { value: "+10 ans", label: "D’experience" },
@@ -320,6 +377,43 @@ const fr: LocaleContent = {
           label: "LinkedIn",
           context: "sur LinkedIn",
           href: "https://fr.linkedin.com/in/sylvain-sengbandith-83515b28",
+        },
+      ],
+    },
+    {
+      name: "Salif Dembele",
+      role: "Pedagogue & concret",
+      bio: "Il forme les équipes sur Prismic et aide les entreprises à prendre en main leurs outils numériques. Son objectif : faciliter le quotidien, avec des solutions concrètes.",
+      links: [
+        {
+          label: "LinkedIn",
+          context: "sur LinkedIn",
+          href: "https://www.linkedin.com/in/salif-dembele/",
+        },
+      ],
+    },
+    {
+      name: "Issa Sagna",
+      role: "Codeur & curieux",
+      bio: "Développeur, il parle peu et livre beaucoup. Les idées deviennent du code propre, rapide, qui dure.",
+      links: [
+        { label: "GitHub", context: "sur GitHub", href: "https://github.com/isagnadev" },
+        {
+          label: "LinkedIn",
+          context: "sur LinkedIn",
+          href: "https://fr.linkedin.com/in/issasagna",
+        },
+      ],
+    },
+    {
+      name: "Alexandra Lohourignon",
+      role: "Solaire & limpide",
+      bio: "Entre community management, support client et formation sur Prismic, elle aime rendre les outils simples et l’expérience agréable pour tout le monde.",
+      links: [
+        {
+          label: "LinkedIn",
+          context: "sur LinkedIn",
+          href: "https://www.linkedin.com/in/alexandra-lohourignon-recrutement/",
         },
       ],
     },
@@ -426,6 +520,23 @@ const en: LocaleContent = {
       body: "The detail that sticks: a transition, a texture, a move. That is what turns a visit into something people remember.",
     },
   ],
+  expertise: {
+    title: "What we do",
+    items: [
+      "Websites",
+      "Mobile apps",
+      "Digital marketing",
+      "Digital communication",
+      "Community management",
+      "Visuals",
+      "Videos",
+      "Films",
+      "Photos",
+      "Physical production & goodies",
+      "Training",
+    ],
+  },
+  toolboxTitle: "The tools we wield",
   impactStats: [
     { value: "+150 %", label: "Average growth" },
     { value: "+10 yrs", label: "Of experience" },
@@ -458,6 +569,43 @@ const en: LocaleContent = {
           label: "LinkedIn",
           context: "on LinkedIn",
           href: "https://fr.linkedin.com/in/sylvain-sengbandith-83515b28",
+        },
+      ],
+    },
+    {
+      name: "Salif Dembele",
+      role: "Mentor & hands-on",
+      bio: "He trains teams on Prismic and helps companies take real ownership of their digital tools. His goal: easier everyday work, through concrete solutions.",
+      links: [
+        {
+          label: "LinkedIn",
+          context: "on LinkedIn",
+          href: "https://www.linkedin.com/in/salif-dembele/",
+        },
+      ],
+    },
+    {
+      name: "Issa Sagna",
+      role: "Coder & curious",
+      bio: "A developer of few words and many releases. Ideas turn into clean, fast code that lasts.",
+      links: [
+        { label: "GitHub", context: "on GitHub", href: "https://github.com/isagnadev" },
+        {
+          label: "LinkedIn",
+          context: "on LinkedIn",
+          href: "https://fr.linkedin.com/in/issasagna",
+        },
+      ],
+    },
+    {
+      name: "Alexandra Lohourignon",
+      role: "Sunny & crystal-clear",
+      bio: "Between community management, client support and Prismic training, she likes making tools simple and the experience a pleasure for everyone.",
+      links: [
+        {
+          label: "LinkedIn",
+          context: "on LinkedIn",
+          href: "https://www.linkedin.com/in/alexandra-lohourignon-recrutement/",
         },
       ],
     },
