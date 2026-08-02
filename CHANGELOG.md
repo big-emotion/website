@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.1] - 2026-08-02
+
+### Changed
+
+- The /approach deliverables menu now reads as a 360 catalog: business apps &
+  CRM and custom software join the list, the vague lines were reworded
+  (graphic design, videos & films, photography), and a lead line under the
+  title states the positioning — a 360 digital agency connecting the digital
+  and the human.
+
 ## [0.9.0] - 2026-08-02
 
 ### Added
@@ -491,7 +501,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   under the Node.js container and its `/api/contact` replacement is not shipped
   (SWBE-31).
 
-[Unreleased]: https://github.com/big-emotion/website/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/big-emotion/website/compare/v0.9.1...HEAD
+[0.9.1]: https://github.com/big-emotion/website/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/big-emotion/website/compare/v0.8.7...v0.9.0
 [0.8.7]: https://github.com/big-emotion/website/releases/tag/v0.8.7
 [0.8.6]: https://github.com/big-emotion/website/releases/tag/v0.8.6
