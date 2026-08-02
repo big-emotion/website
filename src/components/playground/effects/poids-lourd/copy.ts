@@ -17,6 +17,9 @@ export type PoidsLourdCopy = {
   /** The mouse-only slow-motion hold, spelled out because it is not discoverable. Zoom
    *  used to be listed here too; it now lives with the on-screen controls that own it. */
   gestures: string;
+  /** Accessible names for the physics overlay — body face, accents welcome. */
+  speed: { label: string };
+  gravity: { label: string; down: string; up: string; left: string; right: string };
   fallback: string;
   tilt: TiltPermissionCardCopy;
 };
@@ -26,6 +29,14 @@ export const copy: Record<Locale, PoidsLourdCopy> = {
     reset: "Relancer",
     ariaLabel: "Logo chromé à saisir, glisser et lancer contre les bords élastiques",
     gestures: "Clic droit maintenu : ralenti",
+    speed: { label: "Vitesse de la simulation" },
+    gravity: {
+      label: "Direction de la gravité",
+      down: "Gravité vers le bas",
+      up: "Gravité vers le haut",
+      left: "Gravité vers la gauche",
+      right: "Gravité vers la droite",
+    },
     fallback: "Cette expérience nécessite un navigateur compatible WebGL, animations activées.",
     tilt: {
       title: "Incliner pour jouer",
@@ -38,6 +49,14 @@ export const copy: Record<Locale, PoidsLourdCopy> = {
     reset: "Reset",
     ariaLabel: "Chrome logo to grab, drag and throw against the elastic walls",
     gestures: "Hold right-click: slow motion",
+    speed: { label: "Simulation speed" },
+    gravity: {
+      label: "Gravity direction",
+      down: "Gravity down",
+      up: "Gravity up",
+      left: "Gravity left",
+      right: "Gravity right",
+    },
     fallback: "This experience needs a WebGL-capable browser with animations enabled.",
     tilt: {
       title: "Tilt to play",

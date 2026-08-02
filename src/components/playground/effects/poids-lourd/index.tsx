@@ -1,13 +1,28 @@
 "use client";
 
-import { useEffect, useRef, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useLocale } from "next-intl";
 import { defaultLocale, isLocale } from "@/i18n/locales";
+import {
+  DEFAULT_STAGE_THEME,
+  STAGE_COLOR_HEX,
+  stageColorToken,
+} from "@/components/playground/stage-theme";
+import { StageThemeControls } from "@/components/playground/stage-theme-controls";
 import { ZoomControls, type ZoomDirection } from "@/components/playground/zoom-controls";
 import { copy } from "./copy";
 import { createPoidsLourdEngine, type PoidsLourdEngine } from "./engine";
-import type { Vec2 } from "./physics";
+import { TIME_SCALE_MAX, TIME_SCALE_MIN, type GravityDirection, type Vec2 } from "./physics";
 import { TiltPermissionCard } from "./tilt-permission-card";
+
+// Reading order of the pad mirrors a keyboard's inverted-T; the glyphs are decorative,
+// the aria-labels carry the meaning.
+const GRAVITY_PAD = [
+  { direction: "up", glyph: "↑" },
+  { direction: "left", glyph: "←" },
+  { direction: "down", glyph: "↓" },
+  { direction: "right", glyph: "→" },
+] as const satisfies ReadonlyArray<{ direction: GravityDirection; glyph: string }>;
 
 function getSupportsToySnapshot(): boolean {
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
@@ -49,6 +64,10 @@ export default function PoidsLourdEffect() {
   const locale = isLocale(activeLocale) ? activeLocale : defaultLocale;
   const strings = copy[locale];
 
+  const [timeScale, setTimeScale] = useState(1);
+  const [gravity, setGravity] = useState<GravityDirection>("down");
+  const [theme, setTheme] = useState(DEFAULT_STAGE_THEME);
+
   useEffect(() => {
     if (!supportsToy) return;
     const container = containerRef.current;
@@ -68,6 +87,14 @@ export default function PoidsLourdEffect() {
       orientationCleanupRef.current();
     };
   }, [supportsToy]);
+
+  // Declared after the mount effect so a remount (reduced-motion flip) re-applies the
+  // visitor's settings to the fresh engine — `supportsToy` is a dep for that reason.
+  useEffect(() => {
+    engineRef.current?.setTimeScale(timeScale);
+    engineRef.current?.setGravityDirection(gravity);
+    engineRef.current?.setLogoColor(STAGE_COLOR_HEX[theme.logo]);
+  }, [timeScale, gravity, theme, supportsToy]);
 
   function handleTiltGranted() {
     function onOrientation(event: DeviceOrientationEvent) {
@@ -92,7 +119,12 @@ export default function PoidsLourdEffect() {
   }
 
   return (
-    <div className="relative h-[70vh] min-h-[420px] w-full">
+    // The theme's backdrop paints the stage frame, not the page: the canvas renders
+    // with alpha, so the colour shows through it — and survives any zoom framing.
+    <div
+      className="relative h-[70vh] min-h-[420px] w-full"
+      style={{ backgroundColor: stageColorToken(theme.backdrop) }}
+    >
       <div
         ref={containerRef}
         data-testid="poids-lourd-stage"
@@ -101,11 +133,48 @@ export default function PoidsLourdEffect() {
         className="h-full w-full touch-none"
       />
       {/* Pointer-device gestures, so they are addressed to pointer-device viewports only
-          — and pinned to the top of the stage, where the logo never rests: gravity keeps
-          it at the bottom, which is also where the reset control lives. */}
+          — and pinned to the top of the stage, away from the bottom corners the zoom and
+          reset controls own. */}
       <p className="absolute top-4 left-5 hidden text-xs uppercase tracking-wide text-ink/70 md:left-8 md:block">
         {strings.gestures}
       </p>
+      {/* Physics settings claim the last free corner. The pad and slider talk to the
+          engine through the sync effect above, so a remount inherits them. */}
+      <div className="absolute top-4 right-5 flex flex-col items-end gap-2 md:right-8">
+        <div role="group" aria-label={strings.gravity.label} className="flex gap-1">
+          {GRAVITY_PAD.map(({ direction, glyph }) => (
+            <button
+              key={direction}
+              type="button"
+              aria-label={strings.gravity[direction]}
+              aria-pressed={gravity === direction}
+              onClick={() => setGravity(direction)}
+              className="flex size-11 items-center justify-center bg-ink text-lemon transition-opacity hover:opacity-80 aria-pressed:bg-lemon aria-pressed:text-ink"
+            >
+              <span aria-hidden="true">{glyph}</span>
+            </button>
+          ))}
+        </div>
+        <div className="flex min-h-11 items-center gap-2">
+          <span
+            aria-hidden="true"
+            className="hidden text-xs uppercase tracking-wide text-ink/70 md:inline"
+          >
+            {strings.speed.label}
+          </span>
+          <input
+            type="range"
+            min={TIME_SCALE_MIN}
+            max={TIME_SCALE_MAX}
+            step={0.25}
+            value={timeScale}
+            onChange={(event) => setTimeScale(Number(event.target.value))}
+            aria-label={strings.speed.label}
+            className="w-28 accent-ink"
+          />
+        </div>
+        <StageThemeControls locale={locale} theme={theme} onThemeChange={setTheme} />
+      </div>
       <ZoomControls
         locale={locale}
         onZoom={(direction: ZoomDirection) => engineRef.current?.zoom(direction)}

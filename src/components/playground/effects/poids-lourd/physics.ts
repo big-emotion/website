@@ -54,13 +54,41 @@ export function wallHalfExtent(frameHalf: number): number {
   return Math.max(frameHalf, BODY_RADIUS * 1.25);
 }
 
-/** Time dilation while the secondary mouse button is held — the "slow it down" gesture,
- *  kept on the mouse itself so the stage needs no on-screen speed control. */
+/** Time dilation while the secondary mouse button is held — the "slow it down" gesture.
+ *  It predates the on-screen speed slider and stays because it is momentary: a hold you
+ *  release, where the slider is a setting you leave. */
 export const SLOW_MOTION_SCALE = 0.25;
+
+/** Travel of the on-screen speed slider. The floor matches the slow-motion hold so the
+ *  slider cannot go slower than the gesture; the ceiling stops short of where a slow
+ *  frame would spend most of its time pinned to the tunnelling cap below. */
+export const TIME_SCALE_MIN = 0.25;
+export const TIME_SCALE_MAX = 2;
 
 /** Longest step the integrator will take. A backgrounded tab hands back a delta of
  *  seconds; without the cap the body would tunnel straight through a wall on return. */
 const MAX_FRAME_SECONDS = 0.05;
+
+export function clampTimeScale(scale: number): number {
+  return Math.min(TIME_SCALE_MAX, Math.max(TIME_SCALE_MIN, scale));
+}
+
+export type GravityDirection = "down" | "up" | "left" | "right";
+
+/** Unit vector of the world's gravity. Reorienting it is what lets the toy fall, hang
+ *  against the ceiling, or drift into a wall — "tomber ou voler". */
+export function gravityVector(direction: GravityDirection): Vec2 {
+  switch (direction) {
+    case "down":
+      return { x: 0, y: -1 };
+    case "up":
+      return { x: 0, y: 1 };
+    case "left":
+      return { x: -1, y: 0 };
+    case "right":
+      return { x: 1, y: 0 };
+  }
+}
 
 export function clampCameraDistance(framing: number): number {
   return Math.min(CAMERA_DISTANCE_MAX, Math.max(CAMERA_DISTANCE_MIN, framing));
@@ -77,8 +105,12 @@ export function cameraFraming(framing: number): CameraFraming {
   return resolveFraming(clampCameraDistance(framing), CAMERA_BODY_FLOOR);
 }
 
-export function frameDelta(elapsedSeconds: number, slowMotion: boolean): number {
-  return Math.min(elapsedSeconds, MAX_FRAME_SECONDS) * (slowMotion ? SLOW_MOTION_SCALE : 1);
+export function frameDelta(elapsedSeconds: number, slowMotion: boolean, timeScale = 1): number {
+  const scaled =
+    Math.min(elapsedSeconds, MAX_FRAME_SECONDS) * (slowMotion ? SLOW_MOTION_SCALE : 1) * timeScale;
+  // Re-capped after scaling: an accelerated frame on a stalled tab must not tunnel
+  // either, so past 20 fps the speed slider trades top speed for wall integrity.
+  return Math.min(scaled, MAX_FRAME_SECONDS);
 }
 
 /** Semi-implicit Euler: velocity absorbs acceleration first, then position absorbs

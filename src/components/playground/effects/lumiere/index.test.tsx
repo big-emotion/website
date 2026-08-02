@@ -52,6 +52,12 @@ vi.mock("three", async () => {
       this.children.push(child);
       return this;
     }
+    traverse(callback: (obj: unknown) => void) {
+      callback(this);
+      for (const child of this.children) {
+        (child as { traverse?: (cb: (obj: unknown) => void) => void }).traverse?.(callback);
+      }
+    }
   }
   class Group extends Object3DMock {}
   class Scene extends Object3DMock {

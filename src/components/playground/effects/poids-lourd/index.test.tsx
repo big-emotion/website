@@ -1,6 +1,6 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vitest";
 
 // jsdom doesn't implement matchMedia at all — stub a "no preference" default that
 // individual tests can override, same helper shape as scene-canvas.test.tsx.
@@ -49,6 +49,12 @@ vi.mock("three", async () => {
     add(child: unknown) {
       this.children.push(child);
       return this;
+    }
+    traverse(callback: (obj: unknown) => void) {
+      callback(this);
+      for (const child of this.children) {
+        (child as { traverse?: (cb: (obj: unknown) => void) => void }).traverse?.(callback);
+      }
     }
   }
   class Group extends Object3DMock {
@@ -227,6 +233,78 @@ describe("PoidsLourdEffect", () => {
     for (const type of addedOnWindow) {
       expect(removedFromWindow).toContain(type);
     }
+  });
+
+  // @req REQ-039
+  it("speeds the fall up from the on-screen speed slider", async () => {
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(
+      {} as unknown as RenderingContext,
+    );
+
+    renderEffect();
+    await waitFor(() => expect(groups.length).toBeGreaterThan(0));
+    const renderFrame = (renderers[0].setAnimationLoop as unknown as Mock).mock
+      .calls[0][0] as () => void;
+    const body = groups[groups.length - 1];
+    const lastY = () => {
+      const set = body.position.set as unknown as Mock;
+      return set.mock.calls[set.mock.calls.length - 1][1] as number;
+    };
+
+    (body.position.set as unknown as Mock).mockClear();
+    renderFrame();
+    renderFrame();
+    const defaultY = lastY();
+
+    fireEvent.click(screen.getByRole("button", { name: copy.fr.reset }));
+    fireEvent.change(screen.getByRole("slider", { name: copy.fr.speed.label }), {
+      target: { value: "2" },
+    });
+    (body.position.set as unknown as Mock).mockClear();
+    renderFrame();
+    renderFrame();
+
+    expect(lastY()).toBeLessThan(defaultY);
+  });
+
+  // @req REQ-039
+  it("points gravity at the ceiling from the gravity control", async () => {
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(
+      {} as unknown as RenderingContext,
+    );
+
+    renderEffect();
+    await waitFor(() => expect(groups.length).toBeGreaterThan(0));
+    const renderFrame = (renderers[0].setAnimationLoop as unknown as Mock).mock
+      .calls[0][0] as () => void;
+    const body = groups[groups.length - 1];
+
+    const upButton = screen.getByRole("button", { name: copy.fr.gravity.up });
+    fireEvent.click(upButton);
+    expect(upButton).toHaveAttribute("aria-pressed", "true");
+
+    (body.position.set as unknown as Mock).mockClear();
+    renderFrame();
+    renderFrame();
+
+    const set = body.position.set as unknown as Mock;
+    const [, y] = set.mock.calls[set.mock.calls.length - 1] as number[];
+    expect(y).toBeGreaterThan(0);
+  });
+
+  // @req REQ-037
+  it("recolors the stage frame from the theme picker", () => {
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(
+      {} as unknown as RenderingContext,
+    );
+
+    renderEffect();
+    fireEvent.click(screen.getByRole("button", { name: "Couleurs" }));
+    const backdrops = within(screen.getByRole("group", { name: "Fond du stage" }));
+    fireEvent.click(backdrops.getByRole("button", { name: "Lyon" }));
+
+    const stageWrapper = screen.getByTestId("poids-lourd-stage").parentElement!;
+    expect(stageWrapper.style.backgroundColor).toBe("var(--color-lyon)");
   });
 
   it("resets the body to the origin when the reset button is clicked", async () => {
