@@ -86,16 +86,31 @@ describe("SiteHeader navigation", () => {
     expect(cta).toHaveAttribute("rel", "noopener noreferrer");
   });
 
-  it("uses the lighter Bricolage menu treatment without a boxed CTA", () => {
+  it("uses 15px Bricolage for the desktop navigation", () => {
     renderHeader("fr");
 
     const firstDestination = screen.getByRole("link", { name: content.fr.nav[0].label });
     const cta = screen.getByRole("link", { name: content.fr.espaceB2bLabel });
+    const localeOption = switcher("fr").getByRole("link", { name: /Francais/ });
 
-    expect(firstDestination).toHaveClass("font-body", "font-medium");
+    expect(firstDestination).toHaveClass("font-body", "text-[15px]", "font-medium");
     expect(firstDestination).not.toHaveClass("font-display");
-    expect(cta).toHaveClass("font-body", "font-medium");
+    expect(cta).toHaveClass("font-body", "text-[15px]", "font-medium");
+    expect(localeOption).toHaveClass("font-body", "text-[15px]", "font-medium");
     expect(cta).not.toHaveClass("border-2");
+  });
+
+  it("keeps the compact menu through tablet widths", () => {
+    renderHeader("fr");
+
+    const firstDestination = screen.getByRole("link", { name: content.fr.nav[0].label });
+    const desktopNav = firstDestination.closest("nav");
+    const toggle = screen.getByRole("button", { name: frMessages.header.openMenu });
+
+    expect(desktopNav).toHaveClass("hidden", "min-[1200px]:flex");
+    expect(desktopNav).not.toHaveClass("md:flex", "xl:flex");
+    expect(toggle).toHaveClass("min-[1200px]:hidden");
+    expect(toggle).not.toHaveClass("md:hidden", "xl:hidden");
   });
 });
 
@@ -259,10 +274,35 @@ describe("SiteHeader over a sub-page hero", () => {
     expect(container.querySelector("header")).toHaveClass(surface);
   });
 
-  it("keeps the opening lemon pairing on the home page", () => {
-    const { container } = renderHeader("fr", "/");
+  it("keeps the home header and its Espace B2B link transparent", async () => {
+    const finalSurface = document.createElement("section");
+    finalSurface.dataset.headerInk = "text-ink";
+    finalSurface.dataset.headerSurface = "bg-paper";
+    vi.spyOn(finalSurface, "getBoundingClientRect").mockReturnValue({
+      bottom: 800,
+      height: 800,
+      left: 0,
+      right: 400,
+      top: 0,
+      width: 400,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+    document.body.append(finalSurface);
 
-    expect(container.querySelector("header")).toHaveClass("text-ink", "bg-lemon");
+    try {
+      const { container } = renderHeader("fr", "/");
+      const header = container.querySelector("header");
+      const cta = screen.getByRole("link", { name: content.fr.espaceB2bLabel });
+
+      await waitFor(() => expect(header).toHaveClass("text-ink"));
+      expect(header).toHaveClass("text-ink", "bg-transparent");
+      expect(header).not.toHaveClass("bg-paper");
+      expect(cta.className).not.toMatch(/\bbg-/);
+    } finally {
+      finalSurface.remove();
+    }
   });
 
   // REQ-036: the resting header over the blog must not fall back to the black default,

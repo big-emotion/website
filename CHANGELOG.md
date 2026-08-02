@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.7] - 2026-07-28
+
+### Fixed
+
+- The home header's B2B link no longer carries a scene-coloured background,
+  keeping its treatment consistent with every other navigation link.
+
+## [0.8.6] - 2026-07-28
+
+### Fixed
+
+- The home header now stays transparent while scrolling so the oversized
+  closing wordmark remains visible behind it; only the B2B call-to-action
+  carries the active scene surface. Header navigation now uses 15px Bricolage
+  Grotesque, keeps the compact menu through tablet widths, and opens the full
+  navigation at the 1200px desktop breakpoint.
+
+## [0.8.5] - 2026-07-27
+
+### Fixed
+
+- The fixed header now carries the complete reviewed colour pairing of the
+  active page surface, preventing content from showing through while scrolling
+  without falling back to a generic black navigation bar.
+
 ## [0.8.4] - 2026-07-27
 
 ### Changed
@@ -443,7 +468,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   under the Node.js container and its `/api/contact` replacement is not shipped
   (SWBE-31).
 
-[Unreleased]: https://github.com/big-emotion/website/compare/v0.8.4...HEAD
+[Unreleased]: https://github.com/big-emotion/website/compare/v0.8.7...HEAD
+[0.8.7]: https://github.com/big-emotion/website/releases/tag/v0.8.7
+[0.8.6]: https://github.com/big-emotion/website/releases/tag/v0.8.6
+[0.8.5]: https://github.com/big-emotion/website/releases/tag/v0.8.5
 [0.8.4]: https://github.com/big-emotion/website/releases/tag/v0.8.4
 [0.8.3]: https://github.com/big-emotion/website/releases/tag/v0.8.3
 [0.8.2]: https://github.com/big-emotion/website/releases/tag/v0.8.2
