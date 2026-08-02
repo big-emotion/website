@@ -53,6 +53,7 @@ describe("Approach", () => {
   it("spells out what the agency ships, in plain words", () => {
     render(<Approach locale="fr" />);
 
+    expect(screen.getByText(/Agence digitale 360/)).toBeInTheDocument();
     const menu = within(screen.getByRole("list", { name: "Ce qu'on fait" }));
     for (const item of content.fr.expertise.items) {
       expect(menu.getByText(item)).toBeInTheDocument();

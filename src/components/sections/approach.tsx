@@ -36,6 +36,7 @@ export function Approach({ locale }: { locale: Locale }) {
         >
           {expertise.title}
         </h2>
+        <p className="mt-4 max-w-prose text-lg leading-relaxed text-ink/80">{expertise.lead}</p>
         <ul aria-labelledby="expertise-title" className="mt-6 border-t border-ink/20">
           {expertise.items.map((item) => (
             <li
