@@ -5,8 +5,13 @@ import { playgroundEffects } from "./effects";
 const ASCII_ONLY = /^[\x00-\x7F]*$/;
 
 describe("playgroundEffects", () => {
-  it("registers LUMIERE (SWBE-215) and poids-lourd (SWBE-213)", () => {
-    expect(playgroundEffects.map((effect) => effect.id)).toEqual(["lumiere", "poids-lourd"]);
+  // @req REQ-037
+  it("registers LUMIERE (SWBE-215), poids-lourd (SWBE-213) and attrape-moi", () => {
+    expect(playgroundEffects.map((effect) => effect.id)).toEqual([
+      "lumiere",
+      "poids-lourd",
+      "attrape-moi",
+    ]);
   });
 
   it("registers poids-lourd (SWBE-213)", () => {

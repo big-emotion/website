@@ -58,4 +58,15 @@ export const playgroundEffects: readonly PlaygroundEffect[] = [
     preview: "drop",
     component: lazy(() => import("./effects/poids-lourd")),
   },
+  {
+    id: "attrape-moi",
+    slug: "attrape-moi",
+    title: { fr: "Attrape-moi", en: "Catch Me" },
+    description: {
+      fr: "Une petite balle rebondit autour du logo en scène — attrape-la si tu peux.",
+      en: "A small ball bounces around the staged logo — catch it if you can.",
+    },
+    preview: "drop",
+    component: lazy(() => import("./effects/attrape-moi")),
+  },
 ];

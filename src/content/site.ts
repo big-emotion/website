@@ -311,6 +311,10 @@ const fr: LocaleContent = {
         label: "GROS BRAS",
         unlockedShare: "J'ai débloqué le badge GROS BRAS sur le Playground BIG EMOTION !",
       },
+      "attrape-moi": {
+        label: "BELLE PRISE",
+        unlockedShare: "J'ai débloqué le badge BELLE PRISE sur le Playground BIG EMOTION !",
+      },
     },
   },
   // Two trades, then what gets sold on top of them. The wow closes the list on purpose:
@@ -506,6 +510,10 @@ const en: LocaleContent = {
       "poids-lourd": {
         label: "GROS BRAS",
         unlockedShare: "I just unlocked the GROS BRAS badge on the BIG EMOTION Playground!",
+      },
+      "attrape-moi": {
+        label: "BELLE PRISE",
+        unlockedShare: "I just unlocked the BELLE PRISE badge on the BIG EMOTION Playground!",
       },
     },
   },
