@@ -6,8 +6,18 @@ import * as THREE from "three";
 import { Logo } from "@/components/logo";
 import { defaultLocale, isLocale } from "@/i18n/locales";
 import { CAMERA } from "@/components/scene/states";
-import { buildStudioEnvironment, loadStudioRig } from "@/components/scene/studio-rig";
+import {
+  buildStudioEnvironment,
+  loadStudioRig,
+  tintStudioRig,
+} from "@/components/scene/studio-rig";
 import { reportInteraction } from "@/components/playground/report-interaction";
+import {
+  DEFAULT_STAGE_THEME,
+  STAGE_COLOR_HEX,
+  stageColorToken,
+} from "@/components/playground/stage-theme";
+import { StageThemeControls } from "@/components/playground/stage-theme-controls";
 import { ZoomControls, type ZoomDirection } from "@/components/playground/zoom-controls";
 import { scrubFraming } from "@/components/playground/camera-framing";
 import { applyDamping } from "./damping";
@@ -57,6 +67,17 @@ export default function Lumiere() {
 
   const activeLocale = useLocale();
   const locale = isLocale(activeLocale) ? activeLocale : defaultLocale;
+
+  // Stage theme: the wordmark is owned by the imperative scene, so the tint reaches
+  // it through these refs the same way the zoom control reaches the camera.
+  const [theme, setTheme] = useState(DEFAULT_STAGE_THEME);
+  const holderRef = useRef<THREE.Group | null>(null);
+  const logoHexRef = useRef(STAGE_COLOR_HEX[DEFAULT_STAGE_THEME.logo]);
+
+  useEffect(() => {
+    logoHexRef.current = STAGE_COLOR_HEX[theme.logo];
+    if (holderRef.current) tintStudioRig(holderRef.current, logoHexRef.current);
+  }, [theme]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -227,6 +248,9 @@ export default function Lumiere() {
       (holder) => {
         if (disposed) return;
         spin.add(holder);
+        holderRef.current = holder;
+        // A tint picked while the GLB was still in flight lands here.
+        if (logoHexRef.current !== "#ffffff") tintStudioRig(holder, logoHexRef.current);
         setStatus("ready");
         renderer.setAnimationLoop(render);
       },
@@ -237,13 +261,19 @@ export default function Lumiere() {
 
     return () => {
       disposed = true;
+      holderRef.current = null;
       renderer.setAnimationLoop(null);
       cleanupFns.forEach((fn) => fn());
     };
   }, []);
 
   return (
-    <div className="relative h-[70vh] min-h-[420px] w-full md:h-[80vh]">
+    // The theme's backdrop paints the stage frame, not the page: the canvas renders
+    // with alpha, so the colour shows through it — and survives any dolly framing.
+    <div
+      className="relative h-[70vh] min-h-[420px] w-full md:h-[80vh]"
+      style={{ backgroundColor: stageColorToken(theme.backdrop) }}
+    >
       {status === "error" ? (
         // The mark is the whole content on this path, so unlike the header and footer
         // lockups it has to carry a name of its own rather than stay decorative.
@@ -257,6 +287,9 @@ export default function Lumiere() {
       ) : (
         <>
           <div ref={containerRef} data-testid="lumiere-canvas" className="h-full w-full" />
+          <div className="absolute top-4 right-5 md:right-8">
+            <StageThemeControls locale={locale} theme={theme} onThemeChange={setTheme} />
+          </div>
           <ZoomControls locale={locale} onZoom={zoom} />
         </>
       )}

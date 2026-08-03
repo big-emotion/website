@@ -95,7 +95,8 @@ vi.mock("three/examples/jsm/loaders/DRACOLoader.js", () => ({
   },
 }));
 
-const { buildStudioEnvironment, loadStudioRig, GLB_URL } = await import("./studio-rig");
+const { buildStudioEnvironment, loadStudioRig, tintStudioRig, GLB_URL } =
+  await import("./studio-rig");
 
 afterEach(() => {
   vi.clearAllMocks();
@@ -134,5 +135,24 @@ describe("loadStudioRig", () => {
     onLoadError();
 
     expect(onError).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("tintStudioRig", () => {
+  // @req REQ-037
+  it("retints every mesh material in place and leaves non-meshes alone", () => {
+    const setColor = vi.fn();
+    const fakeMesh = { isMesh: true, material: { color: { set: setColor } } };
+    const holder = {
+      traverse: (visit: (obj: unknown) => void) => {
+        visit({ isMesh: false });
+        visit(fakeMesh);
+      },
+    };
+
+    tintStudioRig(holder as never, "#0024cc");
+
+    expect(setColor).toHaveBeenCalledTimes(1);
+    expect(setColor).toHaveBeenCalledWith("#0024cc");
   });
 });

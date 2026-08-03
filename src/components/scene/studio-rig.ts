@@ -88,3 +88,13 @@ export function loadStudioRig(onReady: (holder: THREE.Group) => void, onError: (
     onError,
   );
 }
+
+/** Retints the rig's chrome in place (the Playground's stage theme): same metal,
+ *  same roughness, different colour under the reflections. */
+export function tintStudioRig(holder: THREE.Group, hex: string): void {
+  holder.traverse((obj) => {
+    const mesh = obj as THREE.Mesh;
+    if (!mesh.isMesh) return;
+    (mesh.material as THREE.MeshStandardMaterial).color.set(hex);
+  });
+}

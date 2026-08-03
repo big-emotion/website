@@ -7,13 +7,19 @@
 
 import * as THREE from "three";
 import { CAMERA } from "@/components/scene/states";
-import { buildStudioEnvironment, loadStudioRig } from "@/components/scene/studio-rig";
+import {
+  buildStudioEnvironment,
+  loadStudioRig,
+  tintStudioRig,
+} from "@/components/scene/studio-rig";
 import {
   BODY_RADIUS,
   CAMERA_DISTANCE_DEFAULT,
   cameraFraming,
   clampCameraDistance,
+  clampTimeScale,
   frameDelta,
+  gravityVector,
   stepCameraDistance,
   visibleHalfHeight,
   wallHalfExtent,
@@ -24,6 +30,7 @@ import {
   stepMotion,
   stepTorque,
   type Bounds,
+  type GravityDirection,
   type PointerSample,
   type Vec2,
 } from "./physics";
@@ -46,11 +53,17 @@ export type PoidsLourdEngine = {
   /** One press of the on-screen zoom control — the only zoom a trackpad or a touchscreen
    *  can reach, since the wheel gesture needs a mouse button held at the same time. */
   zoom: (direction: ZoomDirection) => void;
+  /** The on-screen speed slider; composes with the momentary right-click slow motion. */
+  setTimeScale: (scale: number) => void;
+  /** Reorients the world's gravity so the toy falls, hangs or drifts sideways. */
+  setGravityDirection: (direction: GravityDirection) => void;
+  /** Stage-theme tint for the chrome; the backdrop stays a DOM concern. */
+  setLogoColor: (hex: string) => void;
   setQualityTier: (tier: QualityTier) => void;
   dispose: () => void;
 };
 
-const GRAVITY = -9.8;
+const GRAVITY_STRENGTH = 9.8;
 const RESTITUTION = 0.65;
 const REST_SPEED = 0.05;
 const THROW_SPEED = 1.5;
@@ -89,6 +102,11 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
   let framing: number = CAMERA_DISTANCE_DEFAULT;
   let bounds = computeBounds(1, framing);
   let slowMotion = false;
+  let timeScale = 1;
+  let gravityDirection: GravityDirection = "down";
+  // The rig ships white (studio-rig.ts): seeding the tint with it makes the default
+  // theme a no-op instead of a redundant first traverse.
+  let logoHex = "#ffffff";
 
   let position: Vec2 = { x: 0, y: 0 };
   let velocity: Vec2 = { x: 0, y: 0 };
@@ -193,10 +211,14 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
       // there's no gravity/wall integration to run — only the torque below still ticks.
     } else {
       const tilt = getTiltBias();
+      const gravity = gravityVector(gravityDirection);
       const stepped = stepMotion(
         position,
         velocity,
-        { x: tilt.x * 4, y: GRAVITY + tilt.y * 4 },
+        {
+          x: gravity.x * GRAVITY_STRENGTH + tilt.x * 4,
+          y: gravity.y * GRAVITY_STRENGTH + tilt.y * 4,
+        },
         dt,
       );
       const reflected = reflectOffWalls(
@@ -262,8 +284,9 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
       const timer = new THREE.Timer();
       const render = () => {
         timer.update();
-        // `frameDelta` owns both the stall cap and the held-secondary-button slow motion.
-        tick(frameDelta(timer.getDelta(), slowMotion));
+        // `frameDelta` owns the stall cap, the held-secondary-button slow motion and
+        // the slider's time scale.
+        tick(frameDelta(timer.getDelta(), slowMotion, timeScale));
         if (camera) renderer?.render(scene, camera);
       };
 
@@ -271,6 +294,7 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
         (holder) => {
           body = holder;
           scene.add(holder);
+          if (logoHex !== "#ffffff") tintStudioRig(holder, logoHex);
         },
         () => {
           /* GLB fetch failed: the toy simply renders empty rather than crashing. */
@@ -308,6 +332,8 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
       held = false;
       slowMotion = false;
       history = [];
+      // Speed and gravity survive a relaunch on purpose: they are visible settings
+      // with their own pressed state in the overlay, not toy state to rescue.
       // The framing is part of the state a visitor can get lost in, so relaunching
       // restores it too rather than leaving them zoomed inside the mesh.
       framing = CAMERA_DISTANCE_DEFAULT;
@@ -319,6 +345,20 @@ export function createPoidsLourdEngine(options: PoidsLourdEngineOptions = {}): P
     zoom(direction: ZoomDirection) {
       framing = stepCameraDistance(framing, direction);
       applyFraming();
+    },
+
+    setTimeScale(scale: number) {
+      timeScale = clampTimeScale(scale);
+    },
+
+    setGravityDirection(direction: GravityDirection) {
+      gravityDirection = direction;
+    },
+
+    setLogoColor(hex: string) {
+      if (hex === logoHex) return;
+      logoHex = hex;
+      if (body) tintStudioRig(body, hex);
     },
 
     setQualityTier(tier: QualityTier) {

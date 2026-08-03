@@ -28,7 +28,8 @@ export function Approach({ locale }: { locale: Locale }) {
       </div>
 
       {/* The cards above say how the agency works; this list is the offer in plain
-          words, one deliverable per line, big enough that nobody has to guess. */}
+          words, one deliverable per line at the service-card title size — twelve
+          headline-sized rows read as a second wall, not a catalogue. */}
       <div className="mt-16 md:mt-24">
         <h2
           id="expertise-title"
@@ -39,10 +40,7 @@ export function Approach({ locale }: { locale: Locale }) {
         <p className="mt-4 max-w-prose text-lg leading-relaxed text-ink/80">{expertise.lead}</p>
         <ul aria-labelledby="expertise-title" className="mt-6 border-t border-ink/20">
           {expertise.items.map((item) => (
-            <li
-              key={item}
-              className="font-display border-b border-ink/20 py-3 text-[clamp(1.75rem,6vw,4rem)] leading-none"
-            >
+            <li key={item} className="font-display border-b border-ink/20 py-3 text-2xl">
               {item}
             </li>
           ))}

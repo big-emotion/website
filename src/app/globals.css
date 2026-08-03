@@ -171,12 +171,13 @@ body {
    swell alone is too quiet to read as a pick.
    ============================================================ */
 .team-marquee .marquee-track {
-  /* A half is ~260vw by construction (five members at 52vw — see TeamMarquee), so
-     this holds the band at roughly one screenful per 40s at every breakpoint rather
-     than a fixed px/s that would crawl on a phone and race on a 4K panel. A member's
-     card still takes about a minute to cross, which is what it costs to actually
-     read the bio. Scale this with the roster: it is one half's travel time. */
-  animation-duration: 100s;
+  /* A half is ~260vw by construction (five members at 52vw — see TeamMarquee). The
+     band is paced to the wall/toolbox rate: one 15-name roster (~3320px) per 60s
+     ≈ 55px/s, and 260vw at the 1440px reference desktop is ~3744px, so 3744/55 ≈ 68s.
+     Cards are vw-sized, so the match is exact at the reference width and drifts
+     proportionally elsewhere. Scale this with the roster: it is one half's travel
+     time. */
+  animation-duration: 68s;
 }
 /* Tabbing into the band moves the focused link out from under the cursor unless the
    scroll stops too. The client wall carries no links, hence the narrower selector. */

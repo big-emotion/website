@@ -10,9 +10,13 @@ import {
   CAMERA_DISTANCE_MIN,
   cameraFraming,
   clampCameraDistance,
+  clampTimeScale,
   stepCameraDistance,
   frameDelta,
+  gravityVector,
   SLOW_MOTION_SCALE,
+  TIME_SCALE_MAX,
+  TIME_SCALE_MIN,
   isAtRest,
   isThrow,
   reflectOffWalls,
@@ -278,5 +282,52 @@ describe("frameDelta", () => {
 
   it("caps a stalled frame so a backgrounded tab doesn't teleport the logo", () => {
     expect(frameDelta(3, false)).toBeLessThanOrEqual(0.05);
+  });
+
+  // @req REQ-039
+  it("scales time by the on-screen speed control", () => {
+    expect(frameDelta(0.016, false, 2)).toBeCloseTo(0.032);
+    expect(frameDelta(0.016, false, 0.5)).toBeCloseTo(0.008);
+  });
+
+  // @req REQ-039
+  it("compounds the speed control with the slow-motion hold", () => {
+    expect(frameDelta(0.016, true, 2)).toBeCloseTo(0.016 * SLOW_MOTION_SCALE * 2);
+  });
+
+  // @req REQ-039
+  it("never lets an accelerated frame through the tunnelling cap", () => {
+    expect(frameDelta(0.05, false, TIME_SCALE_MAX)).toBeLessThanOrEqual(0.05);
+    expect(frameDelta(3, false, TIME_SCALE_MAX)).toBeLessThanOrEqual(0.05);
+  });
+});
+
+describe("clampTimeScale", () => {
+  // @req REQ-039
+  it("keeps the neutral speed untouched", () => {
+    expect(clampTimeScale(1)).toBe(1);
+  });
+
+  // @req REQ-039
+  it("holds the control inside its travel", () => {
+    expect(clampTimeScale(0)).toBe(TIME_SCALE_MIN);
+    expect(clampTimeScale(99)).toBe(TIME_SCALE_MAX);
+  });
+
+  // @req REQ-039
+  it("cannot go slower than the slow-motion hold", () => {
+    expect(TIME_SCALE_MIN).toBeGreaterThanOrEqual(SLOW_MOTION_SCALE);
+  });
+});
+
+describe("gravityVector", () => {
+  // @req REQ-039
+  it.each([
+    ["down", { x: 0, y: -1 }],
+    ["up", { x: 0, y: 1 }],
+    ["left", { x: -1, y: 0 }],
+    ["right", { x: 1, y: 0 }],
+  ] as const)("points %s as a unit vector", (direction, vector) => {
+    expect(gravityVector(direction)).toEqual(vector);
   });
 });

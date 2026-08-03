@@ -302,6 +302,75 @@ describe("createPoidsLourdEngine", () => {
     engine.dispose();
   });
 
+  // @req REQ-039
+  it("falls further per frame when the simulation speed is raised", () => {
+    const container = makeContainer();
+    const engine = createPoidsLourdEngine();
+    engine.mount(container);
+    const renderFrame = renderers[renderers.length - 1].setAnimationLoop.mock
+      .calls[0][0] as () => void;
+    const body = groups[groups.length - 1];
+
+    body.position.set.mockClear();
+    renderFrame();
+    renderFrame();
+    const [, defaultY] = body.position.set.mock.calls[body.position.set.mock.calls.length - 1];
+
+    engine.reset();
+    engine.setTimeScale(2);
+    body.position.set.mockClear();
+    renderFrame();
+    renderFrame();
+    const [, fastY] = body.position.set.mock.calls[body.position.set.mock.calls.length - 1];
+
+    expect(fastY).toBeLessThan(defaultY);
+    engine.dispose();
+  });
+
+  // @req REQ-039
+  it("sends the body toward the ceiling when gravity points up", () => {
+    const container = makeContainer();
+    const engine = createPoidsLourdEngine();
+    engine.mount(container);
+    const renderFrame = renderers[renderers.length - 1].setAnimationLoop.mock
+      .calls[0][0] as () => void;
+    const body = groups[groups.length - 1];
+
+    engine.setGravityDirection("up");
+    body.position.set.mockClear();
+    renderFrame();
+    renderFrame();
+
+    const [, y] = body.position.set.mock.calls[body.position.set.mock.calls.length - 1];
+    expect(y).toBeGreaterThan(0);
+    engine.dispose();
+  });
+
+  // @req REQ-039
+  it("keeps the speed and gravity settings across a reset", () => {
+    const container = makeContainer();
+    const engine = createPoidsLourdEngine();
+    engine.mount(container);
+    const renderFrame = renderers[renderers.length - 1].setAnimationLoop.mock
+      .calls[0][0] as () => void;
+    const body = groups[groups.length - 1];
+
+    engine.setGravityDirection("up");
+    engine.setTimeScale(2);
+    engine.reset();
+
+    body.position.set.mockClear();
+    renderFrame();
+    renderFrame();
+    const [, y] = body.position.set.mock.calls[body.position.set.mock.calls.length - 1];
+
+    // Up AND doubled speed both survive the relaunch: after two frames at 2x the rise
+    // is ~0.030; at the default 1x it would only be ~0.0075 (and negative if gravity
+    // had been wiped back to "down").
+    expect(y).toBeGreaterThan(0.02);
+    engine.dispose();
+  });
+
   it("re-centers the body and zeroes its motion on reset", () => {
     const container = makeContainer();
     const engine = createPoidsLourdEngine();
