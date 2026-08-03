@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-08-03
+
+### Added
+
+- ATTRAPE-MOI joins the playground: the B2B espace's home toy rebuilt as an
+  effect — an elastic ball bounces around the staged chrome, lights it as it
+  travels, wobbles it on a fly-by, and can be caught by pointer or keyboard.
+  Catching it unlocks the BELLE PRISE badge, the playground's first live
+  hidden challenge.
+- Every playground stage gains a colour picker: the backdrop of the stage
+  frame plus the logo's tint, from the charter's six colours and its
+  background/mark pairings.
+- Poids Lourd gains an on-screen simulation-speed slider and a four-way
+  gravity pad — the toy can fall, hang against the ceiling, or drift into a
+  wall.
+
+### Changed
+
+- The /culture team marquee now scrolls at the same reading pace as the
+  client wall and the /approach toolbox.
+- The /approach deliverables catalogue drops to the service-card title size;
+  the wider density and hierarchy pass is proposed in docs/redesign.
+
+### Fixed
+
+- The playground toys were hardened after an adversarial review: catches
+  survive page scroll, a second touch can no longer steal the carried ball,
+  WebGL support is probed once instead of on every interaction, the ball is
+  catchable from the keyboard, and the stage hints stay readable on dark
+  backdrops.
+
 ## [0.9.1] - 2026-08-02
 
 ### Changed
@@ -501,7 +532,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   under the Node.js container and its `/api/contact` replacement is not shipped
   (SWBE-31).
 
-[Unreleased]: https://github.com/big-emotion/website/compare/v0.9.1...HEAD
+[Unreleased]: https://github.com/big-emotion/website/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/big-emotion/website/compare/v0.9.1...v0.10.0
 [0.9.1]: https://github.com/big-emotion/website/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/big-emotion/website/compare/v0.8.7...v0.9.0
 [0.8.7]: https://github.com/big-emotion/website/releases/tag/v0.8.7
