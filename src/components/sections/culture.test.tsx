@@ -28,9 +28,22 @@ describe("Culture", () => {
   it("introduces each team member exactly once despite the band's repeats", () => {
     renderCulture("fr");
 
-    for (const name of ["Kollo", "Bandith", "Dembele", "Sagna", "Lohourignon"]) {
+    for (const name of ["Kollo", "Bandith", "Dembele", "Sagna", "Lohourignon", "Dounga Otabo"]) {
       expect(screen.getAllByRole("heading", { name: new RegExp(name) })).toHaveLength(1);
     }
+  });
+
+  // @req REQ-009
+  it("introduces Francis as the team's Infra & DevOps profile", () => {
+    renderCulture("fr");
+    const roster = within(screen.getByRole("list", { name: fr.culture.teamListLabel }));
+
+    expect(roster.getByRole("heading", { name: "Francis Dounga Otabo" })).toBeInTheDocument();
+    expect(roster.getByText("Infra & DevOps")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Francis Dounga Otabo sur LinkedIn" })).toHaveAttribute(
+      "href",
+      "https://www.linkedin.com/in/francislioneldoungaotabo",
+    );
   });
 
   it("links Issa's GitHub under his name", () => {
@@ -73,6 +86,7 @@ describe("Culture", () => {
     const roster = within(screen.getByRole("list", { name: en.culture.teamListLabel }));
 
     expect(roster.getByText("Geek & philosopher")).toBeInTheDocument();
+    expect(roster.getByText("Infra & DevOps")).toBeInTheDocument();
     expect(screen.getByText(/Boldness/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Jean-Noe Kollo on LinkedIn" })).toBeInTheDocument();
   });

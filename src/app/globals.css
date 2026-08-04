@@ -162,8 +162,8 @@ body {
 }
 
 /* ============================================================
-   /culture's founder band — the roster drifts past and the member under the
-   cursor swells. Same marquee machinery as the client wall, three rules of its
+   /culture's team bands — the roster drifts past in two directions and the member
+   under the cursor swells. Same marquee machinery as the client wall, three rules of its
    own: it is slower (a bio is read, a wordmark is glanced at), it swells with a
    transform rather than a size — the -50% loop is measured off the track's
    laid-out width, so a layout-changing hover would tear the halves apart — and
@@ -171,17 +171,15 @@ body {
    swell alone is too quiet to read as a pick.
    ============================================================ */
 .team-marquee .marquee-track {
-  /* A half is ~260vw by construction (five members at 52vw — see TeamMarquee). The
-     band is paced to the wall/toolbox rate: one 15-name roster (~3320px) per 60s
-     ≈ 55px/s, and 260vw at the 1440px reference desktop is ~3744px, so 3744/55 ≈ 68s.
-     Cards are vw-sized, so the match is exact at the reference width and drifts
-     proportionally elsewhere. Scale this with the roster: it is one half's travel
-     time. */
-  animation-duration: 68s;
+  /* A half is ~312vw by construction (six members at 52vw — see TeamMarquee). At the
+     1440px reference desktop that is ~4493px over 70s, or ~64px/s: modestly faster
+     than the former five-member band's ~55px/s without rushing a bio. Cards are
+     vw-sized, so the pace remains viewport-proportional. */
+  animation-duration: 70s;
 }
 /* Tabbing into the band moves the focused link out from under the cursor unless the
-   scroll stops too. The client wall carries no links, hence the narrower selector. */
-.team-marquee .marquee-track:focus-within {
+   scroll stops too. Pause both directions so the other row does not keep drifting. */
+.team-marquee:focus-within .marquee-track {
   animation-play-state: paused;
 }
 .team-marquee-member {
@@ -192,6 +190,9 @@ body {
   transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 @media (hover: hover) {
+  .team-marquee:hover .marquee-track {
+    animation-play-state: paused;
+  }
   /* Room for the swell to happen in. Scaling a full-width card by 1.12 pushes its bio
      over the next founder's card; holding the measure back to 88% keeps the grown box
      inside its own column. Scoped to hover devices so a phone, which never swells,
@@ -224,6 +225,12 @@ body {
   .team-marquee {
     margin-inline: 0;
     overflow: visible;
+  }
+  .team-marquee-row {
+    overflow: visible;
+  }
+  .team-marquee-row[data-decorative="true"] {
+    display: none;
   }
   .team-marquee .marquee-track,
   .team-marquee .marquee-track > ul {

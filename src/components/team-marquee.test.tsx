@@ -1,6 +1,6 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import fr from "../../messages/fr.json";
 import { TeamMarquee } from "./team-marquee";
 
@@ -31,6 +31,56 @@ function renderMarquee() {
 }
 
 describe("TeamMarquee", () => {
+  // @req REQ-008
+  it("draws a fresh member order on every page load without mutating the source roster", async () => {
+    const random = vi
+      .spyOn(Math, "random")
+      // Each mount draws one order per visual row. Only the first row is announced.
+      .mockReturnValueOnce(0)
+      .mockReturnValueOnce(0)
+      .mockReturnValueOnce(0.999999)
+      .mockReturnValueOnce(0.999999);
+
+    const first = renderMarquee();
+    await waitFor(() => {
+      expect(first.roster.getAllByRole("heading").map((heading) => heading.textContent)).toEqual([
+        "Sylvain Seng Bandith",
+        "Jean-Noe Kollo",
+      ]);
+    });
+    first.unmount();
+
+    const second = renderMarquee();
+    await waitFor(() => {
+      expect(second.roster.getAllByRole("heading").map((heading) => heading.textContent)).toEqual([
+        "Jean-Noe Kollo",
+        "Sylvain Seng Bandith",
+      ]);
+    });
+    expect(members.map((member) => member.name)).toEqual([
+      "Jean-Noe Kollo",
+      "Sylvain Seng Bandith",
+    ]);
+
+    random.mockRestore();
+  });
+
+  // @req REQ-008
+  it("prints two complete rows that travel in opposite directions", () => {
+    const { container } = renderMarquee();
+    const rows = [...container.querySelectorAll(".team-marquee-row")];
+
+    expect(rows).toHaveLength(2);
+    expect(rows[0].querySelector(".marquee-track")).not.toHaveClass("marquee-track--reverse");
+    expect(rows[1].querySelector(".marquee-track")).toHaveClass("marquee-track--reverse");
+
+    for (const row of rows) {
+      const copies = [...row.querySelectorAll(".marquee-track > ul")];
+      expect(copies).toHaveLength(2);
+      for (const copy of copies) expect(copy.children).toHaveLength(members.length);
+    }
+  });
+
   it("gives every member a name, a role, a bio and their profiles", () => {
     const { roster } = renderMarquee();
 
