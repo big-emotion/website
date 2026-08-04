@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-08-04
+
+### Added
+
+- Francis Dounga Otabo joins the bilingual /culture team roster as the agency's
+  Infra & DevOps profile.
+
+### Changed
+
+- The /culture team marquee now draws a fresh member order on every page load,
+  pauses for pointer and keyboard interaction, and keeps the full roster in one
+  continuous scrolling row.
+
 ## [0.10.0] - 2026-08-03
 
 ### Added
@@ -532,7 +545,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   under the Node.js container and its `/api/contact` replacement is not shipped
   (SWBE-31).
 
-[Unreleased]: https://github.com/big-emotion/website/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/big-emotion/website/compare/v0.11.0...HEAD
+[0.11.0]: https://github.com/big-emotion/website/releases/tag/v0.11.0
 [0.10.0]: https://github.com/big-emotion/website/compare/v0.9.1...v0.10.0
 [0.9.1]: https://github.com/big-emotion/website/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/big-emotion/website/compare/v0.8.7...v0.9.0
