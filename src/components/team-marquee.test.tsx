@@ -35,10 +35,8 @@ describe("TeamMarquee", () => {
   it("draws a fresh member order on every page load without mutating the source roster", async () => {
     const random = vi
       .spyOn(Math, "random")
-      // Each mount draws one order per visual row. Only the first row is announced.
+      // Each mount draws one order for the single visual row.
       .mockReturnValueOnce(0)
-      .mockReturnValueOnce(0)
-      .mockReturnValueOnce(0.999999)
       .mockReturnValueOnce(0.999999);
 
     const first = renderMarquee();
@@ -66,19 +64,16 @@ describe("TeamMarquee", () => {
   });
 
   // @req REQ-008
-  it("prints two complete rows that travel in opposite directions", () => {
+  it("prints one complete row in one direction", () => {
     const { container } = renderMarquee();
     const rows = [...container.querySelectorAll(".team-marquee-row")];
 
-    expect(rows).toHaveLength(2);
+    expect(rows).toHaveLength(1);
     expect(rows[0].querySelector(".marquee-track")).not.toHaveClass("marquee-track--reverse");
-    expect(rows[1].querySelector(".marquee-track")).toHaveClass("marquee-track--reverse");
 
-    for (const row of rows) {
-      const copies = [...row.querySelectorAll(".marquee-track > ul")];
-      expect(copies).toHaveLength(2);
-      for (const copy of copies) expect(copy.children).toHaveLength(members.length);
-    }
+    const copies = [...rows[0].querySelectorAll(".marquee-track > ul")];
+    expect(copies).toHaveLength(2);
+    for (const copy of copies) expect(copy.children).toHaveLength(members.length);
   });
 
   it("gives every member a name, a role, a bio and their profiles", () => {

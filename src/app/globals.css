@@ -162,8 +162,8 @@ body {
 }
 
 /* ============================================================
-   /culture's team bands — the roster drifts past in two directions and the member
-   under the cursor swells. Same marquee machinery as the client wall, three rules of its
+   /culture's team band — the roster drifts past and the member under the cursor swells.
+   Same marquee machinery as the client wall, three rules of its
    own: it is slower (a bio is read, a wordmark is glanced at), it swells with a
    transform rather than a size — the -50% loop is measured off the track's
    laid-out width, so a layout-changing hover would tear the halves apart — and
@@ -172,13 +172,12 @@ body {
    ============================================================ */
 .team-marquee .marquee-track {
   /* A half is ~312vw by construction (six members at 52vw — see TeamMarquee). At the
-     1440px reference desktop that is ~4493px over 70s, or ~64px/s: modestly faster
-     than the former five-member band's ~55px/s without rushing a bio. Cards are
-     vw-sized, so the pace remains viewport-proportional. */
-  animation-duration: 70s;
+     1440px reference desktop that is ~4493px over 60s, or ~75px/s: lively without
+     rushing a bio. Cards are vw-sized, so the pace remains viewport-proportional. */
+  animation-duration: 60s;
 }
 /* Tabbing into the band moves the focused link out from under the cursor unless the
-   scroll stops too. Pause both directions so the other row does not keep drifting. */
+   scroll stops too. */
 .team-marquee:focus-within .marquee-track {
   animation-play-state: paused;
 }
@@ -228,9 +227,6 @@ body {
   }
   .team-marquee-row {
     overflow: visible;
-  }
-  .team-marquee-row[data-decorative="true"] {
-    display: none;
   }
   .team-marquee .marquee-track,
   .team-marquee .marquee-track > ul {
