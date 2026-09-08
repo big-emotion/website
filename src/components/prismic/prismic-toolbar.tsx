@@ -9,7 +9,8 @@ import { PrismicPreviewBootstrap } from "./preview-bootstrap";
  * `<PrismicPreview>` injects `static.cdn.prismic.io/prismic.js` unconditionally — on
  * every page, for every visitor, editor or not. That is a third-party request carrying
  * the visitor's IP and user agent to a US-hosted CDN, on a site whose whole privacy
- * posture (self-hosted fonts, no analytics, no CDN) is built on making no such request.
+ * posture is built on making no such request: self-hosted fonts, no CDN, and an audience
+ * measurement that runs on BIG EMOTION's own server rather than a vendor's.
  * It also made the cookie policy impossible to state honestly.
  *
  * So the toolbar loads only inside an open draft-mode session. Outside one, the bootstrap

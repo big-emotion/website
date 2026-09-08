@@ -21,8 +21,13 @@ echo "==> Building Docker image (standalone Next.js)"
 # shellcheck disable=SC1091
 set -a && . ./.env && set +a
 : "${PRISMIC_REPOSITORY_NAME:?missing in .env}" "${PRISMIC_ACCESS_TOKEN:?missing in .env}"
+# Audience measurement is baked in at build time too (ADR 0011), but unlike the Prismic
+# credentials it is optional: a break-glass rebuild with an .env that predates it ships a
+# working site that simply measures nothing, rather than failing.
 docker build -t big-emotion:live \
   --build-arg PRISMIC_REPOSITORY_NAME="$PRISMIC_REPOSITORY_NAME" \
+  --build-arg PLAUSIBLE_DOMAIN="${PLAUSIBLE_DOMAIN:-}" \
+  --build-arg PLAUSIBLE_HOST="${PLAUSIBLE_HOST:-}" \
   --secret id=prismic_access_token,env=PRISMIC_ACCESS_TOKEN \
   .
 

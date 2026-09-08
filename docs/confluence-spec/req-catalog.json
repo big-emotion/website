@@ -250,6 +250,11 @@
       "id": "REQ-050",
       "title": "Every change passes the complete project quality gate",
       "status": "Implemented"
+    },
+    {
+      "id": "REQ-051",
+      "title": "Audience measurement is first-party and consent-exempt",
+      "status": "Pending"
     }
   ]
 }
