@@ -158,9 +158,10 @@ const fr: Record<LegalUid, LegalDocument> = {
         ],
       },
       {
-        heading: "Cookies",
+        heading: "Mesure d'audience et cookies",
         paragraphs: [
-          "Le site ne dépose aucun cookie publicitaire et n'utilise aucun traceur de mesure d'audience tiers. Les polices de caractères sont hébergées sur nos propres serveurs, ce qui évite toute requête vers un service externe lors de la simple consultation du site.",
+          "Le site ne dépose aucun cookie publicitaire et ne confie sa mesure d'audience à personne. La fréquentation est comptée par Plausible, une instance que BIG EMOTION héberge sur son propre serveur, à l'adresse stats.big-emotion.com : aucun cookie n'est déposé, aucun identifiant ne te suit d'une page à l'autre ni d'un site à l'autre, et aucune donnée n'est transmise à un tiers. Seules des statistiques agrégées et anonymes en sortent — pages consultées, provenance, type d'appareil —, ce qui place cette mesure dans le cadre de l'exemption de consentement définie par la CNIL. C'est la raison pour laquelle aucune bannière ne te barre la route à l'arrivée. L'espace client, lui, n'est pas mesuré du tout.",
+          "Les polices de caractères sont hébergées sur nos propres serveurs. En dehors de la mesure d'audience ci-dessus, la simple consultation du site ne déclenche aucune requête vers un service extérieur à BIG EMOTION.",
           "Deux cookies strictement nécessaires peuvent être déposés : « espace_session », qui te garde connecté à l'espace client pendant trente jours, et « bigemotion_consent », qui mémorise tes choix en matière de cookies pendant douze mois. Un cookie strictement nécessaire ne demande pas de consentement préalable.",
           "Tu peux consulter et modifier tes choix à tout moment avec le bouton « Gestion des cookies », dans le pied de page.",
         ],
@@ -296,9 +297,10 @@ const en: Record<LegalUid, LegalDocument> = {
         ],
       },
       {
-        heading: "Cookies",
+        heading: "Audience measurement and cookies",
         paragraphs: [
-          "This site sets no advertising cookies and uses no third-party analytics tracker. Typefaces are served from our own servers, so simply reading the site triggers no request to an external service.",
+          "This site sets no advertising cookies and hands its audience measurement to nobody. Traffic is counted by Plausible, an instance BIG EMOTION hosts on its own server at stats.big-emotion.com: no cookie is set, no identifier follows you from page to page or from site to site, and no data is passed to a third party. All that comes out of it is aggregate, anonymous statistics — pages read, where readers came from, what kind of device — which places this measurement within the consent exemption defined by the French data protection authority. That is why no banner stands in your way on arrival. The client area is not measured at all.",
+          "Typefaces are served from our own servers. Apart from the audience measurement above, simply reading the site triggers no request to any service outside BIG EMOTION.",
           "Two strictly necessary cookies may be set: “espace_session”, which keeps you signed in to the client area for thirty days, and “bigemotion_consent”, which remembers your cookie choices for twelve months. A strictly necessary cookie does not require prior consent.",
           "You can review and change your choices at any time through the “Cookie settings” button in the footer.",
         ],

@@ -59,6 +59,8 @@ jobs:
         run: |
           docker build -t big-emotion:deploy \
             --build-arg PRISMIC_REPOSITORY_NAME="${{ vars.PRISMIC_REPOSITORY_NAME }}" \
+            --build-arg PLAUSIBLE_DOMAIN="${{ vars.PLAUSIBLE_DOMAIN }}" \
+            --build-arg PLAUSIBLE_HOST="${{ vars.PLAUSIBLE_HOST }}" \
             --secret id=prismic_access_token,env=PRISMIC_ACCESS_TOKEN \
             .
 

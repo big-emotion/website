@@ -16,6 +16,14 @@ COPY . .
 ARG PRISMIC_REPOSITORY_NAME
 ENV PRISMIC_REPOSITORY_NAME=$PRISMIC_REPOSITORY_NAME
 
+# The audience-measurement tag is emitted while the marketing tree is pre-rendered, so
+# these belong to the build and not to the container environment (ADR 0011). Neither is
+# a secret: both are visible in the page source of every visitor.
+ARG PLAUSIBLE_DOMAIN
+ARG PLAUSIBLE_HOST
+ENV PLAUSIBLE_DOMAIN=$PLAUSIBLE_DOMAIN
+ENV PLAUSIBLE_HOST=$PLAUSIBLE_HOST
+
 RUN --mount=type=secret,id=prismic_access_token \
     PRISMIC_ACCESS_TOKEN="$(cat /run/secrets/prismic_access_token)" pnpm build
 

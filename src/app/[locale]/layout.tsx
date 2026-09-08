@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { AudienceScript } from "@/components/analytics/audience-script";
 import { FooterSlot } from "@/components/footer-slot";
 import { PrismicToolbar } from "@/components/prismic/prismic-toolbar";
 import { SiteFooter } from "@/components/site-footer";
@@ -109,6 +110,8 @@ export default async function LocaleLayout({
           themselves. Outside a draft-mode session it contributes no third-party
           request at all — see the component for why that matters. */}
       <PrismicToolbar />
+      {/* Marketing tree only — deliberately not in `(auth)`, whose paths name a client. */}
+      <AudienceScript />
     </DocumentShell>
   );
 }
