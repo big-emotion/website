@@ -424,6 +424,18 @@ const fr: LocaleContent = {
         },
       ],
     },
+    {
+      name: "Francis Dounga Otabo",
+      role: "Infra & DevOps",
+      bio: "Du cloud à Kubernetes, il automatise les déploiements et garde l’infrastructure solide. Avec lui, la prod peut dormir tranquille.",
+      links: [
+        {
+          label: "LinkedIn",
+          context: "sur LinkedIn",
+          href: "https://www.linkedin.com/in/francislioneldoungaotabo",
+        },
+      ],
+    },
   ],
   personalityPoles: {
     "formal-casual": { start: "Formel", end: "Décontracté" },
@@ -619,6 +631,18 @@ const en: LocaleContent = {
           label: "LinkedIn",
           context: "on LinkedIn",
           href: "https://www.linkedin.com/in/alexandra-lohourignon-recrutement/",
+        },
+      ],
+    },
+    {
+      name: "Francis Dounga Otabo",
+      role: "Infra & DevOps",
+      bio: "From cloud to Kubernetes, he automates deployments and keeps the infrastructure solid. With him around, production can sleep easy.",
+      links: [
+        {
+          label: "LinkedIn",
+          context: "on LinkedIn",
+          href: "https://www.linkedin.com/in/francislioneldoungaotabo",
         },
       ],
     },
