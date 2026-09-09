@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-09-09
+
+### Added
+
+- First-party audience measurement. The site now reports to BIG EMOTION's own
+  Plausible Community Edition instance at stats.big-emotion.com — the same VPS
+  and the same Traefik that serve the page, so nothing reaches a third party and
+  the site still loads no third-party script. No cookie, no identifier, no
+  cross-site tracking, aggregate statistics for the publisher alone: the
+  technical conditions of the CNIL's audience-measurement exemption, which is
+  why it sits outside the consent manager rather than behind it (ADR 0011). It
+  is mounted on the marketing tree only — `/espace/:clientId` names a client in
+  its path, and statistics that identify a client are not the exempt kind.
+  Configured with `PLAUSIBLE_DOMAIN` and `PLAUSIBLE_HOST` at build time; with
+  either half missing no tag is emitted at all, rather than falling back to
+  plausible.io and silently turning this into a third-party transfer.
+
 ## [0.11.0] - 2026-08-04
 
 ### Added
@@ -545,7 +562,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   under the Node.js container and its `/api/contact` replacement is not shipped
   (SWBE-31).
 
-[Unreleased]: https://github.com/big-emotion/website/compare/v0.11.0...HEAD
+[Unreleased]: https://github.com/big-emotion/website/compare/v0.12.0...HEAD
+[0.12.0]: https://github.com/big-emotion/website/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/big-emotion/website/releases/tag/v0.11.0
 [0.10.0]: https://github.com/big-emotion/website/compare/v0.9.1...v0.10.0
 [0.9.1]: https://github.com/big-emotion/website/compare/v0.9.0...v0.9.1
